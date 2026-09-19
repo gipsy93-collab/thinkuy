@@ -139,7 +139,7 @@ El agente que continúe el trabajo en este espacio de trabajo DEBE tener present
      - Conexión con **LA Referencia**: consulta en vivo a través de la API REST de OpenAIRE Graph (`api.openaire.eu`) para integrar literatura gris, tesis de posgrado y reportes técnicos de repositorios institucionales latinoamericanos en vivo.
 
 5. **Bitácora Metodológica**:
-   - Monografía académica en [`BITACORA_METODOLOGICA_HALLAZGOS.md`](BITACORA_METODOLOGICA_HALLAZGOS.md) y [`docs/BITACORA_METODOLOGICA_HALLAZGOS.md`](docs/BITACORA_METODOLOGICA_HALLAZGOS.md) documentando 11 percances empíricos, fórmulas, tablas comparativas y directrices epistemológicas.
+   - Monografía académica en [`docs/BITACORA_METODOLOGICA_HALLAZGOS.md`](docs/BITACORA_METODOLOGICA_HALLAZGOS.md) documentando 11 percances empíricos, fórmulas, tablas comparativas y directrices epistemológicas. **Copia canónica única** (la de la raíz se archivó en `_ARCHIVE/docs_duplicados/`).
 
 6. **Iniciativa Ecdysis-Bio (Biodiversidad del Quindío & Apropiación Social)**:
    - Documentación y roadmap consolidado en [`docs/PROYECTO_ECDYSIS_BIOCLIP_QUINDIO.md`](docs/PROYECTO_ECDYSIS_BIOCLIP_QUINDIO.md).

@@ -2,7 +2,7 @@
 
 > **Fecha:** 18 de septiembre de 2026 · **Ámbito:** capa de datos y modelo de lenguaje (SLM)
 > **Insumo humano:** 48 respuestas de anotación del IP (36 de postura + 12 de protocolo)
-> **Documentación completa:** [`BITACORA_METODOLOGICA_HALLAZGOS.md`](../BITACORA_METODOLOGICA_HALLAZGOS.md), hitos 23 a 31
+> **Documentación completa:** [`BITACORA_METODOLOGICA_HALLAZGOS.md`](BITACORA_METODOLOGICA_HALLAZGOS.md), hitos 23 a 31
 
 ---
 
