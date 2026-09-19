@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0.."
 title Thinkuy — Entrenamiento Qwen 2.5 1.5B V2 con Telemetria en Vivo
 
 echo ===============================================================================

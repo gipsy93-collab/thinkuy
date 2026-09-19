@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0.."
 title Probar Modelo Epistémico Qwen 2.5 1.5B Afinado
 echo ===============================================================================
 echo   EVALUACION EN VIVO — QWEN 2.5 1.5B (PASO 190 / 2 EPOCAS)

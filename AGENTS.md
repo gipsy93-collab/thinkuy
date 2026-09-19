@@ -120,10 +120,10 @@ El agente que continúe el trabajo en este espacio de trabajo DEBE tener present
    - **Aislamiento multiusuario** por `owner_id` en protocolos/cribado/charting + token JWT HS256 (`radar/api/auth.py`). **Límite declarado:** `X-User-Id` no se verifica y el cajón `owner_id='default'` es compartido; para instancia abierta hay que **exigir Bearer y definir `THINKUY_SECRET_KEY`** (ver Hito 58 y `docs/DESPLIEGUE_MULTIUSUARIO.md`).
 
 4. **Avances de Clasificación Epistemológica (Benchmark Duque 2019, 333 artículos)**:
-   - **Diagnóstico Zero-Shot Gemma 4 E2B (`scripts/04_evaluar_gemma4_e2b.py`)**:
+   - **Diagnóstico Zero-Shot Gemma 4 E2B (`entrenamiento/scripts/04_evaluar_gemma4_e2b.py`)**:
      - Puntuación estricta sin fallback: **$167/333$ ($50.15\%$)** | $98.8\%$ formato válido.
      - Confusión principal: $76$ artículos de gobernanza P2 clasificados como P3 por mención superficial de "sociedad civil".
-   - **Cirugía Epistémica Few-Shot (`scripts/05_fewshot_thinkuy_cirugia.py`)**:
+   - **Cirugía Epistémica Few-Shot (`entrenamiento/scripts/05_fewshot_thinkuy_cirugia.py`)**:
      - Integra 10 casos arquetípicos de fallo contrastivo con bloque `<pensamiento>` estructurado en 3 pasos y `<salida_json>` estricto.
      - Rendimiento verificado en prueba de concepto (10 casos): **$80.0\%$ de aciertos** ($8/10$), rescatando casos complejos (IDs 2, 3, 4, 8 y 9) hacia sus categorías canónicas reales.
    - **Entorno Local de Entrenamiento Verificado**:

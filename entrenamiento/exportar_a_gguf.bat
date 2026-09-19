@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0.."
 title Exportar Modelo a GGUF (LM Studio / Thinkuy)
 echo ===============================================================================
 echo   EXPORTACION DEL MODELO EPISTEMICO A GGUF (Q4_K_M)

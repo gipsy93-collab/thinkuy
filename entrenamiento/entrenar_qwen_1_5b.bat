@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0.."
 title Entrenar Qwen 2.5 1.5B Epistémico (Thinkuy - Unsloth)
 echo ===============================================================================
 echo   THINKUY - ENTRENAMIENTO QWEN 2.5 1.5B (QLoRA 4-bit / RTX 5060)

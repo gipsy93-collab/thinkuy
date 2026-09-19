@@ -15,7 +15,7 @@ extend-exclude = [
     "_unsloth_sentencepiece_temp",
     "data",
     "models",
-    "scripts/_LEGACY",
+    "entrenamiento/scripts/_LEGACY",
 ]
 
 [tool.ruff.lint]

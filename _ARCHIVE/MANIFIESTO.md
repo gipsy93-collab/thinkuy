@@ -41,3 +41,12 @@
 | `caches/_unsloth_sentencepiece_temp/` | raíz | Temporales de Unsloth (regenerable). | Regenerable al entrenar |
 
 > `AJUSTES PY.md` **no** se archivó: se movió a `docs/AJUSTES_PY.md` (documento vivo).
+
+### 2026-09-19 — Reorganización Fase 2B (pipeline de entrenamiento)
+
+| Movimiento | De | A | Motivo |
+| :--- | :--- | :--- | :--- |
+| Pipeline ML | `scripts/` (25 archivos, numerados `02_`…`10_` + utilidades + `_LEGACY/`) | `entrenamiento/scripts/` | Agrupar todo lo relativo a dataset/entrenamiento fuera de la raíz. |
+| Lanzadores de entrenamiento | `entrenar_qwen_1_5b.bat`, `entrenar_qwen_v2_cot.bat`, `exportar_a_gguf.bat`, `iniciar_unsloth_studio.bat`, `probar_modelo_entrenado.bat` (raíz) | `entrenamiento/` | Dejar la raíz solo con `inicio.bat` (servidor). Los `.bat` añaden `cd /d "%~dp0.."`. |
+
+> `scripts/dev_check.ps1` **no** se movió: es de desarrollo/operación y permanece en `scripts/`.
