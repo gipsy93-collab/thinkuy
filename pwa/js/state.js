@@ -71,4 +71,12 @@ export const state = {
   radarComparedJournals: [],
   currentHomePersona: "researcher",
   currentJournalAuditData: null,
+  currentLibrarianData: null,
+  lastLibrarianData: null,
+  epistemicSubmotorLoaded: false,
+  reviewSubmotorLoaded: false,
+  activeEpistemicRoleFilter: "all",
+  activeEpistemicSourceFilter: "all",
+  currentSocraticData: null,
+  currentConcertedData: null,
 };

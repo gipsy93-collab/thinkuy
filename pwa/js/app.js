@@ -489,10 +489,9 @@ function initRouter() {
   }
 }
 
-let currentLibrarianData = null;
 
 function renderLibrarianResults(data) {
-  currentLibrarianData = data;
+  state.currentLibrarianData = data;
   const panel = document.getElementById("home-librarian-panel");
   const loading = document.getElementById("librarian-loading");
   const results = document.getElementById("librarian-results");
@@ -775,17 +774,14 @@ function renderLibrarianResults(data) {
   panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-let lastLibrarianData = null;
-let epistemicSubmotorLoaded = false;
-let reviewSubmotorLoaded = false;
 
 async function loadEpistemicDashboard(librarianData) {
   const epistemicSection = document.getElementById("librarian-epistemic-section");
   if (!epistemicSection) return;
 
-  lastLibrarianData = librarianData;
-  epistemicSubmotorLoaded = false;
-  reviewSubmotorLoaded = false;
+  state.lastLibrarianData = librarianData;
+  state.epistemicSubmotorLoaded = false;
+  state.reviewSubmotorLoaded = false;
 
   initSubmotorSwitcher();
   initSubmotorATabs();
@@ -837,11 +833,11 @@ function initSubmotorSwitcher() {
         }
       });
 
-      if (targetId === "submotor-panel-epistemic" && !epistemicSubmotorLoaded) {
-        loadEpistemicSubmotorA(lastLibrarianData);
-        setupSnowballingExplorer(lastLibrarianData);
-      } else if (targetId === "submotor-panel-review" && !reviewSubmotorLoaded) {
-        reviewSubmotorLoaded = true;
+      if (targetId === "submotor-panel-epistemic" && !state.epistemicSubmotorLoaded) {
+        loadEpistemicSubmotorA(state.lastLibrarianData);
+        setupSnowballingExplorer(state.lastLibrarianData);
+      } else if (targetId === "submotor-panel-review" && !state.reviewSubmotorLoaded) {
+        state.reviewSubmotorLoaded = true;
         refreshPrismaFlow();
       }
     };
@@ -850,7 +846,7 @@ function initSubmotorSwitcher() {
   const recalcBtn = document.getElementById("btn-recalc-epistemic");
   if (recalcBtn) {
     recalcBtn.onclick = () => {
-      loadEpistemicSubmotorA(lastLibrarianData, true);
+      loadEpistemicSubmotorA(state.lastLibrarianData, true);
     };
   }
 }
@@ -900,8 +896,8 @@ async function loadEpistemicSubmotorA(librarianData, forceRefresh = false) {
     }
   }
 
-  if (epistemicSubmotorLoaded && !forceRefresh) return;
-  epistemicSubmotorLoaded = true;
+  if (state.epistemicSubmotorLoaded && !forceRefresh) return;
+  state.epistemicSubmotorLoaded = true;
 
   if (schoolsContainer) {
     schoolsContainer.innerHTML = `<div class="loading-placeholder">Analizando escuelas de pensamiento mediante Union-Find...</div>`;
@@ -1295,7 +1291,7 @@ function initPrismaStepper() {
 
       let articles = (state.currentEpistemicRoles && state.currentEpistemicRoles.length > 0)
         ? state.currentEpistemicRoles
-        : (lastLibrarianData && lastLibrarianData.articles ? lastLibrarianData.articles : []);
+        : (state.lastLibrarianData && state.lastLibrarianData.articles ? state.lastLibrarianData.articles : []);
 
       if (articles.length === 0) {
         // Si no hay artículos en memoria pero el protocolo ya tiene obras importadas, avanzar directo
@@ -1495,8 +1491,6 @@ function renderMainPath(transitions) {
   });
 }
 
-let activeEpistemicRoleFilter = "all";
-let activeEpistemicSourceFilter = "all";
 
 function renderEpistemicRoles(roles) {
   const container = document.getElementById("epistemic-roles-container");
@@ -1537,7 +1531,7 @@ function renderEpistemicRoles(roles) {
     chip.onclick = () => {
       filterChips.forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
-      activeEpistemicRoleFilter = chip.dataset.role;
+      state.activeEpistemicRoleFilter = chip.dataset.role;
       filterRolesList();
     };
   });
@@ -1547,7 +1541,7 @@ function renderEpistemicRoles(roles) {
     chip.onclick = () => {
       sourceChips.forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
-      activeEpistemicSourceFilter = chip.dataset.source;
+      state.activeEpistemicSourceFilter = chip.dataset.source;
       filterRolesList();
     };
   });
@@ -1559,8 +1553,8 @@ function filterRolesList() {
   const container = document.getElementById("epistemic-roles-container");
   if (!container) return;
 
-  const roleFilter = activeEpistemicRoleFilter;
-  const srcFilter = activeEpistemicSourceFilter;
+  const roleFilter = state.activeEpistemicRoleFilter;
+  const srcFilter = state.activeEpistemicSourceFilter;
 
   const filtered = state.currentEpistemicRoles.filter(r => {
     const rRole = r.role || "Empirical";
@@ -2272,10 +2266,10 @@ function initHomeInquiry() {
   const pinBtn = document.getElementById("btn-librarian-pin");
 
   const goToExplorer = () => {
-    if (!currentLibrarianData) return;
+    if (!state.currentLibrarianData) return;
     const kwInput = document.getElementById("keywords");
     if (kwInput) {
-      kwInput.value = (currentLibrarianData.keywords || [currentLibrarianData.corrected || currentLibrarianData.inquiry]).join(", ");
+      kwInput.value = (state.currentLibrarianData.keywords || [state.currentLibrarianData.corrected || state.currentLibrarianData.inquiry]).join(", ");
     }
     state.config.days = 3650;
     state.config.limit = 35;
@@ -2294,10 +2288,10 @@ function initHomeInquiry() {
 
   if (radarBtn) {
     radarBtn.addEventListener("click", () => {
-      if (!currentLibrarianData) return;
+      if (!state.currentLibrarianData) return;
       const radarTopic = document.getElementById("radar-topic");
       if (radarTopic) {
-        radarTopic.value = currentLibrarianData.corrected || currentLibrarianData.inquiry;
+        radarTopic.value = state.currentLibrarianData.corrected || state.currentLibrarianData.inquiry;
       }
       switchView("radar");
       const radarOrbitBtn = document.getElementById("btn-radar");
@@ -2307,12 +2301,12 @@ function initHomeInquiry() {
 
   if (pinBtn) {
     pinBtn.addEventListener("click", async () => {
-      if (!currentLibrarianData) return;
+      if (!state.currentLibrarianData) return;
       pinBtn.disabled = true;
       pinBtn.textContent = "Anclando…";
       try {
-        const kws = (currentLibrarianData.keywords || [currentLibrarianData.corrected || currentLibrarianData.inquiry]).join(", ");
-        const label = currentLibrarianData.heard_as || currentLibrarianData.inquiry;
+        const kws = (state.currentLibrarianData.keywords || [state.currentLibrarianData.corrected || state.currentLibrarianData.inquiry]).join(", ");
+        const label = state.currentLibrarianData.heard_as || state.currentLibrarianData.inquiry;
         await api("/watch", {}, {
           method: "POST",
           body: { keywords: kws, label: label }
@@ -2331,8 +2325,6 @@ function initHomeInquiry() {
 }
 
 /* ---------------- método socrático ---------------- */
-let currentSocraticData = null;
-let currentConcertedData = null;
 
 function initSocratic() {
   const modal = document.getElementById("socratic-modal");
@@ -2381,27 +2373,27 @@ function initSocratic() {
       analyzeBtn.disabled = true;
       analyzeBtn.textContent = "Analizando con método socrático…";
       try {
-        currentSocraticData = await api("/socratic/analyze", {}, { method: "POST", body: { inquiry } });
+        state.currentSocraticData = await api("/socratic/analyze", {}, { method: "POST", body: { inquiry } });
         // Si la inquietud es trivial ("hola"), el backend pide precisar sin inventar campo.
-        if (currentSocraticData && currentSocraticData.status === "need_clarification") {
-          showNotification({ title: "Análisis socrático", message: currentSocraticData.message || "Cuéntame un poco más para ubicarte en el campo correcto.", type: "info" });
-          const dens = currentSocraticData.literature_density || {};
+        if (state.currentSocraticData && state.currentSocraticData.status === "need_clarification") {
+          showNotification({ title: "Análisis socrático", message: state.currentSocraticData.message || "Cuéntame un poco más para ubicarte en el campo correcto.", type: "info" });
+          const dens = state.currentSocraticData.literature_density || {};
           document.getElementById("socratic-density").textContent = `Catálogo: ${dens.articles_found || 0} artículos en ${dens.journals_covered || 0} revistas. Precisa tu tema para continuar.`;
           document.getElementById("socratic-step-1").hidden = false;
           document.getElementById("socratic-step-2").hidden = true;
           return;
         }
-        document.getElementById("socratic-field-badge").textContent = `Campo: ${currentSocraticData.primary_field.name}`;
-        document.getElementById("socratic-epistemic").textContent = currentSocraticData.epistemic_reflection;
+        document.getElementById("socratic-field-badge").textContent = `Campo: ${state.currentSocraticData.primary_field.name}`;
+        document.getElementById("socratic-epistemic").textContent = state.currentSocraticData.epistemic_reflection;
         
         const qList = document.getElementById("socratic-questions-list");
-        qList.innerHTML = currentSocraticData.socratic_questions.map((q, idx) => `
+        qList.innerHTML = state.currentSocraticData.socratic_questions.map((q, idx) => `
           <div style="font-size: 13px; padding: 6px 10px; background: #FFFFFF; border-radius: var(--radius-sm); border: 1px solid rgba(192, 200, 201, 0.4);">
             <b>${idx + 1}.</b> ${esc(q)}
           </div>
         `).join("");
 
-        document.getElementById("socratic-density").textContent = `Densidad en catálogo: ${(currentSocraticData.literature_density || {}).articles_found || 0} artículos en ${(currentSocraticData.literature_density || {}).journals_covered || 0} revistas.`;
+        document.getElementById("socratic-density").textContent = `Densidad en catálogo: ${(state.currentSocraticData.literature_density || {}).articles_found || 0} artículos en ${(state.currentSocraticData.literature_density || {}).journals_covered || 0} revistas.`;
         document.getElementById("socratic-step-1").hidden = true;
         document.getElementById("socratic-step-2").hidden = false;
         document.getElementById("socratic-reflection-input").focus();
@@ -2428,19 +2420,19 @@ function initSocratic() {
       concertBtn.disabled = true;
       concertBtn.textContent = "Concertando radar…";
       try {
-        currentConcertedData = await api("/socratic/concert", {}, {
+        state.currentConcertedData = await api("/socratic/concert", {}, {
           method: "POST",
           body: {
-            field_name: currentSocraticData.primary_field.name,
+            field_name: state.currentSocraticData.primary_field.name,
             original_inquiry: document.getElementById("socratic-input").value.trim(),
             user_reflection: reflection,
-            suggested_keywords: currentSocraticData.suggested_keywords
+            suggested_keywords: state.currentSocraticData.suggested_keywords
           }
         });
-        document.getElementById("socratic-result-title").textContent = currentConcertedData.label;
-        document.getElementById("socratic-result-summary").textContent = currentConcertedData.summary;
-        document.getElementById("socratic-result-kws").textContent = currentConcertedData.recommended_keywords;
-        document.getElementById("socratic-result-journals").textContent = currentConcertedData.key_journals.join(" · ");
+        document.getElementById("socratic-result-title").textContent = state.currentConcertedData.label;
+        document.getElementById("socratic-result-summary").textContent = state.currentConcertedData.summary;
+        document.getElementById("socratic-result-kws").textContent = state.currentConcertedData.recommended_keywords;
+        document.getElementById("socratic-result-journals").textContent = state.currentConcertedData.key_journals.join(" · ");
         document.getElementById("socratic-step-2").hidden = true;
         document.getElementById("socratic-step-3").hidden = false;
       } catch (e) {
@@ -2454,15 +2446,15 @@ function initSocratic() {
 
   if (pinBtn) {
     pinBtn.addEventListener("click", async () => {
-      if (!currentConcertedData) return;
+      if (!state.currentConcertedData) return;
       pinBtn.disabled = true;
       pinBtn.textContent = "Anclando…";
       try {
         await api("/watch", {}, {
           method: "POST",
-          body: { keywords: currentConcertedData.recommended_keywords, label: currentConcertedData.label }
+          body: { keywords: state.currentConcertedData.recommended_keywords, label: state.currentConcertedData.label }
         });
-        document.getElementById("keywords").value = currentConcertedData.recommended_keywords;
+        document.getElementById("keywords").value = state.currentConcertedData.recommended_keywords;
         readForm();
         closeModal();
         switchView("explorer");
@@ -2478,11 +2470,11 @@ function initSocratic() {
 
   if (applyBtn) {
     applyBtn.addEventListener("click", async () => {
-      if (!currentConcertedData) return;
+      if (!state.currentConcertedData) return;
       applyBtn.disabled = true;
       applyBtn.textContent = "Cargando publicaciones…";
       try {
-        document.getElementById("keywords").value = currentConcertedData.recommended_keywords;
+        document.getElementById("keywords").value = state.currentConcertedData.recommended_keywords;
         closeModal();
         readForm();
         switchView("explorer");
