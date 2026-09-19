@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <title>Thinkuy · Radar de comunicación científica</title>
-  <link rel="stylesheet" href="css/style.css?v=5.48">
+  <link rel="stylesheet" href="css/style.css?v=5.49">
 </head>
 <body>
 
@@ -104,7 +104,7 @@
       </div>
 
       <div class="topbar-right">
-        <div class="telemetry-chip hidden-mobile" id="topbar-telemetry">
+        <div class="telemetry-chip hidden-mobile">
           <span class="telemetry-pulse"></span>
           <span class="data-tabular" id="stat-articles-header">Sonda Federada: OpenAlex · OpenAIRE · Dialnet</span>
         </div>
@@ -170,15 +170,11 @@
             
             <div class="inquiry-footer">
               <div class="inquiry-actions-left">
-                <button class="inquiry-icon-btn" id="btn-attach-ref" title="Adjuntar archivo o referencia (PDF, BibTeX, notas)" type="button">
-                  <span class="material-symbols-outlined text-[19px]">attach_file</span>
-                </button>
-
                 <button class="deep-switch-btn" id="deep-research-toggle" type="button" title="Activar análisis exhaustivo multidatabase">
-                  <div class="deep-switch-track" id="toggle-track">
-                    <div class="deep-switch-thumb" id="toggle-thumb"></div>
+                  <div class="deep-switch-track">
+                    <div class="deep-switch-thumb"></div>
                   </div>
-                  <span id="toggle-label">Investigación profunda</span>
+                  <span>Investigación profunda</span>
                 </button>
               </div>
 
@@ -1279,23 +1275,23 @@
 
           <!-- Quick Action Chips -->
           <div class="home-action-chips">
-            <button class="action-chip" id="btn-chip-review" type="button" data-view="review" style="border-color: var(--brand-teal); font-weight: 600;">
+            <button class="action-chip" type="button" data-view="review" style="border-color: var(--brand-teal); font-weight: 600;">
               <span class="chip-icon material-symbols-outlined text-brand-teal">rule_folder</span>
               <span>Revisión Sistemática (PRISMA)</span>
             </button>
-            <button class="action-chip" id="btn-chip-explore" type="button" data-view="explorer">
+            <button class="action-chip" type="button" data-view="explorer">
               <span class="chip-icon material-symbols-outlined">article</span>
               <span>Explora temas</span>
             </button>
-            <button class="action-chip" id="btn-chip-reviewers" type="button" data-view="reviewers">
+            <button class="action-chip" type="button" data-view="reviewers">
               <span class="chip-icon material-symbols-outlined">group</span>
               <span>Encontrar revisores</span>
             </button>
-            <button class="action-chip" id="btn-chip-journals" type="button" data-view="journals">
+            <button class="action-chip" type="button" data-view="journals">
               <span class="chip-icon material-symbols-outlined">menu_book</span>
               <span>Encontrar revistas</span>
             </button>
-            <button class="action-chip" id="btn-chip-radar" type="button" data-view="radar">
+            <button class="action-chip" type="button" data-view="radar">
               <span class="chip-icon material-symbols-outlined">orbit</span>
               <span>Radar de proximidad</span>
             </button>
@@ -1642,7 +1638,7 @@
             </div>
             <div id="radar-sector-legend" class="radar-sector-legend" hidden></div>
             
-            <div class="radar-canvas-viewport" id="radar-viewport">
+            <div class="radar-canvas-viewport">
               <canvas id="radar-canvas" class="radar-canvas-element" width="760" height="640"></canvas>
             </div>
           </div>
@@ -1898,6 +1894,6 @@
   </div>
 
   <!-- Scripts -->
-  <script type="module" src="js/app.js?v=5.48"></script>
+  <script type="module" src="js/app.js?v=5.49"></script>
 </body>
 </html>
