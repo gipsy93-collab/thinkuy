@@ -3461,3 +3461,35 @@ El propio proyecto predica «propiedad de la infraestructura»; el historial es 
 **Artefactos de esta auditoría:** este hito, el Chronicle de la sesión 54 y la actualización de
 `CORTEX.md`.
 
+---
+
+## Hito 61: La deuda de proceso se salda: repositorio bajo control de versiones - 19 de septiembre de 2026
+
+> **Ejecución de las recomendaciones del Hito 60:** limpieza de residuos e inicio del historial.
+
+### 1. Repositorio inicializado
+
+`git init` + `.gitignore` nuevo (reemplaza al de 8 líneas). Se versiona **solo el código y la
+documentación**: `data/` (bases y corpus), `models/` (1 GB de adaptadores), `scratch/` (598 MB),
+`unsloth_compiled_cache/`, `.venv/`, `__pycache__/`, `.opencode/`, `*.bak`, `*.log` y `.env` quedan
+fuera. Primer commit: **`8cb0b52`** — **282 archivos, 3,9 MB**, árbol limpio. Escaneo previo de
+secretos (`sk-…`, `*_API_KEY`, `Bearer …`) → **sin coincidencias**; solo se versiona `.env.example`.
+
+### 2. Residuos limpiados
+
+| Residuo | Acción |
+| :--- | :--- |
+| 5 sondas `backend/scratch_*.py` en la raíz | movidas a `backend/scratch/` |
+| `matches.txt` (0 B, raíz) | eliminado |
+| `radar.db` (0 B, raíz — nunca fue la base real) | eliminado |
+| `backend/scratch/servidor_800{0,1}.log` (66 KB) | eliminados |
+
+Los `.bak` de la migración (`scivis.py.bak`, `db.py.bak`) **se conservan** hasta cerrar el split, y
+están ignorados por git.
+
+### 3. Verificación
+
+**242/242 pruebas en verde** tras la limpieza. `git status` limpio; rama `master`.
+
+**Artefactos:** `.gitignore`, repositorio `.git/`, commit `8cb0b52`.
+
