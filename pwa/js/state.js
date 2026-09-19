@@ -65,4 +65,7 @@ export const state = {
   radarExcluded: [],
   radarIncluded: [],
   radarExcludedNames: {},
+  currentEpistemicRoles: [],
+  screeningProtocolId: null,
+  screeningArticlesCache: [],
 };
