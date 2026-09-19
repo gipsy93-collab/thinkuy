@@ -375,7 +375,7 @@ async function addWatch() {
     await api("/watch", {}, { method: "POST", body: { keywords } });
     await loadWatch();
   } catch (e) {
-    alert(`No se pudo anclar: ${e.message}`);
+    showNotification({ title: "No se pudo anclar", message: e.message, type: "error" });
   }
 }
 
@@ -1320,7 +1320,7 @@ window.pinRadarKeywords = async function(keywords, label) {
 window.discoverRadarLive = async function() {
   const topic = document.getElementById("radar-topic").value.trim();
   if (!topic) {
-    alert("Por favor, escribe primero un tema o pregunta en el buscador del radar.");
+    showNotification({ title: "Falta el tema", message: "Escribe primero un tema o pregunta en el buscador del radar.", type: "info" });
     return;
   }
   const btn = document.getElementById("btn-radar-discover");
@@ -1577,7 +1577,7 @@ document.getElementById("btn-cfp")?.addEventListener("click", async () => {
   } catch (e) { /* silencioso */ }
 });
 document.getElementById("btn-notify")?.addEventListener("click", async () => {
-  if (!("Notification" in window)) { alert("Tu navegador no soporta notificaciones"); return; }
+  if (!("Notification" in window)) { showNotification({ title: "Notificaciones", message: "Tu navegador no soporta notificaciones.", type: "info" }); return; }
   const p = await Notification.requestPermission();
   refreshNotifyButton();
   if (p === "granted") loadWatch();
@@ -1937,15 +1937,15 @@ function renderLibrarianResults(data) {
 
         card.innerHTML = `
           <div class="librarian-article-meta">
-            <span class="librarian-article-source">${source}</span>
+            <span class="librarian-article-source">${esc(source)}</span>
             <span>•</span>
-            <span>${journal}</span>
-            ${year ? `<span>•</span><span>${year}</span>` : ""}
+            <span>${esc(journal)}</span>
+            ${year ? `<span>•</span><span>${esc(year)}</span>` : ""}
             ${scoreBadge}
           </div>
           <div class="librarian-article-title">
-            <a href="${doi}" target="_blank" rel="noopener noreferrer" title="Abrir publicación original (DOI oficial)">
-              ${title}
+            <a href="${esc(doi)}" target="_blank" rel="noopener noreferrer" title="Abrir publicación original (DOI oficial)">
+              ${esc(title)}
               <span class="material-symbols-outlined text-[14px]" style="vertical-align: -1px; margin-left: 3px;">open_in_new</span>
             </a>
           </div>
@@ -2262,7 +2262,7 @@ async function loadRolesStep0(librarianData) {
       if (!pid) return;
       const q = (harvestInput ? harvestInput.value : "").trim();
       if (!q) {
-        alert("Por favor ingresa una ecuación de búsqueda o pregunta de investigación.");
+        showNotification({ title: "Falta la búsqueda", message: "Ingresa una ecuación de búsqueda o pregunta de investigación.", type: "info" });
         return;
       }
       harvestBtn.disabled = true;
@@ -2341,7 +2341,7 @@ async function loadRolesStep0(librarianData) {
     auditBtn.dataset.bound = "true";
     auditBtn.onclick = async () => {
       if (!pendingUploadFile) {
-        alert("Por favor selecciona primero un archivo CSV o RIS.");
+        showNotification({ title: "Falta el archivo", message: "Selecciona primero un archivo CSV o RIS.", type: "info" });
         return;
       }
       const pid = await ensureProtocol();
@@ -2456,7 +2456,7 @@ async function loadRolesStep0(librarianData) {
         setupScreeningTab();
       } catch (err) {
         console.error("Error al importar commit:", err);
-        alert(`Error al importar archivo: ${err.message || err}`);
+        showNotification({ title: "Error al importar archivo", message: String(err.message || err), type: "error" });
         confirmCommitBtn.disabled = false;
         confirmCommitBtn.innerHTML = origHtml;
       }
@@ -2479,7 +2479,7 @@ function initPrismaStepper() {
     transferBtn.onclick = async () => {
       const pid = await ensureProtocol();
       if (!pid) {
-        alert("Por favor selecciona o crea un protocolo primero.");
+        showNotification({ title: "Falta el protocolo", message: "Selecciona o crea un protocolo primero.", type: "info" });
         return;
       }
 
@@ -3361,7 +3361,7 @@ async function setupProtocolManager() {
     btnSaveNew.onclick = async () => {
       const title = titleInput.value.trim();
       if (!title) {
-        alert("Por favor introduce un título para el protocolo.");
+        showNotification({ title: "Falta el título", message: "Introduce un título para el protocolo.", type: "info" });
         titleInput.focus();
         return;
       }
@@ -3383,7 +3383,7 @@ async function setupProtocolManager() {
         }
       } catch (err) {
         console.error("Error creando protocolo:", err);
-        alert("No se pudo crear el protocolo: " + (err.message || err));
+        showNotification({ title: "No se pudo crear el protocolo", message: String(err.message || err), type: "error" });
       } finally {
         btnSaveNew.disabled = false;
       }
@@ -3498,7 +3498,7 @@ window.proponerPcc = async function(doi, safeId) {
       { doi, title: titulo, abstract: resumen }, { timeoutMs: 180000 });
 
     if (r.status === "sin_propuesta") {
-      alert(`Sin propuesta para «${titulo || doi}»:\n\n${r.declarado || "el motor no encontró datos literales."}`);
+      showNotification({ title: `Sin propuesta para «${titulo || doi}»`, message: r.declarado || "el motor no encontró datos literales.", type: "info" });
       return;
     }
 
@@ -3517,7 +3517,7 @@ window.proponerPcc = async function(doi, safeId) {
     });
 
     if (!rellenados) {
-      alert("Todos los campos ya estaban rellenos: no se tocó nada.");
+      showNotification({ title: "Sin cambios", message: "Todos los campos ya estaban rellenos: no se tocó nada.", type: "info" });
       return;
     }
     // Se avisa qué se descartó, para que el investigador sepa qué no quedó cubierto.
@@ -3525,7 +3525,7 @@ window.proponerPcc = async function(doi, safeId) {
       console.warn("Campos descartados por el guardián de fidelidad:", r.descartados);
     }
   } catch (e) {
-    alert("No se pudo proponer el PICC: " + (e && e.message ? e.message : e));
+    showNotification({ title: "No se pudo proponer el PICC", message: String(e && e.message ? e.message : e), type: "error" });
   } finally {
     if (boton) {
       boton.disabled = false;
@@ -3538,7 +3538,7 @@ window.proponerPcc = async function(doi, safeId) {
 window.proponerPccTodos = async function() {
   const filas = Array.from(document.querySelectorAll("#charting-table-container tr[data-doi]"));
   if (!filas.length) {
-    alert("Primero carga los artículos incluidos con «Cargar artículos incluidos para charteo».");
+    showNotification({ title: "Sin artículos", message: "Primero carga los artículos incluidos con «Cargar artículos incluidos para charteo».", type: "info" });
     return;
   }
   if (!confirm(`Se propondrá el PICC de ${filas.length} artículos, uno por uno.\n`
@@ -3791,7 +3791,7 @@ function renderScreeningCards(articles, existingDecisions) {
       <div class="screening-card-info">
         <!-- Encabezado con título clicable al texto completo -->
         <div class="screening-card-title-row">
-          <a href="${officialUrl}" ${officialUrl !== "#" ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="return false;" style="cursor:default;"'} class="screening-article-link" title="${officialUrl !== "#" ? 'Abrir publicación original' : 'Artículo importado desde archivo local'}">
+          <a href="${esc(officialUrl)}" ${officialUrl !== "#" ? 'target="_blank" rel="noopener noreferrer"' : 'onclick="return false;" style="cursor:default;"'} class="screening-article-link" title="${officialUrl !== "#" ? 'Abrir publicación original' : 'Artículo importado desde archivo local'}">
             <span class="material-symbols-outlined text-[16px] text-brand-teal">${officialUrl !== "#" ? 'open_in_new' : 'description'}</span>
             <span>${esc(a.title || "Sin título")}</span>
           </a>
@@ -3807,7 +3807,7 @@ function renderScreeningCards(articles, existingDecisions) {
           <span>•</span>
           <span>Citas: <strong>${a.cited_by || a.cited_by_global || 0}</strong></span>
           ${a.role ? `<span>•</span> <span class="role-badge ${esc(a.role)}">${esc(a.role)}</span>` : ""}
-          ${isRealDoi ? `<a href="${officialUrl}" target="_blank" rel="noopener" class="screening-doi-badge" title="Enlace oficial DOI">DOI: ${esc(cleanDoiVal)}</a>` : (a.id || a.article_id ? `<span class="screening-doi-badge" style="background:rgba(255,255,255,0.06); color:var(--text-secondary); cursor:default;">ID: ${esc(a.id || a.article_id)}</span>` : "")}
+          ${isRealDoi ? `<a href="${esc(officialUrl)}" target="_blank" rel="noopener" class="screening-doi-badge" title="Enlace oficial DOI">DOI: ${esc(cleanDoiVal)}</a>` : (a.id || a.article_id ? `<span class="screening-doi-badge" style="background:rgba(255,255,255,0.06); color:var(--text-secondary); cursor:default;">ID: ${esc(a.id || a.article_id)}</span>` : "")}
         </div>
 
         <div class="screening-card-authors">
@@ -3866,12 +3866,12 @@ function renderScreeningCards(articles, existingDecisions) {
 
             <!-- Ficha Técnica Detallada -->
             <div class="details-section details-tech-grid">
-              <div><strong>DOI:</strong> <a href="${officialUrl}" target="_blank" rel="noopener">${esc(cleanDoiVal || 'No registrado')}</a></div>
+              <div><strong>DOI:</strong> <a href="${esc(officialUrl)}" target="_blank" rel="noopener">${esc(cleanDoiVal || 'No registrado')}</a></div>
               <div><strong>Revista:</strong> ${esc(a.journal_title || a.journal || 'No especificada')}</div>
               <div><strong>Año:</strong> ${esc(a.year || 'S/F')}</div>
               <div><strong>Impacto / Citas globales:</strong> ${esc(a.cited_by_global || a.cited_by || 0)}</div>
               ${a.keywords ? `<div><strong>Palabras clave:</strong> ${esc(Array.isArray(a.keywords) ? a.keywords.join(", ") : a.keywords)}</div>` : ''}
-              <div><strong>Enlace Oficial:</strong> <a href="${officialUrl}" target="_blank" rel="noopener" style="font-weight:600; color:var(--brand-teal);">Abrir artículo completo ↗</a></div>
+              <div><strong>Enlace Oficial:</strong> <a href="${esc(officialUrl)}" target="_blank" rel="noopener" style="font-weight:600; color:var(--brand-teal);">Abrir artículo completo ↗</a></div>
             </div>
           </div>
         </details>
@@ -4194,7 +4194,7 @@ function setupChartingTab() {
   const doExport = async (format) => {
     const pid = await ensureProtocol();
     if (!pid) {
-      alert("No hay un protocolo activo seleccionado.");
+      showNotification({ title: "Sin protocolo", message: "No hay un protocolo activo seleccionado.", type: "info" });
       return;
     }
     const btn = format === "csv" ? exportCsv : (format === "ris" ? exportRis : exportBibtex);
@@ -4278,7 +4278,7 @@ window.saveChartingRow = async function(doi, safeId) {
     }
   } catch (err) {
     console.error("Error guardando charteo:", err);
-    alert("Error al guardar los datos de charteo");
+    showNotification({ title: "Error al guardar el charteo", message: "No se pudieron guardar los datos.", type: "error" });
   }
 };
 
@@ -5892,7 +5892,7 @@ function renderJournalAuditResults(data) {
           <div class="editor-header-row">
             <span class="editor-name">${escapeHtml(ed.name)}</span>
             ${hasOrcid ? `
-              <a href="${orcidUrl}" target="_blank" rel="noopener" class="radar-orcid-badge" title="Ver perfil verificado en ORCID.org">
+              <a href="${esc(orcidUrl)}" target="_blank" rel="noopener" class="radar-orcid-badge" title="Ver perfil verificado en ORCID.org">
                 ${escapeHtml(ed.orcid)} ↗
               </a>
             ` : `
@@ -6352,7 +6352,7 @@ function initHomeInquiry() {
         pinBtn.classList.remove("btn-outline");
         if (typeof loadWatch === "function") await loadWatch();
       } catch (e) {
-        alert(`Error al anclar vigilancia: ${e.message}`);
+        showNotification({ title: "Error al anclar vigilancia", message: e.message, type: "error" });
         pinBtn.disabled = false;
         pinBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">bookmark_add</span> <span>Anclar Vigilancia</span>`;
       }
@@ -6414,7 +6414,7 @@ function initSocratic() {
         currentSocraticData = await api("/socratic/analyze", {}, { method: "POST", body: { inquiry } });
         // Si la inquietud es trivial ("hola"), el backend pide precisar sin inventar campo.
         if (currentSocraticData && currentSocraticData.status === "need_clarification") {
-          alert(currentSocraticData.message || "Cuéntame un poco más para ubicarte en el campo correcto.");
+          showNotification({ title: "Análisis socrático", message: currentSocraticData.message || "Cuéntame un poco más para ubicarte en el campo correcto.", type: "info" });
           const dens = currentSocraticData.literature_density || {};
           document.getElementById("socratic-density").textContent = `Catálogo: ${dens.articles_found || 0} artículos en ${dens.journals_covered || 0} revistas. Precisa tu tema para continuar.`;
           document.getElementById("socratic-step-1").hidden = false;
@@ -6436,7 +6436,7 @@ function initSocratic() {
         document.getElementById("socratic-step-2").hidden = false;
         document.getElementById("socratic-reflection-input").focus();
       } catch (e) {
-        alert(`Error en el análisis: ${e.message}`);
+        showNotification({ title: "Error en el análisis", message: e.message, type: "error" });
       } finally {
         analyzeBtn.disabled = false;
         analyzeBtn.textContent = "Comenzar Diálogo Socrático";
@@ -6474,7 +6474,7 @@ function initSocratic() {
         document.getElementById("socratic-step-2").hidden = true;
         document.getElementById("socratic-step-3").hidden = false;
       } catch (e) {
-        alert(`Error al concertar: ${e.message}`);
+        showNotification({ title: "Error al concertar", message: e.message, type: "error" });
       } finally {
         concertBtn.disabled = false;
         concertBtn.textContent = "Concertar mi Radar";
@@ -6498,7 +6498,7 @@ function initSocratic() {
         switchView("explorer");
         await Promise.all([loadWatch(), renderFeed()]);
       } catch (e) {
-        alert(`Error al anclar: ${e.message}`);
+        showNotification({ title: "Error al anclar", message: e.message, type: "error" });
       } finally {
         pinBtn.disabled = false;
         pinBtn.textContent = "📌 Anclar y Activar este Radar";
@@ -6518,7 +6518,7 @@ function initSocratic() {
         switchView("explorer");
         await renderFeed();
       } catch (e) {
-        alert(`Error al cargar feed: ${e.message}`);
+        showNotification({ title: "Error al cargar el feed", message: e.message, type: "error" });
       } finally {
         applyBtn.disabled = false;
         applyBtn.textContent = "Ver Publicaciones Ahora";
@@ -6612,7 +6612,7 @@ async function runJournalMatch() {
           btn.disabled = true;
           loadWatch();
         } catch (e) {
-          alert(`No se pudo seguir la revista: ${e.message}`);
+          showNotification({ title: "No se pudo seguir la revista", message: e.message, type: "error" });
         }
       });
     });
@@ -6713,7 +6713,7 @@ async function runReviewerMatch() {
           btn.disabled = true;
           loadWatch();
         } catch (e) {
-          alert(`No se pudo seguir al autor: ${e.message}`);
+          showNotification({ title: "No se pudo seguir al autor", message: e.message, type: "error" });
         }
       });
     });
