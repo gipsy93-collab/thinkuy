@@ -21,6 +21,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CHECK_IDS = ["view-home", "keywords", "btn-home-send"]
+# Handlers invocados desde atributos `onclick` en HTML generado: deben existir en `window`.
+CHECK_HANDLERS = [
+    "launchSnowballFromDoi", "fetchArticleDetails", "fetchDeterministicAbstract",
+    "onScreenDecision", "proponerPcc", "saveChartingRow",
+]
 
 
 def _wait_health(url: str, timeout: float = 25.0) -> bool:
@@ -47,11 +52,24 @@ def _run_page(url: str, timeout: int) -> int:
         page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
         page.goto(url, wait_until="networkidle", timeout=timeout)
         missing = [i for i in CHECK_IDS if page.query_selector(f"#{i}") is None]
+        missing_handlers = [h for h in CHECK_HANDLERS if page.evaluate(f"typeof window.{h}") != "function"]
+        API_BASE = page.evaluate("window.__API_BASE")
+        # Recorrer las vistas para forzar el render de cada una (detecta errores al pintar).
+        for chip in page.query_selector_all("[data-view]"):
+            try:
+                chip.click()
+                page.wait_for_timeout(250)
+            except Exception:
+                pass
         title = page.title()
         browser.close()
 
     print(f"titulo: {title!r}")
     print(f"ids faltantes: {missing}")
+    print(f"handlers faltantes: {missing_handlers}")
+    print(f"window.__API_BASE: {API_BASE!r}")
+    if missing_handlers or API_BASE != "/api":
+        page_errors.append("handlers o API base ausentes")
     if page_errors:
         print("pageerror (excepciones JS):")
         for e in page_errors:

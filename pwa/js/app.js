@@ -1,7 +1,7 @@
-/* Thinkuy — lógica del widget PWA */
-"use strict";
+/* Thinkuy — lógica del widget PWA (módulo ES). */
+import { API, api, apiPost } from "./api.js";
+import { esc, escapeHtml, showNotification } from "./dom.js";
 
-const API = "/api";
 const CONFIG_KEY = "thinkuy-config";
 
 const DEFAULT_CONFIG = {
@@ -95,83 +95,9 @@ function writeForm() {
   if (sortEl) sortEl.value = state.config.sort || "relevance";
 }
 
-/* ---------------- api ---------------- */
-async function api(path, params = {}, opts = {}) {
-  const qs = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== "") {
-      if (Array.isArray(v)) {
-        v.forEach(item => {
-          if (item !== undefined && item !== null && item !== "") {
-            qs.append(k, item);
-          }
-        });
-      } else {
-        qs.set(k, v);
-      }
-    }
-  });
-  const url = `${API}${path}${qs.toString() ? "?" + qs : ""}`;
-  // Sin timeout, una petición que se cuelga deja la promesa pendiente para siempre y la
-  // interfaz parece muerta (así se manifestó el fallo del cribado: la decisión se guardaba
-  // pero el botón nunca reaccionaba). `timeoutMs: 0` desactiva el límite.
-  const timeoutMs = opts.timeoutMs === undefined ? 20000 : opts.timeoutMs;
-  const controlador = new AbortController();
-  const temporizador = timeoutMs > 0 ? setTimeout(() => controlador.abort(), timeoutMs) : null;
-  let resp;
-  try {
-    const headers = { Accept: "application/json", ...(opts.headers || {}) };
-    if (opts.body && !headers["Content-Type"]) {
-      headers["Content-Type"] = "application/json";
-    }
-    resp = await fetch(url, {
-      method: opts.method || "GET",
-      headers,
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-      signal: controlador.signal,
-    });
-  } catch (e) {
-    const alt = url.replace(window.location.origin, "");
-    if (e && e.name === "AbortError") {
-      throw new Error(`la petición a ${alt} tardó más de ${Math.round(timeoutMs / 1000)} s y se canceló.`);
-    }
-    throw new Error(`no se pudo contactar ${alt} (${url}). ¿Está corriendo el backend? Usa "inicio.bat" o arranca uvicorn.`);
-  } finally {
-    if (temporizador) clearTimeout(temporizador);
-  }
-  if (!resp.ok) throw new Error(`API ${resp.status}: ${url}`);
-  return resp.json();
-}
-
-async function apiPost(path, body, opts = {}) {
-  return api(path, {}, { ...opts, method: "POST", body });
-}
-
-window.__API_BASE = API;
-
 /* ---------------- render ---------------- */
 const SOURCE_NAMES = { scielo: "SciELO", crossref: "Crossref", openalex: "OpenAlex", redalyc: "Redalyc" };
 const FIELD_NAMES = { title: "título", keywords: "palabras clave del artículo", abstract: "resumen" };
-
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-
-const escapeHtml = esc;
-
-function showNotification({ title, message, type = "info" }) {
-  console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
-  const toast = document.createElement("div");
-  toast.className = `thinkuy-toast toast-${type}`;
-  toast.style.cssText = "position:fixed;bottom:24px;right:24px;background:#1e293b;color:#f8fafc;padding:12px 20px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:9999;font-size:14px;max-width:380px;display:flex;flex-direction:column;gap:4px;border-left:4px solid " + (type === "error" ? "#ef4444" : "#006a6a") + ";";
-  toast.innerHTML = `<strong>${esc(title)}</strong><span>${esc(message)}</span>`;
-  document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.style.transition = "opacity 0.4s ease";
-    toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 400);
-  }, 4500);
-}
 
 function keywordStrings(list) {
   return (Array.isArray(list) ? list : [])
