@@ -3838,3 +3838,35 @@ PWA en **`v=5.52` / `thinkuy-v76`**.
 
 **Artefactos:** `pwa/js/radar.js`, `pwa/js/journal.js`, `pwa/js/bridge.js`, `pwa/js/utils.js`, `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
 
+---
+
+## Hito 70: Un solo dueño del estado: los últimos globales mutables de `app.js` - 19 de septiembre de 2026
+
+> **Cierre de la Fase 4.** Quedaban 8 variables mutables de nivel superior en `app.js`. Se mueven
+> a `state.js` para que el estado mutable tenga un único dueño.
+
+### 1. Qué se movió
+
+`currentLibrarianData`, `lastLibrarianData`, `epistemicSubmotorLoaded`, `reviewSubmotorLoaded`,
+`activeEpistemicRoleFilter`, `activeEpistemicSourceFilter`, `currentSocraticData`,
+`currentConcertedData`. Sus 8 declaraciones salen de `app.js` y sus **52 usos** pasan a `state.*`.
+No se tocaron los `const` (`SOURCE_NAMES`, `FIELD_NAMES`, `VALIDATION_FUNCTIONS`…): son inmutables.
+
+### 2. Por qué importa
+
+Es el mismo fallo que ya costó caro en el backend (`PROFILE` copiado en cuatro módulos, uno de ellos
+desincronizado): **dos copias de un dato mutable que se separan sin que nadie lo note**. Con un
+único objeto `state`, no hay copias que puedan divergir. `lastLibrarianData` se conserva separado de
+`currentLibrarianData` a propósito (el dashboard epistémico lo reinicia sin tocar el otro).
+
+### 3. Verificación
+
+`node --check` → OK; `smoke_pwa` → **OK**; `dev_check` → **OK** (ruff limpio, **246/246**).
+PWA en **`v=5.53` / `thinkuy-v77`**. Reversible con `pre-fase4`.
+
+**Commit:** `f299b45`.
+
+> **Resto de la Fase 4:** solo la limpieza de CSS supervisada (~38 candidatas, varias dinámicas).
+
+**Artefactos:** `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
+
