@@ -3754,3 +3754,44 @@ radar, revista), consolidar los ~33 globales mutables y la limpieza supervisada 
 
 **Artefactos:** `pwa/js/state.js`, `pwa/js/app.js`, `pwa/index.html`, `pwa/sw.js`.
 
+---
+
+## Hito 68: El recorte selectivo: cribado PRISMA y charting salen a su propio módulo - 19 de septiembre de 2026
+
+> **Fase 4, cierre del recorte acordado.** Partir `app.js` del todo era caro y arriesgado; se
+> extrajo **solo la función con más densidad de cambios** (cribado + charting), que es además la
+> más interconectada. Red de seguridad: etiqueta `pre-fase4` y `smoke_pwa` en cada paso.
+
+### 1. Cómo se hizo (sin adivinar)
+
+Antes de mover una línea se calculó, con un análisis estático sobre el archivo, el **contrato de
+dependencias** del bloque: qué identificadores usaba que vivían fuera de él. Resultado: solo
+**dos** (`currentEpistemicRoles` y `extractCleanDoi`). Todo lo demás estaba dentro. Eso convirtió
+un movimiento de 1.025 líneas en algo verificable.
+
+### 2. Lo que se movió
+
+| Módulo | Contenido |
+| :--- | :--- |
+| **`pwa/js/review.js`** (953 líneas) | `setupProtocolManager`, `ensureProtocol`, `renderProtocolContext`, `refreshPrismaFlow`, `screenArticle`, `extractMethodologyIndicators`, `renderScreeningCards`, `setupScreeningTab`, `setupChartingTab` + handlers `proponerPcc`/`proponerPccTodos`/`fetchDeterministicAbstract`/`fetchArticleDetails`/`onScreenDecision`/`saveChartingRow` |
+| **`pwa/js/utils.js`** | `extractCleanDoi` (helper puro compartido) |
+| **`state.js`** (ampliado) | `currentEpistemicRoles`, `screeningProtocolId`, `screeningArticlesCache` |
+
+`app.js` pasó de **~7.160 a 5.504 líneas**; `review.js` exporta cinco funciones que `app.js`
+importa (`ensureProtocol`, `refreshPrismaFlow`, `setupChartingTab`, `setupProtocolManager`,
+`setupScreeningTab`). Los handlers siguen en `window` (los `onclick` generados no cambian).
+
+### 3. Verificación
+
+`smoke_pwa` → **OK** (incluye la comprobación de que los seis handlers de `window` existen, lo que
+confirma que `review.js` se cargó y ejecutó); `dev_check` → **OK** (ruff limpio, **246/246**).
+PWA en **`v=5.51` / `thinkuy-v75`**. Un uso externo residual (`setupSystematicTab` leía
+`screeningProtocolId`) se resolvió llevando esa variable a `state`.
+
+**Commit:** `76ef973`.
+
+**Pendiente (resto de Fase 4, ya opcional):** extraer `radar.js`/`journal.js`, consolidar los
+globales restantes y la limpieza de CSS supervisada.
+
+**Artefactos:** `pwa/js/review.js`, `pwa/js/utils.js`, `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
+
