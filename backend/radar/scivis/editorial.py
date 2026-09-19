@@ -20,9 +20,11 @@ from .common import (
     KNOWN_JOURNAL_DOMAINS,
     _SCIVIS_RANKING_TTL,
     _clean_domain,
+    _domain_candidates,
     _split_url_scope,
     _cc_total_domains,
     _get_db_conn,
+    _get_proximity_radius,
     _is_portal_host,
     CC_RELEASE_ID,
 )

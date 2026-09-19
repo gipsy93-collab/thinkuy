@@ -11,3 +11,4 @@ python-multipart==0.0.32
 
 # Desarrollo y pruebas (no hacen falta para servir)
 pytest==9.1.1
+ruff==0.16.8

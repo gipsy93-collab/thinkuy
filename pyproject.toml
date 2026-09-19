@@ -1,0 +1,31 @@
+# Configuración de herramientas de desarrollo (lint y pruebas).
+# No es un paquete instalable: solo ajustes de ruff y pytest.
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [
+    ".venv",
+    "**/__pycache__",
+    "scratch",
+    "backend/scratch",
+    "_ARCHIVE",
+    "_BACKUP_FASE0",
+    "unsloth_compiled_cache",
+    "_unsloth_sentencepiece_temp",
+    "data",
+    "models",
+    "scripts/_LEGACY",
+]
+
+[tool.ruff.lint]
+select = ["E9", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/_LEGACY/**" = ["F", "I", "E9"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend"]
+python_files = ["test_*.py", "*_test.py", "tests_*.py"]
+norecursedirs = ["scratch", ".*", "build", "dist", "_ARCHIVE", "_BACKUP_FASE0", "unsloth_compiled_cache", "_unsloth_sentencepiece_temp"]
+addopts = "-q"

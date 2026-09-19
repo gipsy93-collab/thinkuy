@@ -10,6 +10,7 @@ import logging
 import re
 import sqlite3
 from collections import Counter, defaultdict
+from typing import Any
 
 from .conversation import strip_oaid
 
