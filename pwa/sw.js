@@ -1,17 +1,20 @@
 /* Thinkuy — Service Worker: shell offline + API directa sin caché */
 "use strict";
 
-const CACHE = "thinkuy-v75";
+const CACHE = "thinkuy-v76";
 const SHELL = [
   "./",
   "./index.html",
-  "./css/style.css?v=5.51",
-  "./js/app.js?v=5.51",
+  "./css/style.css?v=5.52",
+  "./js/app.js?v=5.52",
   "./js/api.js",
   "./js/dom.js",
   "./js/state.js",
   "./js/utils.js",
+  "./js/bridge.js",
   "./js/review.js",
+  "./js/radar.js",
+  "./js/journal.js",
   "./widget.html",
   "./embed.js",
   "./manifest.webmanifest",

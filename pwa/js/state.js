@@ -68,4 +68,7 @@ export const state = {
   currentEpistemicRoles: [],
   screeningProtocolId: null,
   screeningArticlesCache: [],
+  radarComparedJournals: [],
+  currentHomePersona: "researcher",
+  currentJournalAuditData: null,
 };

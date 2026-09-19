@@ -23,8 +23,14 @@ ROOT = Path(__file__).resolve().parent.parent
 CHECK_IDS = ["view-home", "keywords", "btn-home-send"]
 # Handlers invocados desde atributos `onclick` en HTML generado: deben existir en `window`.
 CHECK_HANDLERS = [
+    # review.js (cribado/charting)
     "launchSnowballFromDoi", "fetchArticleDetails", "fetchDeterministicAbstract",
     "onScreenDecision", "proponerPcc", "saveChartingRow",
+    # radar.js (proximidad autoral)
+    "closeRadarAuthorCard", "setRadarDoiCenter", "hideRadarAuthor", "restoreRadarAuthor",
+    "restoreAllRadarAuthors", "addRadarAuthor", "pinRadarKeywords", "discoverRadarLive",
+    # app.js (home/tracker)
+    "openDoiTracker",
 ]
 
 
