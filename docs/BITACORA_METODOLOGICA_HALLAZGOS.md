@@ -3667,3 +3667,53 @@ dicts. Ambos se archivan en `_ARCHIVE/modulos_sin_uso/`. Se **conservan** `taxon
 `harvester/scielo.py` (+`configure`), `profile.py`, `api/main.py`, `api/routers/feed.py`,
 `tracker.py`, `deep_research.py`, `_ARCHIVE/modulos_sin_uso/`.
 
+---
+
+## Hito 66: La interfaz deja de ser un archivo-monstruo: módulos, avisos y escapado - 19 de septiembre de 2026
+
+> **Fase 4.** Antes de tocar nada se creó un **punto de retorno**: etiqueta git `pre-fase4`,
+> copia de los cuatro assets en `_ARCHIVE/pre_fase4_interfaz/` y un **humo automatizado**.
+
+### 1. Red de seguridad (lo primero)
+
+`tools/smoke_pwa.py` levanta el servidor, abre la PWA en Chromium headless y **falla si hay
+excepciones de JS**, si faltan contenedores clave, si los handlers de `window` (los que invocan
+los `onclick` generados) no existen o si alguna vista no renderiza. Es la verificación que faltaba
+para poder refactorizar la interfaz con confianza.
+
+### 2. `app.js` pasa a módulo ES (sin build)
+
+De un único script clásico de 7.200 líneas que colgaba todo de `window`, a un **módulo** que
+importa piezas:
+
+| Módulo | Contenido |
+| :--- | :--- |
+| `pwa/js/api.js` | `API`, `api()` (timeout + mensajes de error), `apiPost()` |
+| `pwa/js/dom.js` | `esc()`/`escapeHtml`, `showNotification()` (toast) |
+
+`index.html` sirve `app.js` como `type="module"` y `sw.js` precachea los nuevos módulos. Los
+handlers inline (`proponerPcc`, `onScreenDecision`…) siguen funcionando porque ya estaban
+asignados a `window`; el humo lo comprueba explícitamente.
+
+### 3. Avisos y escapado
+
+- **Se acabaron los `alert()`**: 23 llamadas bloqueantes sustituidas por `showNotification()`
+  (un único punto de aviso para errores e información).
+- **Atributos escapados**: `href` construidos con `officialUrl`, `doi` y `orcidUrl` pasan por
+  `esc()`; la tarjeta del bibliotecario escapa `journal`, `title` y `year` (datos de terceros).
+
+### 4. Verificación
+
+`smoke_pwa` → **OK** (todas las vistas, handlers presentes, cero excepciones);
+`dev_check` → **OK** (ruff limpio, **246/246**, assets coherentes). PWA en **`v=5.47` /
+`thinkuy-v71`**. La conversión a módulos **no cambió comportamiento observable**.
+
+**Commits:** `55ee9c3` (red de seguridad), `c35ca67` (módulos), `bcd641f` (avisos + escapado).
+
+**Pendiente declarado de la Fase 4:** extraer `state.js` y los módulos de cada función (cribado,
+charting, radar, revista), consolidar los ~33 globales mutables, retirar el CSS muerto (27-38
+clases) y los 11 `id` sin uso.
+
+**Artefactos:** `pwa/js/api.js`, `pwa/js/dom.js`, `pwa/js/app.js`, `pwa/index.html`, `pwa/sw.js`,
+`tools/smoke_pwa.py`.
+

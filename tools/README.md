@@ -8,7 +8,7 @@ superado está en `_ARCHIVE/tools_superados/` (ver `_ARCHIVE/MANIFIESTO.md`).
 
 | Grupo | Scripts |
 | :--- | :--- |
-| **PWA / despliegue** | `bump_pwa_version.py` (fuente única de versión), `make_icons.py` |
+| **PWA / despliegue** | `bump_pwa_version.py` (fuente única de versión), `smoke_pwa.py` (humo con Playwright: arranca el servidor, carga la app y falla ante excepciones de JS), `make_icons.py` |
 | **Common Crawl (SCIVIS)** | `download_cc_ranks.py`, `index_cc_ranks.py`, `download_cc_graph.py`, `build_cc_inlinks.py`, `cc_history.py`, `web_twins_build.py`, `synthesize_neighborhood.py` |
 | **Dataset y anotación** | `build_epistemic_dataset.py` (v1), `build_epistemic_dataset_v3_hard_negatives.py` (v3, vigente), `extract_training_corpus.py`, `build_corpus_inventario.py`, `reindex_corpus_v2.py`, `etiquetador_determinista.py`, `etiquetador_protocolo.py`, `etiquetador_t2_pcc.py`, `auditor_forense_dataset.py`, `calcular_kappa.py`, `patron_dorado.py`, `diagnostico_t1_roles.py`, `medir_binario_postura.py`, `seleccion_postura_api.py`, `generar_formularios.py`, `importar_formularios.py`, `importar_anotacion_md.py`, `generar_control_ciego.py`, `generar_hoja_respuestas.py`, `generar_pases_anotacion.py`, `refrescar_control_36.py`, `remedir_control_stance.py`, `remedir_control_protocolo.py`, `verificar_control_protocolo.py` |
 | **Entrenamiento y evaluación** | `train_epistemic_unsloth.py`, `train_qwen_cot_v2.py`, `train_monitor_dashboard.py`, `eval_trained_qwen.py`, `export_to_gguf.py`, `robust_tripartite_eval.py`, `benchmark_three_models_rigorous.py`, `comparar_extractores.py`, `probar_schematron.py`, `auditar_fidelidad.py` |
