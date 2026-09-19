@@ -218,8 +218,8 @@ window.proponerPcc = async function(doi, safeId) {
   if (!pid) return;
 
   const contenedor = document.getElementById(`abstract-text-${safeId}`);
-  const fila = document.querySelector(`tr[data-doi="${CSS.escape(doi)}"]`);
-  const tituloEl = fila ? fila.querySelector("td a span") : null;
+  const fila = document.querySelector(`[data-doi="${CSS.escape(doi)}"]`);
+  const tituloEl = fila ? fila.querySelector("[data-chart-title]") : null;
   const titulo = tituloEl ? tituloEl.textContent.trim() : "";
   const boton = fila ? fila.querySelector(".charting-propose-btn") : null;
 
@@ -255,6 +255,7 @@ window.proponerPcc = async function(doi, safeId) {
       if (!input) return;
       if ((input.value || "").trim()) return;   // nunca se pisa lo que el humano escribió
       input.value = valor;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dataset.propuesta = "1";
       input.style.borderLeft = "3px solid var(--brand-teal, #009688)";
       input.title = "Propuesta del motor a partir del resumen. Verifique antes de guardar.";
@@ -281,7 +282,7 @@ window.proponerPcc = async function(doi, safeId) {
 
 /* Propone el PICC de TODOS los incluidos, uno por uno, con progreso. */
 window.proponerPccTodos = async function() {
-  const filas = Array.from(document.querySelectorAll("#charting-table-container tr[data-doi]"));
+  const filas = Array.from(document.querySelectorAll("#charting-table-container [data-doi]"));
   if (!filas.length) {
     showNotification({ title: "Sin artículos", message: "Primero carga los artículos incluidos con «Cargar artículos incluidos para charteo».", type: "info" });
     return;
@@ -772,6 +773,46 @@ function setupScreeningTab(librarianData) {
 // ================================================================
 // CHARTING & EXPORT
 // ================================================================
+
+/* Campos PICC de la ficha de extracción (id por campo, en orden). */
+const CHARTING_FIELDS = ["chart-pop-", "chart-con-", "chart-ctx-", "chart-met-", "chart-find-", "chart-lim-"];
+
+/* El textarea crece con su contenido (hasta un tope) para que trabajar sea cómodo. */
+function autoGrowTextarea(t) {
+  if (!t) return;
+  t.style.height = "auto";
+  t.style.height = `${Math.min(t.scrollHeight + 2, 460)}px`;
+}
+
+/* Recuenta los campos completados de una ficha y marca la tarjeta cuando están los 6. */
+function refreshChartingCard(card) {
+  if (!card) return;
+  const safeId = (card.dataset.doi || "").replace(/[^a-zA-Z0-9]/g, "_");
+  let filled = 0;
+  CHARTING_FIELDS.forEach(prefijo => {
+    const el = document.getElementById(prefijo + safeId);
+    if (el && (el.value || "").trim()) filled += 1;
+  });
+  const badge = card.querySelector(".charting-completion");
+  if (badge) badge.textContent = `${filled}/${CHARTING_FIELDS.length}`;
+  card.classList.toggle("is-complete", filled === CHARTING_FIELDS.length);
+}
+
+/* Prepara la lista de fichas: auto-crecimiento y contador, con delegación (una sola vez). */
+function setupChartingContainer(container) {
+  if (!container) return;
+  container.querySelectorAll("textarea.auto-grow").forEach(autoGrowTextarea);
+  container.querySelectorAll(".charting-card").forEach(refreshChartingCard);
+  if (container.dataset.chartingBound === "1") return;
+  container.dataset.chartingBound = "1";
+  container.addEventListener("input", (e) => {
+    const textarea = e.target.closest("textarea.auto-grow");
+    if (textarea) autoGrowTextarea(textarea);
+    const card = e.target.closest(".charting-card");
+    if (card) refreshChartingCard(card);
+  });
+}
+
 function setupChartingTab() {
   const loadBtn = document.getElementById("btn-load-charting");
   const container = document.getElementById("charting-table-container");
@@ -807,84 +848,90 @@ function setupChartingTab() {
       const chartMap = {};
       chartingData.forEach(c => { chartMap[c.doi] = c; });
 
-      // Build editable table
-      let tableHtml = `
-        <table class="charting-table">
-          <thead>
-            <tr>
-              <th style="min-width:200px;">Título / DOI</th>
-              <th>Población</th>
-              <th>Concepto</th>
-              <th>Contexto</th>
-              <th>Metodología</th>
-              <th style="min-width:180px;">Hallazgos clave</th>
-              <th>Limitaciones</th>
-              <th style="width:55px;">Calidad</th>
-              <th style="width:60px;">Guardar</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+      // Fichas de extracción: una tarjeta cómoda por artículo. Los campos PICC van en rejilla,
+      // los textareas crecen solos y el resumen queda a mano. El motor propone; usted verifica.
+      let cardsHtml = `<div class="charting-cards">`;
 
-      included.forEach(s => {
+      included.forEach((s, idx) => {
         const doi = s.doi || "";
         const c = chartMap[doi] || {};
         const cached = state.screeningArticlesCache.find(a => (a.doi || "").toLowerCase() === doi);
-        // El título viene de la API (que ya lo unió con el artículo). Antes se usaba solo la
-        // caché de la interfaz y, si fallaba, la tabla mostraba el DOI en su lugar.
+        // El título viene de la API (que ya lo unió con el artículo); si falla, se usa la caché.
         const tituloApi = (s.title || "").trim();
         const title = (tituloApi && tituloApi !== doi) ? tituloApi
           : (cached && cached.title) ? cached.title : doi;
         const resumen = ((s.abstract || (cached && cached.abstract) || "") + "").trim();
         const urlFuente = (s.url || (cached && cached.url) || "").trim();
         const safeId = doi.replace(/[^a-zA-Z0-9]/g, "_");
+        const doiHref = doi ? (doi.startsWith("http") ? doi : "https://doi.org/" + encodeURIComponent(doi)) : "";
+        const qVal = (c.quality_score === 0 || c.quality_score) ? c.quality_score : "";
+        const field = (label, idPrefix, value, ph, extraClass = "") => `
+          <label class="charting-field ${extraClass}">
+            <span class="charting-label">${label}</span>
+            <textarea id="${idPrefix}${safeId}" class="charting-input auto-grow" rows="2" placeholder="${esc(ph)}">${esc(value || "")}</textarea>
+          </label>`;
 
-        tableHtml += `
-          <tr data-doi="${esc(doi)}">
-            <td>
-              <div style="font-weight:600; font-size:0.78rem; margin-bottom:2px;">
-                <a href="${doi ? (doi.startsWith('http') ? doi : 'https://doi.org/' + encodeURIComponent(doi)) : '#'}" target="_blank" rel="noopener noreferrer" style="color:var(--on-surface, #1E293B); text-decoration:none; display:inline-flex; align-items:flex-start; gap:4px;" title="Abrir texto completo original (DOI)">
-                  <span>${esc(title)}</span>
-                  <span class="material-symbols-outlined text-[13px] text-brand-teal" style="flex-shrink:0; margin-top:2px;">open_in_new</span>
-                </a>
-              </div>
-              <div style="font-size:0.65rem; color:var(--on-surface-variant); font-family:var(--font-mono, monospace);">${esc(doi)}</div>
-              <!-- El resumen es el insumo del charteo: sin él no se puede llenar el PCC.
-                   Si la ficha no lo trae, se ofrece traerlo de la fuente (cadena determinista). -->
-              <details class="charting-abstract">
-                <summary>${resumen ? "Resumen" : "Sin resumen"}</summary>
-                <div class="charting-abstract-text" id="abstract-text-${safeId}" data-url="${esc(urlFuente)}">
-                  ${resumen ? esc(resumen) : '<em>La ficha no publica resumen.</em>'}
+        cardsHtml += `
+          <article class="charting-card" data-doi="${esc(doi)}">
+            <header class="charting-card-head">
+              <div class="charting-card-id">
+                <span class="charting-card-index">${idx + 1}</span>
+                <div class="charting-card-titles">
+                  <a class="charting-title-link" ${doiHref ? `href="${esc(doiHref)}" target="_blank" rel="noopener noreferrer"` : ""} title="Abrir texto completo original (DOI)">
+                    <span data-chart-title>${esc(title)}</span>
+                    ${doiHref ? '<span class="material-symbols-outlined text-[15px] text-brand-teal">open_in_new</span>' : ""}
+                  </a>
+                  <span class="charting-card-doi">${esc(doi || "Sin DOI")}</span>
                 </div>
-                ${!resumen && urlFuente ? `
-                  <button type="button" class="btn btn-ghost sm" style="margin-top:6px; font-size:0.7rem; padding:2px 8px;"
-                          onclick="fetchDeterministicAbstract('abstract-text-${safeId}')">
-                    <span class="material-symbols-outlined text-[12px]">travel_explore</span>
-                    <span>Buscar resumen en la fuente</span>
-                  </button>` : ""}
-              </details>
-              <button type="button" class="btn btn-ghost sm charting-propose-btn"
-                      style="margin-top:6px; font-size:0.68rem; padding:2px 7px;"
-                      title="El motor propone los campos a partir del resumen; usted verifica y corrige."
-                      onclick="proponerPcc('${esc(doi)}', '${safeId}')">
-                <span class="material-symbols-outlined text-[12px]">auto_awesome</span>
-                <span>Proponer PICC</span>
-              </button>
-            </td>
-            <td><input type="text" id="chart-pop-${safeId}" value="${esc(c.population || "")}" placeholder="Ej: Adolescentes 12-18"></td>
-            <td><input type="text" id="chart-con-${safeId}" value="${esc(c.concept || "")}" placeholder="Ej: Alfabetización digital"></td>
-            <td><input type="text" id="chart-ctx-${safeId}" value="${esc(c.context || "")}" placeholder="Ej: Escuelas rurales México"></td>
-            <td><input type="text" id="chart-met-${safeId}" value="${esc(c.methodology || "")}" placeholder="Ej: Mixto/Cualitativo"></td>
-            <td><textarea id="chart-find-${safeId}" placeholder="Hallazgos principales...">${esc(c.key_findings || "")}</textarea></td>
-            <td><input type="text" id="chart-lim-${safeId}" value="${esc(c.limitations || "")}" placeholder="Ej: Muestra pequeña"></td>
-            <td><input type="number" id="chart-q-${safeId}" value="${c.quality_score || ""}" min="0" max="10" step="0.5" placeholder="0-10" style="width:50px;"></td>
-            <td><button type="button" class="charting-save-btn" onclick="saveChartingRow('${esc(doi)}', '${safeId}')">💾</button></td>
-          </tr>
-        `;
+              </div>
+              <div class="charting-card-actions">
+                <span class="charting-completion" title="Campos PICC completados">0/6</span>
+                <button type="button" class="btn btn-ghost sm charting-propose-btn"
+                        title="El motor propone los campos a partir del resumen; usted verifica y corrige."
+                        onclick="proponerPcc('${esc(doi)}', '${safeId}')">
+                  <span class="material-symbols-outlined text-[15px]">auto_awesome</span>
+                  <span>Proponer</span>
+                </button>
+                <button type="button" class="charting-save-btn" onclick="saveChartingRow('${esc(doi)}', '${safeId}')">
+                  <span class="material-symbols-outlined text-[15px]">save</span>
+                  <span>Guardar</span>
+                </button>
+              </div>
+            </header>
+
+            <details class="charting-abstract">
+              <summary>
+                <span class="material-symbols-outlined text-[15px]">subject</span>
+                ${resumen ? "Resumen de la fuente" : "Sin resumen publicado"}
+              </summary>
+              <div class="charting-abstract-text" id="abstract-text-${safeId}" data-url="${esc(urlFuente)}">${resumen ? esc(resumen) : "<em>La ficha no publica resumen.</em>"}</div>
+              ${!resumen && urlFuente ? `
+                <button type="button" class="btn btn-ghost sm charting-fetch-btn"
+                        onclick="fetchDeterministicAbstract('abstract-text-${safeId}')">
+                  <span class="material-symbols-outlined text-[14px]">travel_explore</span>
+                  <span>Buscar resumen en la fuente</span>
+                </button>` : ""}
+            </details>
+
+            <div class="charting-fields">
+              ${field("Población / Participantes", "chart-pop-", c.population, "Ej: Adolescentes 12-18 de escuelas rurales")}
+              ${field("Concepto", "chart-con-", c.concept, "Ej: Alfabetización digital")}
+              ${field("Contexto", "chart-ctx-", c.context, "Ej: Escuelas rurales de México, 2020-2023")}
+              ${field("Metodología", "chart-met-", c.methodology, "Ej: Mixto; encuesta + entrevistas")}
+              ${field("Hallazgos clave", "chart-find-", c.key_findings, "Hallazgos principales (verbatim o sintetizados)…", "charting-field-wide")}
+              ${field("Limitaciones", "chart-lim-", c.limitations, "Ej: Muestra pequeña, sesgo de autoselección", "charting-field-wide")}
+              <label class="charting-field charting-field-quality">
+                <span class="charting-label">Calidad metodológica <span class="charting-quality-readout" data-q-readout>${qVal === "" ? "—" : qVal}/10</span></span>
+                <input type="range" id="chart-q-${safeId}" min="0" max="10" step="0.5" value="${qVal === "" ? 0 : qVal}"
+                       oninput="this.closest('.charting-field').querySelector('[data-q-readout]').textContent = this.value + '/10'">
+              </label>
+            </div>
+          </article>`;
       });
 
-      tableHtml += `</tbody></table>`;
-      container.innerHTML = tableHtml;
+      cardsHtml += `</div>`;
+      container.innerHTML = cardsHtml;
+      setupChartingContainer(container);
     };
   }
 
@@ -1016,7 +1063,7 @@ window.saveChartingRow = async function(doi, safeId) {
   };
   try {
     await apiPost(`/review/protocol/${pid}/chart`, payload);
-    const btn = document.querySelector(`tr[data-doi="${CSS.escape(doi)}"] .charting-save-btn`);
+    const btn = document.querySelector(`[data-doi="${CSS.escape(doi)}"] .charting-save-btn`);
     if (btn) {
       btn.textContent = "✅";
       setTimeout(() => { btn.textContent = "💾"; }, 1500);
