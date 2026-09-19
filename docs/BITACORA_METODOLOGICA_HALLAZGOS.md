@@ -3870,3 +3870,44 @@ PWA en **`v=5.53` / `thinkuy-v77`**. Reversible con `pre-fase4`.
 
 **Artefactos:** `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
 
+---
+
+## Hito 71: El Data Charting deja de ser una tabla injusable: fichas cómodas - 19 de septiembre de 2026
+
+> **Reporte del IP:** «los cajones para rellenar la información son imposibles de trabajar por su
+> tamaño… esa sección debe tener una interfaz agradable, moderna y cómoda».
+
+### 1. El problema medido
+
+El Paso 2 era una **tabla de 9 columnas** con `input`/`textarea` de `font-size:0.76rem`,
+`padding:4px 8px` y `textarea min-height:48px`. En una pantalla normal, cada cajón quedaba de un
+par de centímetros: inservible para redactar un hallazgo o una población.
+
+### 2. El rediseño: una ficha por artículo
+
+Se abandona la tabla y cada artículo pasa a ser una **tarjeta**:
+
+- **Cabecera** con índice, título (enlace al DOI), acciones (**Proponer** el PICC y **Guardar**).
+- **Resumen de la fuente** plegable y cómodo (panel desplazable), con el botón de traerlo si falta.
+- **Rejilla de campos PICC** a dos columnas (una en móvil): Población, Concepto, Contexto,
+  Metodología, Hallazgos y Limitaciones.
+- **Textareas que crecen solos** (`min-height: 54px`, `font-size: 0.9rem`): ya se puede leer lo que
+  se escribe.
+- **Contador de avance** por ficha (`N/6`) y acento lateral que se enciende al completar los seis.
+- **Calidad** como control deslizante 0–10 con lectura en vivo.
+
+Los `id` de los campos (`chart-pop-…`, `chart-find-…`) se conservan, así que **el guardián y el
+motor siguen funcionando igual** (proponer solo rellena campos vacíos y nunca pisa lo escrito). Los
+selectores de `proponerPcc`, `proponerPccTodos` y `saveChartingRow` se generalizaron de
+`tr[data-doi]` a `[data-doi]`.
+
+### 3. Verificación
+
+`node --check` → OK; el CSS de las fichas se **validó en el navegador headless** (rejilla de 2
+columnas, `textarea` 54 px, radio 14 px); `smoke_pwa` → **OK**; `dev_check` → **OK** (ruff limpio,
+**246/246**). PWA en **`v=5.54` / `thinkuy-v78`**.
+
+**Commit:** `8864d05`.
+
+**Artefactos:** `pwa/js/review.js` (fichas + auto-crecimiento), `pwa/css/style.css` (estilos de ficha).
+
