@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opciones — Thinkuy</title>
+  <style>
+    :root { --bg: #0B1226; --bg2: #14204A; --line: #23325F; --text: #E6ECFF; --muted: #8FA0D4; --cyan: #22D3EE; --amber: #F59E0B; --green: #34D399; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; padding: 40px 20px; }
+    .card { background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; padding: 24px; max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    h1 span { color: var(--cyan); }
+    p.sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    label { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin: 14px 0 6px; }
+    input, select { width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text); padding: 10px 12px; border-radius: 10px; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: var(--cyan); }
+    .actions { display: flex; gap: 10px; margin-top: 22px; }
+    button { flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; font-size: 14px; }
+    button.primary { background: var(--cyan); border-color: var(--cyan); color: #04101F; font-weight: 700; }
+    button:hover { border-color: var(--cyan); }
+    #status { color: var(--green); font-size: 13px; margin-top: 12px; min-height: 18px; }
+    .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Thinkuy — Opciones</h1>
+    <p class="sub">Configura a qué servidor del radar se conecta la extensión y tus keywords.</p>
+
+    <label for="apiUrl">URL de la API</label>
+    <input id="apiUrl" type="url" placeholder="http://localhost:8000">
+    <div class="hint">Backend Thinkuy: <code>uvicorn radar.api.main:app</code> (por defecto http://localhost:8000).</div>
+
+    <label for="keywords">Palabras clave (separadas por coma)</label>
+    <input id="keywords" type="text" placeholder="comunicación política, desinformación…">
+
+    <label for="limit">Alertas por actualización</label>
+    <select id="limit">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+    </select>
+
+    <label for="days">Ventana temporal</label>
+    <select id="days">
+      <option value="90">3 meses</option>
+      <option value="180">6 meses</option>
+      <option value="365">1 año</option>
+    </select>
+
+    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; text-transform:none; letter-spacing:0;">
+      <input type="checkbox" id="notificationsEnabled" style="width:auto;"> 
+      Notificaciones del sistema cuando haya nuevas publicaciones ancladas
+    </label>
+
+    <div class="actions">
+      <button id="save" class="primary">Guardar</button>
+      <button id="test">Probar conexión</button>
+    </div>
+    <div id="status"></div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

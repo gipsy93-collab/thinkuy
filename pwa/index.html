@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#619196">
+  <meta name="description" content="Thinkuy: radar de comunicación científica. Publicaciones en conversación con tu campo de conocimiento.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Google Fonts: Sora, Inter, JetBrains Mono, Material Symbols Outlined -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <title>Thinkuy · Radar de comunicación científica</title>
+  <link rel="stylesheet" href="css/style.css?v=5.44">
+</head>
+<body>
+
+  <!-- Ambient Light Orbs -->
+  <div class="ambient-glow-wrap" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" aria-label="Navegación principal">
+      <div class="sidebar-top">
+        <button class="sidebar-brand-btn nav-link" data-view="home" title="Thinkuy Home" aria-label="Ir a Inicio">
+          <span class="material-symbols-outlined text-[24px]">radar</span>
+        </button>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link active" data-view="home" aria-label="Inicio y Consulta Socrática">
+            <span class="material-symbols-outlined text-[20px]">space_dashboard</span>
+          </button>
+          <span class="sidebar-tooltip">Consulta Socrática</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link" data-view="explorer" aria-label="Explorador y Feed de Artículos">
+            <span class="material-symbols-outlined text-[20px]">explore</span>
+          </button>
+          <span class="sidebar-tooltip">Explorador de Artículos</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link" data-view="review" aria-label="Revisión Sistemática PRISMA-ScR">
+            <span class="material-symbols-outlined text-[20px]">rule_folder</span>
+          </button>
+          <span class="sidebar-tooltip">Revisión Sistemática (PRISMA)</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link" data-view="journals" aria-label="¿Dónde Publicar? (Revistas & CFPs)">
+            <span class="material-symbols-outlined text-[20px]">menu_book</span>
+          </button>
+          <span class="sidebar-tooltip">¿Dónde Publicar? (Revistas)</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link" data-view="reviewers" aria-label="Editores y Revisores Pares">
+            <span class="material-symbols-outlined text-[20px]">supervised_user_circle</span>
+          </button>
+          <span class="sidebar-tooltip">Editores y Revisores</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn nav-link" data-view="radar" aria-label="Radar de Proximidad Epistemológica">
+            <span class="material-symbols-outlined text-[20px]">orbit</span>
+          </button>
+          <span class="sidebar-tooltip">Radar de Proximidad</span>
+        </div>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-nav-item">
+          <button class="sidebar-btn" id="btn-open-socratic-sidebar" aria-label="Abrir Diálogo Socrático">
+            <span class="material-symbols-outlined text-[20px]">psychology</span>
+          </button>
+          <span class="sidebar-tooltip">Diálogo Socrático</span>
+        </div>
+
+        <div class="sidebar-nav-item">
+          <div class="sidebar-avatar" title="Investigador Principal">
+            <span>T</span>
+          </div>
+          <span class="sidebar-tooltip">Investigador Principal</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Topbar Header -->
+    <header class="app-topbar">
+      <div class="topbar-brand">
+        <span class="topbar-title">Thinkuy</span>
+        <span class="topbar-tag">Radar Científico</span>
+      </div>
+
+      <div class="topbar-right">
+        <div class="telemetry-chip hidden-mobile" id="topbar-telemetry">
+          <span class="telemetry-pulse"></span>
+          <span class="data-tabular" id="stat-articles-header">Sonda Federada: OpenAlex · OpenAIRE · Dialnet</span>
+        </div>
+
+        <div class="telemetry-chip hidden-mobile">
+          <span class="material-symbols-outlined text-[15px] text-brand-teal">public</span>
+          <span>Acceso Abierto Global • Políticas UE • Iberoamérica</span>
+        </div>
+
+
+        <span id="install-wrap" hidden>
+          <button id="btn-install" class="btn btn-secondary sm">Instalar</button>
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Content (SPA Router Views) -->
+    <main class="app-content">
+
+      <!-- Aviso de instancia obsoleta: lo rellena checkBuildFingerprint() al arrancar.
+           Un servidor viejo sirve la interfaz desde disco pero falla en los endpoints nuevos. -->
+      <div id="build-warning-banner" class="build-warning-banner" hidden></div>
+
+      <!-- ====================================================================
+           VISTA 1: HOME / BÚSQUEDA SOCRÁTICA
+           ==================================================================== -->
+      <section id="view-home" class="spa-view active">
+        <div class="view-home-container">
+          
+          <div class="home-hero-header">
+            <h1 class="home-hero-title">Thinkuy</h1>
+            <p class="home-hero-subtitle" id="home-hero-subtitle-text">
+              Monitoreamos papers para tu investigación basados en resúmenes revisados por pares, literatura completa y preprints de diferentes bases de datos.
+            </p>
+          </div>
+
+          <!-- Selector Dual de Perfil: Investigador vs. Revista / Editorial -->
+          <div class="home-persona-nav" role="tablist" aria-label="Perfil de Consulta">
+            <button class="persona-tab active" id="tab-persona-researcher" data-persona="researcher" type="button" role="tab" aria-selected="true">
+              <span class="material-symbols-outlined persona-icon">science</span>
+              <span class="persona-tab-text">
+                <span class="persona-title">Modo Investigador</span>
+                <span class="persona-desc">Manuscrito, vacíos, citas y DOI</span>
+              </span>
+            </button>
+            <button class="persona-tab" id="tab-persona-journal" data-persona="journal" type="button" role="tab" aria-selected="false">
+              <span class="material-symbols-outlined persona-icon">menu_book</span>
+              <span class="persona-tab-text">
+                <span class="persona-title">Modo Revista / Editorial</span>
+                <span class="persona-desc">Editores, benchmarking y SCIVIS</span>
+              </span>
+            </button>
+          </div>
+
+          <!-- Central Inquiry Card -->
+          <div class="inquiry-card">
+            <textarea 
+              id="home-inquiry-input" 
+              class="inquiry-textarea" 
+              placeholder="¿Qué te gustaría saber más? Escribe tu pregunta, hipótesis o tema de estudio..." 
+              rows="3"
+            ></textarea>
+            
+            <div class="inquiry-footer">
+              <div class="inquiry-actions-left">
+                <button class="inquiry-icon-btn" id="btn-attach-ref" title="Adjuntar archivo o referencia (PDF, BibTeX, notas)" type="button">
+                  <span class="material-symbols-outlined text-[19px]">attach_file</span>
+                </button>
+
+                <button class="deep-switch-btn" id="deep-research-toggle" type="button" title="Activar análisis exhaustivo multidatabase">
+                  <div class="deep-switch-track" id="toggle-track">
+                    <div class="deep-switch-thumb" id="toggle-thumb"></div>
+                  </div>
+                  <span id="toggle-label">Investigación profunda</span>
+                </button>
+              </div>
+
+              <button class="inquiry-submit-btn" id="btn-home-send" title="Enviar consulta" type="button">
+                <span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Panel de Diagnóstico de Ecosistema y Radar Thinkuy (Home) -->
+          <div id="home-librarian-panel" class="librarian-panel" hidden>
+            <!-- Indicador de Carga del Diagnóstico -->
+            <div id="librarian-loading" class="librarian-loading" hidden>
+              <div class="librarian-spinner"></div>
+              <div class="librarian-loading-text">
+                <strong>Auditor de Thinkuy explorando el ecosistema iberoamericano...</strong>
+                <p>Cotejando acervo real en SciELO, Redalyc, Crossref y OpenAlex sin intermediarios.</p>
+              </div>
+            </div>
+
+            <!-- Contenido del Diagnóstico de Ecosistema -->
+            <div id="librarian-results" class="librarian-content" hidden>
+              <!-- Lema rector y cabecera de inteligencia científica -->
+              <div class="radar-motto-banner">
+                <div class="motto-text-group">
+                  <span class="motto-tagline">FILOSOFÍA THINKUY</span>
+                  <h3 class="motto-heading">«No busques el paper. Deja que el paper te encuentre.»</h3>
+                </div>
+                <div id="eco-saturation-badge" class="badge badge-primary">
+                  <!-- Diagnóstico de estado: Nicho Fértil / En Consolidación / Altamente Denso -->
+                </div>
+              </div>
+
+              <!-- Badge de Sonda en Vivo (OpenAlex) si aplica -->
+              <div id="librarian-probe-badge" class="librarian-probe-badge" hidden>
+                <div class="probe-badge-content">
+                  <span class="material-symbols-outlined probe-icon">satellite_alt</span>
+                  <div class="probe-badge-text">
+                    <strong>Sonda en Vivo (OpenAlex)</strong> · Exploración multidisciplinar en tiempo real
+                  </div>
+                </div>
+                <span class="probe-badge-tag">Acceso Abierto Global</span>
+              </div>
+
+              <!-- Aviso de consulta ampliada: la sonda relajó la formulación para no devolver cero -->
+              <div id="librarian-relax-badge" class="librarian-relax-badge" hidden>
+                <span class="material-symbols-outlined" style="font-size:18px; color:var(--brand-amber, #d97706);">search_insights</span>
+                <div class="librarian-relax-text">
+                  <strong>Consulta ampliada.</strong>
+                  <span id="librarian-relax-text"></span>
+                </div>
+              </div>
+
+              <!-- Termómetro del Ecosistema: Métricas de Cobertura Real -->
+              <div class="ecosystem-metrics-grid">
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">library_books</span>
+                    <span id="eco-metric-total-label">Documentos en el Catálogo</span>
+                  </div>
+                  <div class="eco-metric-value" id="eco-metric-total">0</div>
+                  <div class="eco-metric-sub" id="eco-metric-sources">SciELO • Redalyc • Crossref • OpenAlex</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                    <span>Revistas Núcleo</span>
+                  </div>
+                  <div class="eco-metric-value" id="eco-metric-journals-count">0</div>
+                  <div class="eco-metric-sub">Espacio editorial prioritario</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">insights</span>
+                    <span>Ventana Temporal</span>
+                  </div>
+                  <div class="eco-metric-value" id="eco-metric-years">-</div>
+                  <div class="eco-metric-sub" id="eco-metric-recent">Publicaciones recientes</div>
+                </div>
+              </div>
+
+              <!-- Bocadillo del Auditor de Cultura Científica -->
+              <div class="librarian-speech-bubble">
+                <div class="librarian-avatar">
+                  <span class="material-symbols-outlined">radar</span>
+                </div>
+                <div class="librarian-speech-body">
+                  <div class="librarian-speech-header">
+                    <span class="librarian-name">Auditoría de Ecosistema Científico</span>
+                    <span id="librarian-field-badge" class="badge badge-source">Comunicación</span>
+                  </div>
+                  <div class="librarian-heard" id="librarian-heard-text">
+                    <!-- Interpretación o frase del usuario -->
+                  </div>
+                  <div class="librarian-explanation" id="librarian-explanation-text">
+                    <!-- Diagnóstico grounded de literatura, revistas y saturación -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Palabras Clave y Refinamiento Interactivo -->
+              <div class="librarian-keywords-panel">
+                <div class="keywords-panel-row">
+                  <span class="keywords-panel-label">Descriptores de la búsqueda:</span>
+                  <div id="librarian-keywords-chips" class="librarian-tags-wrap"></div>
+                </div>
+                <div class="keywords-panel-row" id="librarian-refine-row">
+                  <span class="keywords-panel-label">Afinar con descriptores afines:</span>
+                  <div id="librarian-suggested-chips" class="librarian-tags-wrap"></div>
+                </div>
+              </div>
+
+              <!-- Ecosistema: Revistas Núcleo y Autores en Diálogo -->
+              <div class="ecosystem-breakdown-row">
+                <!-- Revistas Núcleo -->
+                <div class="eco-breakdown-card">
+                  <div class="eco-breakdown-header">
+                    <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+                    <h4>Revistas donde se concentra el debate</h4>
+                  </div>
+                  <div id="eco-journals-list" class="eco-interactive-list">
+                    <!-- Lista de revistas con enlaces a Explorador -->
+                  </div>
+                </div>
+
+                <!-- Autores Líderes -->
+                <div class="eco-breakdown-card">
+                  <div class="eco-breakdown-header">
+                    <span class="material-symbols-outlined text-[18px]">group</span>
+                    <h4>Autores que articulan la conversación</h4>
+                  </div>
+                  <div id="eco-authors-list" class="eco-interactive-list">
+                    <!-- Lista de autores con enlaces a Radar de Proximidad -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Documentos Clave Recuperados del Catálogo -->
+              <div class="librarian-articles-section">
+                <div class="librarian-articles-header">
+                  <h3 class="librarian-articles-title">
+                    <span class="material-symbols-outlined text-[18px]">verified</span>
+                    <span><span id="librarian-articles-title-text">Documentos destacados con enlaces verificados</span> (<span id="librarian-articles-count">0</span>)</span>
+                  </h3>
+                  <button id="btn-librarian-view-all" class="btn btn-ghost sm" type="button">
+                    <span>Ver todos en Explorador</span>
+                    <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+                  </button>
+                </div>
+                <div id="librarian-articles-list" class="librarian-articles-grid"></div>
+              </div>
+
+              <!-- Módulo Epistemológico y Scoping Review (Modo Investigador) -->
+              <div class="librarian-epistemic-section" id="librarian-epistemic-section">
+                <div class="epistemic-section-header">
+                  <div class="epistemic-title-group">
+                    <div class="epistemic-badge-title">
+                      <span class="material-symbols-outlined text-[18px] text-brand-teal">science</span>
+                      <span class="epistemic-tag">Modo Investigador · Rigor Epistemológico</span>
+                    </div>
+                    <h3 class="epistemic-heading">Cartografía Científica y Protocolo de Revisión</h3>
+                    <p class="epistemic-sub">Plataforma dual: explora libremente vecindarios y linajes de co-citación, o ejecuta una revisión sistemática auditable según estándares PRISMA-ScR y JBI.</p>
+                  </div>
+
+                  <!-- Selector Superior de Submotores (Doble Capa de Alto Impacto) -->
+                  <div class="submotor-switcher" role="tablist" aria-label="Selección de Submotor">
+                    <button type="button" class="submotor-tab active" id="btn-submotor-epistemic" data-submotor="submotor-panel-epistemic">
+                      <span class="material-symbols-outlined submotor-icon">hub</span>
+                      <div class="submotor-text">
+                        <span class="submotor-title">Submotor A: Radar Epistemológico</span>
+                        <span class="submotor-desc">Escuelas de pensamiento, trayectoria principal SPC y genealogía de citación</span>
+                      </div>
+                    </button>
+                    <button type="button" class="submotor-tab" id="btn-submotor-review" data-submotor="submotor-panel-review">
+                      <span class="material-symbols-outlined submotor-icon">rule_folder</span>
+                      <div class="submotor-text">
+                        <span class="submotor-title">Submotor B: Revisión Sistemática (PRISMA-ScR / JBI)</span>
+                        <span class="submotor-desc">Clasificación de roles, cribado auditable, charteo y síntesis con IA</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ============================================================
+                     SUBMOTOR A: RADAR EPISTEMOLÓGICO (Mapeo Estructural & Genealogía)
+                     ============================================================ -->
+                <div id="submotor-panel-epistemic" class="submotor-panel active">
+                  <!-- Barra de control y estado de análisis lazy -->
+                  <div class="submotor-control-bar">
+                    <div class="submotor-status-pill">
+                      <span class="material-symbols-outlined text-[16px] text-brand-teal">database</span>
+                      <span id="epistemic-corpus-indicator">Corpus anclado a la consulta</span>
+                    </div>
+                    <button type="button" class="btn btn-ghost sm" id="btn-recalc-epistemic">
+                      <span class="material-symbols-outlined text-[15px]">sync</span>
+                      <span>Recalcular Mapa</span>
+                    </button>
+                  </div>
+
+                  <!-- Pestañas secundarias de Submotor A -->
+                  <div class="epistemic-subpills" role="tablist">
+                    <button type="button" class="epistemic-pill active" id="tab-pill-schools" data-target="epistemic-tab-schools">
+                      <span class="material-symbols-outlined text-[16px]">bubble_chart</span>
+                      <span>Escuelas de Pensamiento</span>
+                    </button>
+                    <button type="button" class="epistemic-pill" id="tab-pill-mainpath" data-target="epistemic-tab-mainpath">
+                      <span class="material-symbols-outlined text-[16px]">timeline</span>
+                      <span>Trayectoria Principal (SPC)</span>
+                    </button>
+                    <button type="button" class="epistemic-pill" id="tab-pill-snowball" data-target="epistemic-tab-snowball">
+                      <span class="material-symbols-outlined text-[16px]">account_tree</span>
+                      <span>Snowballing por DOI</span>
+                    </button>
+                  </div>
+
+                  <!-- Tab 1: Escuelas de Pensamiento -->
+                  <div class="epistemic-tab-content active" id="epistemic-tab-schools">
+                    <div class="epistemic-tab-intro">
+                      <p>Las <strong>escuelas de pensamiento</strong> se detectan agrupando referencias co-citadas fuertemente mediante <em>Union-Find</em>. No dependen de coincidencias léxicas, sino de la tradición y el linaje intelectual compartido.</p>
+                    </div>
+                    <div id="epistemic-schools-container" class="epistemic-schools-grid">
+                      <div class="loading-placeholder">Cargando escuelas de pensamiento...</div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 2: Trayectoria Principal -->
+                  <div class="epistemic-tab-content" id="epistemic-tab-mainpath" hidden>
+                    <div class="epistemic-tab-intro">
+                      <p>La <strong>Trayectoria Principal (Main Path Analysis)</strong> rastrea la columna vertebral del debate científico con el algoritmo <em>Search Path Count (SPC)</em>: la autopista histórica que conecta los fundamentos con las obras contemporáneas.</p>
+                    </div>
+                    <div id="epistemic-mainpath-container" class="epistemic-mainpath-timeline">
+                      <div class="loading-placeholder">Calculando trayectoria principal...</div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 3: Snowballing por DOI -->
+                  <div class="epistemic-tab-content" id="epistemic-tab-snowball" hidden>
+                    <div class="epistemic-tab-intro">
+                      <p>Expansión estructural rigurosa: ingresa un DOI semilla para rastrear sus <strong>ancestros</strong> (obras que cita) y sus <strong>descendientes</strong> (quiénes lo citan) dentro del catálogo.</p>
+                      <div class="snowball-input-row">
+                        <input type="text" id="snowball-doi-input" class="filter-input" placeholder="Ingresa un DOI del catálogo (ej. 10.22395/angr.v24n48a01)...">
+                        <select id="snowball-direction-select" class="filter-select">
+                          <option value="both">Ambas direcciones (ancestros + descendientes)</option>
+                          <option value="backward">Backward (solo referencias / ancestros)</option>
+                          <option value="forward">Forward (quiénes lo citan / descendientes)</option>
+                        </select>
+                        <button type="button" id="btn-run-snowball" class="btn btn-primary">
+                          <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                          <span>Expandir Red</span>
+                        </button>
+                      </div>
+                      <div id="snowball-seeds-container" class="snowball-seeds-container"></div>
+                    </div>
+                    <div id="epistemic-snowball-container" class="epistemic-snowball-results">
+                      <div class="snowball-empty-hint">Escribe un DOI o selecciona un paper del diagnóstico para ver su mapa de expansión.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ============================================================
+                     SUBMOTOR B: REVISIÓN SISTEMÁTICA & SCOPING (PRISMA-ScR / JBI)
+                     ============================================================ -->
+                <div id="submotor-panel-review" class="submotor-panel" hidden>
+                  <!-- Gestor de Proyecto / Protocolo Persistente -->
+                  <div class="protocol-project-bar">
+                    <div class="protocol-project-info">
+                      <span class="material-symbols-outlined text-[20px] text-brand-teal">folder_open</span>
+                      <div class="protocol-select-wrapper">
+                        <label for="review-protocol-select" class="protocol-label">Protocolo Activo:</label>
+                        <select id="review-protocol-select" class="protocol-select" title="Selecciona un protocolo guardado">
+                          <option value="">Cargando protocolos...</option>
+                        </select>
+                      </div>
+                      <span id="review-protocol-badge-status" class="protocol-status-badge">screening</span>
+                    </div>
+                    <div class="protocol-actions">
+                      <button type="button" id="btn-new-protocol-modal" class="btn btn-ghost sm" title="Crear un nuevo proyecto de revisión">
+                        <span class="material-symbols-outlined text-[15px]">add_circle</span>
+                        <span>Nuevo Protocolo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Formulario desplegable para crear nuevo protocolo -->
+                  <div id="protocol-create-form" class="protocol-create-box" hidden>
+                    <div class="protocol-create-header">
+                      <strong>Crear Nuevo Protocolo de Revisión</strong>
+                      <button type="button" id="btn-close-new-protocol" class="btn-icon-sm" title="Cerrar">✕</button>
+                    </div>
+                    <div class="protocol-create-row">
+                      <input type="text" id="new-protocol-title-input" class="filter-input" placeholder="Título del protocolo (ej: Scoping Review Alfabetización Digital 2026)">
+                      <select id="new-protocol-framework-select" class="filter-select" style="width:auto;">
+                        <option value="PCC">Marco PCC (Población, Concepto, Contexto - Scoping)</option>
+                        <option value="PICO">Marco PICO (Intervención, Comparación, Resultado)</option>
+                        <option value="SPIDER">Marco SPIDER (Cualitativo/Mixto)</option>
+                      </select>
+                      <button type="button" id="btn-save-new-protocol" class="btn btn-primary sm">
+                        <span class="material-symbols-outlined text-[15px]">save</span>
+                        <span>Guardar Protocolo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Stepper Metodológico PRISMA-ScR / JBI -->
+                  <div class="prisma-stepper" role="navigation" aria-label="Fases Metodológicas">
+                    <button type="button" class="stepper-step active" id="step-btn-roles" data-step="step-content-roles">
+                      <span class="step-badge">Paso 0</span>
+                      <div class="step-meta">
+                        <span class="step-title">Clasificación</span>
+                        <span class="step-desc">Roles epistemológicos</span>
+                      </div>
+                    </button>
+                    <div class="stepper-connector"></div>
+                    <button type="button" class="stepper-step" id="step-btn-screening" data-step="step-content-screening">
+                      <span class="step-badge">Paso 1</span>
+                      <div class="step-meta">
+                        <span class="step-title">Screening PRISMA</span>
+                        <span class="step-desc">Cribado &amp; exclusión</span>
+                      </div>
+                    </button>
+                    <div class="stepper-connector"></div>
+                    <button type="button" class="stepper-step" id="step-btn-charting" data-step="step-content-charting">
+                      <span class="step-badge">Paso 2</span>
+                      <div class="step-meta">
+                        <span class="step-title">Data Charting</span>
+                        <span class="step-desc">Extracción JBI &amp; Export</span>
+                      </div>
+                    </button>
+                    <div class="stepper-connector"></div>
+                    <button type="button" class="stepper-step" id="step-btn-synthesis" data-step="step-content-synthesis">
+                      <span class="step-badge">Paso 3</span>
+                      <div class="step-meta">
+                        <span class="step-title">Síntesis &amp; Rigor</span>
+                        <span class="step-desc">Auditoría y Agente A.1</span>
+                      </div>
+                    </button>
+                  </div>
+
+                  <!-- PASO 0: Clasificación del Corpus (Roles Epistemológicos) -->
+                  <div class="prisma-step-content active" id="step-content-roles">
+                    <div class="epistemic-tab-intro">
+                      <div class="step-guidance-callout">
+                        <span class="material-symbols-outlined text-[18px] text-brand-teal">info</span>
+                        <div>
+                          <strong>Fase de Identificación y Caracterización Inicial (JBI / PRISMA-ScR)</strong>:
+                          Clasifica la literatura recuperada según su función en la estructura del conocimiento. Estos artículos alimentan directamente la cola de cribado (Screening).
+                        </div>
+                      </div>
+                      <!-- Caja Dual: Sonda Federada o Subida Asistida de Archivos Propios -->
+                      <div class="protocol-import-dual-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:12px; margin-bottom: 1rem;">
+                        <!-- Columna 1: Sonda Federada -->
+                        <div class="protocol-harvest-box" style="padding: 0.85rem 1rem; background: var(--surface-2, rgba(255,255,255,0.03)); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px;">
+                          <label for="input-protocol-harvest-query" style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.8rem; margin-bottom:6px; color:var(--brand-teal);">
+                            <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                            Sonda Federada (OpenAlex · OpenAIRE · Dialnet)
+                          </label>
+                          <div style="display: flex; gap: 8px;">
+                            <input type="text" id="input-protocol-harvest-query" class="form-input" style="flex:1; font-size:0.82rem; padding:6px 10px;" placeholder="Ingresa la ecuación booleana..." />
+                            <button type="button" class="btn btn-primary sm" id="btn-protocol-harvest" style="white-space: nowrap;">
+                              <span class="material-symbols-outlined text-[15px]">cloud_sync</span>
+                              <span>Cosechar en vivo</span>
+                            </button>
+                          </div>
+                          <div id="protocol-harvest-status" class="text-xs text-secondary" style="margin-top:4px;"></div>
+                        </div>
+
+                        <!-- Columna 2: Subida Asistida con Diagnóstico Inteligente -->
+                        <div class="protocol-upload-box" style="padding: 0.85rem 1rem; background: var(--surface-2, rgba(255,255,255,0.03)); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px;">
+                          <label for="input-protocol-file-upload" style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.8rem; margin-bottom:6px; color:#60A5FA;">
+                            <span class="material-symbols-outlined text-[16px]">upload_file</span>
+                            Importar Archivo Propio (CSV / RIS)
+                          </label>
+                          <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="file" id="input-protocol-file-upload" accept=".csv,.ris,.txt" style="display:none;" />
+                            <button type="button" class="btn btn-outline sm" id="btn-trigger-file-upload" style="flex:1; font-size:0.82rem; border-color:rgba(96,165,250,0.4); color:#93C5FD; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                              <span class="material-symbols-outlined text-[16px]">folder_open</span>
+                              <span id="label-file-selected">Seleccionar archivo (.csv, .ris)...</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary sm" id="btn-audit-file-action" style="white-space:nowrap;" disabled>
+                              <span class="material-symbols-outlined text-[15px]">fact_check</span>
+                              <span>Auditar</span>
+                            </button>
+                          </div>
+                          <div id="protocol-upload-status" class="text-xs text-secondary" style="margin-top:4px;">Diagnóstico de completitud y enriquecedor híbrido.</div>
+                        </div>
+                      </div>
+                      <div class="role-filter-chips">
+                        <button type="button" class="role-chip active" data-role="all">Todos (<span id="count-role-all">0</span>)</button>
+                        <button type="button" class="role-chip" data-role="Seminal">🟡 Seminal (<span id="count-role-seminal">0</span>)</button>
+                        <button type="button" class="role-chip" data-role="Synthesis/Review">🟣 Síntesis/Review (<span id="count-role-review">0</span>)</button>
+                        <button type="button" class="role-chip" data-role="Theoretical/Framework">🔵 Teórico (<span id="count-role-theory">0</span>)</button>
+                        <button type="button" class="role-chip" data-role="Methodological">🟢 Metodológico (<span id="count-role-method">0</span>)</button>
+                        <button type="button" class="role-chip" data-role="Empirical">⚪ Empírico (<span id="count-role-empirical">0</span>)</button>
+                      </div>
+                      <div class="source-filter-chips" style="display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap;">
+                        <span style="font-size:0.75rem; color:var(--text-secondary); margin-right:4px;">Base de datos:</span>
+                        <button type="button" class="source-chip role-src-chip active" data-source="all">Todas (<span id="count-role-src-all">0</span>)</button>
+                        <button type="button" class="source-chip role-src-chip" data-source="openalex">🌐 OpenAlex (<span id="count-role-src-openalex">0</span>)</button>
+                        <button type="button" class="source-chip role-src-chip" data-source="openaire">🇪🇺 OpenAIRE (<span id="count-role-src-openaire">0</span>)</button>
+                        <button type="button" class="source-chip role-src-chip" data-source="dialnet">📚 Dialnet (<span id="count-role-src-dialnet">0</span>)</button>
+                      </div>
+                    </div>
+                    <div class="step-transfer-bar">
+                      <span id="roles-transfer-summary" class="text-xs text-secondary">Listos para transferir al protocolo activo</span>
+                      <button type="button" class="btn btn-primary sm" id="btn-transfer-roles-to-screening">
+                        <span class="material-symbols-outlined text-[15px]">send_to_mobile</span>
+                        <span>Enviar todo a Screening (Paso 1) →</span>
+                      </button>
+                    </div>
+                    <div id="epistemic-roles-container" class="epistemic-roles-grid">
+                      <div class="loading-placeholder">Clasificando roles epistemológicos...</div>
+                    </div>
+                  </div>
+
+                  <!-- PASO 1: Screening PRISMA-ScR -->
+                  <div class="prisma-step-content" id="step-content-screening" hidden>
+                    <!-- Contexto del protocolo: declara a qué revisión pertenece la cola de cribado. -->
+                    <div id="screening-protocol-context" class="protocol-context-banner" hidden></div>
+                    <div class="epistemic-tab-intro">
+                      <div class="step-guidance-callout">
+                        <span class="material-symbols-outlined text-[18px] text-brand-teal">checklist</span>
+                        <div>
+                          <strong>Fase de Cribado (Screening)</strong>: Evalúa título y resumen de cada registro. Toda exclusión requiere justificación documentada para mantener la trazabilidad metodológica requerida por PRISMA.
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Diagrama de flujo PRISMA -->
+                    <div id="prisma-flow-diagram" class="prisma-flow-diagram">
+                      <div class="prisma-flow-box prisma-identification">
+                        <div class="prisma-flow-label">Identificación</div>
+                        <div class="prisma-flow-count" id="prisma-identified">0</div>
+                        <div class="prisma-flow-sublabel">registros identificados</div>
+                      </div>
+                      <div class="prisma-flow-arrow">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                      </div>
+                      <div class="prisma-flow-side-box">
+                        <div class="prisma-flow-label">Duplicados</div>
+                        <div class="prisma-flow-count" id="prisma-duplicates">0</div>
+                      </div>
+                      <div class="prisma-flow-arrow">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                      </div>
+                      <div class="prisma-flow-box prisma-screening">
+                        <div class="prisma-flow-label">Cribado (Screening)</div>
+                        <div class="prisma-flow-count" id="prisma-screened">0</div>
+                        <div class="prisma-flow-sublabel">registros cribados</div>
+                      </div>
+                      <div class="prisma-flow-row-excluded">
+                        <div class="prisma-flow-arrow-right">
+                          <span class="material-symbols-outlined">arrow_forward</span>
+                        </div>
+                        <div class="prisma-flow-side-box prisma-excluded">
+                          <div class="prisma-flow-label">Excluidos</div>
+                          <div class="prisma-flow-count" id="prisma-excluded">0</div>
+                          <div id="prisma-exclusion-reasons" class="prisma-exclusion-reasons"></div>
+                        </div>
+                      </div>
+                      <div class="prisma-flow-arrow">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                      </div>
+                      <div class="prisma-flow-box prisma-included">
+                        <div class="prisma-flow-label">Incluidos</div>
+                        <div class="prisma-flow-count" id="prisma-included">0</div>
+                        <div class="prisma-flow-sublabel">fuentes en síntesis final</div>
+                      </div>
+                      <div class="prisma-flow-pending-note">
+                        <span class="material-symbols-outlined text-[14px]">pending</span>
+                        Pendientes: <strong id="prisma-pending">0</strong> · Dudosos: <strong id="prisma-maybe">0</strong>
+                      </div>
+                    </div>
+
+                    <!-- Lista de artículos para screening -->
+                    <div class="screening-actions-bar">
+                      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-ghost sm" id="btn-load-screening-articles">
+                          <span class="material-symbols-outlined text-[15px]">playlist_add</span>
+                          <span>Cargar artículos del diagnóstico para screening</span>
+                        </button>
+                        <select id="screening-filter-select" class="filter-select" style="width:auto;">
+                          <option value="all">Todos los registros</option>
+                          <option value="pending">Pendientes de decisión</option>
+                          <option value="included">Incluidos (✓)</option>
+                          <option value="excluded">Excluidos (✕)</option>
+                          <option value="maybe">Dudosos (?)</option>
+                        </select>
+                      </div>
+                      <button type="button" class="btn btn-secondary sm" id="btn-advance-to-charting">
+                        <span>Ir a Charteo (Paso 2) →</span>
+                      </button>
+                    </div>
+                    <!-- Filtro por Base de Datos en Screening -->
+                    <div class="source-filter-chips" style="display:flex; gap:6px; margin: 8px 0; align-items:center; flex-wrap:wrap;">
+                      <span style="font-size:0.75rem; color:var(--text-secondary); margin-right:4px;">Base de datos:</span>
+                      <button type="button" class="source-chip screen-src-chip active" data-source="all">Todas (<span id="count-screen-src-all">0</span>)</button>
+                      <button type="button" class="source-chip screen-src-chip" data-source="openalex">🌐 OpenAlex (<span id="count-screen-src-openalex">0</span>)</button>
+                      <button type="button" class="source-chip screen-src-chip" data-source="openaire">🇪🇺 OpenAIRE (<span id="count-screen-src-openaire">0</span>)</button>
+                      <button type="button" class="source-chip screen-src-chip" data-source="dialnet">📚 Dialnet (<span id="count-screen-src-dialnet">0</span>)</button>
+                    </div>
+                    <div id="screening-articles-container" class="screening-articles-list">
+                      <div class="snowball-empty-hint">Haz clic en «Cargar artículos» para iniciar el screening de los resultados del diagnóstico.</div>
+                    </div>
+                  </div>
+
+                  <!-- PASO 2: Data Charting JBI & Exportación -->
+                  <div class="prisma-step-content" id="step-content-charting" hidden>
+                    <!-- Contexto del protocolo: la búsqueda en vivo NO alimenta ningún protocolo.
+                         Sin este aviso, el investigador cree que las fichas son de lo que buscó. -->
+                    <div id="charting-protocol-context" class="protocol-context-banner" hidden></div>
+                    <div class="epistemic-tab-intro">
+                      <div class="step-guidance-callout">
+                        <span class="material-symbols-outlined text-[18px] text-brand-teal">table_rows</span>
+                        <div>
+                          <strong>Fase de Extracción y Mapeo de Datos (JBI PCC)</strong>:
+                          Extrae de manera uniforme las variables críticas de cada artículo incluido. Exporta la matriz consolidada para tu manuscrito científico o software de referencia.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="charting-export-bar">
+                      <button type="button" class="btn btn-ghost sm" id="btn-load-charting">
+                        <span class="material-symbols-outlined text-[15px]">edit_note</span>
+                        <span>Cargar artículos incluidos para charteo</span>
+                      </button>
+                      <button type="button" class="btn btn-ghost sm" id="btn-propose-charting"
+                              title="El motor propone Población, Concepto, Contexto, Metodología, Hallazgos y Limitaciones a partir del resumen. Nunca inventa: si el dato no está literal en el resumen, lo deja vacío. Usted verifica y guarda.">
+                        <span class="material-symbols-outlined text-[15px]">auto_awesome</span>
+                        <span>Proponer PICC en todos (usted verifica)</span>
+                      </button>
+                      <button type="button" class="btn btn-ghost sm" id="btn-hydrate-abstracts"
+                              title="Intenta traer de la fuente los resúmenes que faltan. Declara los que no existen en acceso abierto o están bloqueados; no inventa ninguno.">
+                        <span class="material-symbols-outlined text-[15px]">download_for_offline</span>
+                        <span>Traer resúmenes faltantes</span>
+                      </button>
+                      <div class="export-buttons-group">
+                        <button type="button" class="btn btn-ghost sm" id="btn-export-csv" title="Exportar como CSV">
+                          <span class="material-symbols-outlined text-[15px]">table_view</span> CSV
+                        </button>
+                        <button type="button" class="btn btn-ghost sm" id="btn-export-ris" title="Exportar como RIS (Zotero/Mendeley)">
+                          <span class="material-symbols-outlined text-[15px]">description</span> RIS
+                        </button>
+                        <button type="button" class="btn btn-ghost sm" id="btn-export-bibtex" title="Exportar como BibTeX (LaTeX)">
+                          <span class="material-symbols-outlined text-[15px]">code</span> BibTeX
+                        </button>
+                      </div>
+                    </div>
+                    <div id="charting-table-container" class="charting-table-container">
+                      <div class="snowball-empty-hint">Incluye artículos desde la pestaña «Screening PRISMA» y luego cárgalos aquí para el charteo.</div>
+                    </div>
+                    <div id="charting-propose-progress" class="panel-sub" style="margin-top:8px;" hidden></div>
+                  </div>
+
+                  <!-- PASO 3: Síntesis & Rigor (Validación de Citas & Agente A.1) -->
+                  <div class="prisma-step-content" id="step-content-synthesis" hidden>
+                    <div class="epistemic-tab-intro">
+                      <div class="step-guidance-callout">
+                        <span class="material-symbols-outlined text-[18px] text-brand-teal">psychology</span>
+                        <div>
+                          <strong>Fase de Síntesis y Auditoría Epistémica</strong>:
+                          Valida las funciones retóricas propuestas por la IA sobre la evidencia textual de los PDFs y redacta el informe narrativo del scoping review con el Agente A.1 Metodólogo.
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Sub-pestañas internas del Paso 3 -->
+                    <div class="synthesis-tabs-pills" role="tablist">
+                      <button type="button" class="epistemic-pill active" id="tab-pill-validation" data-target="synthesis-tab-validation">
+                        <span class="material-symbols-outlined text-[16px]">verified</span>
+                        <span>Auditoría Humana de Citas (Claim &amp; Función)</span>
+                      </button>
+                      <button type="button" class="epistemic-pill" id="tab-pill-systematic" data-target="synthesis-tab-systematic">
+                        <span class="material-symbols-outlined text-[16px]">clinical_notes</span>
+                        <span>Informe Sistemático (Agente A.1 Metodólogo)</span>
+                      </button>
+                    </div>
+
+                    <!-- Sub-tab 3.1: Validación de Citas -->
+                    <div class="synthesis-subtab active" id="synthesis-tab-validation">
+                      <div class="snowball-input-row" style="margin-top:12px;">
+                        <select id="validation-status-select" class="filter-select" title="Filtrar por estado">
+                          <option value="pending">Pendientes de revisión</option>
+                          <option value="validated">Validados</option>
+                          <option value="corrected">Corregidos</option>
+                          <option value="rejected">Rechazados</option>
+                          <option value="">Todos los estados</option>
+                        </select>
+                        <button type="button" id="btn-reload-validation" class="btn btn-primary">
+                          <span class="material-symbols-outlined text-[16px]">refresh</span>
+                          <span>Actualizar cola</span>
+                        </button>
+                      </div>
+                      <div class="snowball-input-row" style="margin-top:8px;">
+                        <input type="file" id="pdf-upload-input" accept=".pdf,application/pdf" class="filter-input" title="Adjuntar PDF del manuscrito">
+                        <input type="text" id="pdf-upload-doi" class="filter-input" placeholder="DOI del manuscrito (opcional)">
+                        <button type="button" id="btn-upload-pdf" class="btn btn-secondary">
+                          <span class="material-symbols-outlined text-[16px]">upload_file</span>
+                          <span>Subir y analizar PDF</span>
+                        </button>
+                      </div>
+                      <div id="pdf-upload-status" class="snowball-empty-hint" hidden></div>
+                      <div id="epistemic-validation-container" class="epistemic-snowball-results" style="margin-top:12px;">
+                        <div class="snowball-empty-hint">Sin contextos pendientes: sube un PDF o ejecuta la ingesta para generar interpretaciones a validar.</div>
+                      </div>
+                    </div>
+
+                    <!-- Sub-tab 3.2: Informe Agente A.1 -->
+                    <div class="synthesis-subtab" id="synthesis-tab-systematic" hidden>
+                      <div class="snowball-input-row" style="margin-top:12px;">
+                        <input type="text" id="systematic-inquiry-input" class="filter-input" placeholder="Pregunta de investigación estructurada...">
+                        <input type="text" id="systematic-boolean-input" class="filter-input" placeholder='Booleana Fase 2 (opcional): ("a" OR "b") AND ("c")'>
+                        <button type="button" id="btn-run-systematic" class="btn btn-primary">
+                          <span class="material-symbols-outlined text-[16px]">clinical_notes</span>
+                          <span>Generar informe PRISMA</span>
+                        </button>
+                      </div>
+                      <div id="systematic-status" class="snowball-empty-hint" hidden></div>
+                      <div id="epistemic-systematic-container" class="epistemic-snowball-results" style="margin-top:12px;">
+                        <div class="snowball-empty-hint">Escribe tu pregunta y genera el informe. Se ejecuta a demanda sobre el corpus verificado.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Acciones de continuidad -->
+              <div class="librarian-actions-bar">
+                <button id="btn-librarian-explore" class="btn btn-primary" type="button">
+                  <span class="material-symbols-outlined text-[18px]">search</span>
+                  <span>Ver literatura en el Explorador</span>
+                </button>
+                <button id="btn-librarian-radar" class="btn btn-secondary" type="button">
+                  <span class="material-symbols-outlined text-[18px]">orbit</span>
+                  <span>Ver en Radar de Proximidad</span>
+                </button>
+                <button id="btn-librarian-pin" class="btn btn-outline" type="button">
+                  <span class="material-symbols-outlined text-[18px]">bookmark_add</span>
+                  <span>Anclar Vigilancia</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel de Inteligencia Editorial & SCIVIS (Modo Revista) -->
+          <div id="home-journal-audit-panel" class="journal-audit-panel" hidden>
+            <!-- Loading -->
+            <div id="journal-audit-loading" class="librarian-loading" hidden>
+              <div class="librarian-spinner"></div>
+              <div class="librarian-loading-text">
+                <strong>Auditoría Cibermétrica SCIVIS en marcha...</strong>
+                <p>Calculando centralidad armónica, enlaces en Common Crawl y mapeo de editores pares.</p>
+              </div>
+            </div>
+
+            <!-- Contenido de la Auditoría Editorial -->
+            <div id="journal-audit-results" class="journal-audit-content" hidden>
+              <!-- Cabecera de la Revista y Estatus de Verificación -->
+              <div class="scivis-hero-card">
+                <div class="scivis-hero-main">
+                  <div class="scivis-badge-row">
+                    <span class="scivis-pill-tag"><span class="material-symbols-outlined text-[14px]">public</span> Verificación en Vivo · Common Crawl CDX</span>
+                    <span id="scivis-diagnostic-badge" class="badge badge-primary">Indexado en Common Crawl</span>
+                    <button id="scivis-force-refresh" type="button" title="Ignora la caché de 24 h y vuelve a medir en vivo" style="display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;padding:2px 10px;border-radius:999px;border:1px solid rgba(0,97,104,0.35);background:transparent;color:#006168;cursor:pointer;">
+                      <span class="material-symbols-outlined text-[14px]">refresh</span> Forzar nueva medición
+                    </button>
+                  </div>
+                  <h2 id="scivis-journal-title" class="scivis-journal-heading">Revista Panamericana de Comunicación</h2>
+                  <p id="scivis-journal-meta" class="scivis-journal-sub">ISSN: 2683-2208 • Dominio: revistapanamericanadecomunicacion.up.edu.mx • Categoría: Comunicación</p>
+                  <p id="scivis-journal-notes" class="scivis-notes-text"></p>
+                </div>
+                
+                <div class="scivis-score-box">
+                  <div class="scivis-live-badge-box">
+                    <span class="material-symbols-outlined text-[32px] text-brand-teal" id="scivis-status-icon">verified</span>
+                    <span class="scivis-live-lbl" id="scivis-live-status-lbl">CRAWLER ACTIVO</span>
+                    <span class="scivis-collection-tag" id="scivis-collection-id">CC-MAIN-2026-34</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Banner de Transparencia Metodológica -->
+              <div class="methodology-transparency-card">
+                <span class="material-symbols-outlined text-brand-teal text-[22px] flex-shrink-0">info</span>
+                <div class="methodology-text">
+                  <strong>Transparencia Metodológica:</strong>
+                  <span id="scivis-methodology-text">
+                    La Centralidad Armónica y el PageRank se toman exclusivamente del WebGraph oficial de Common Crawl (release indexado localmente) y de la verificación en vivo del índice CDX. Thinkuy <strong>no inventa ni interpola métricas simuladas</strong>: si un release histórico no está indexado, la serie temporal se muestra vacía en lugar de estimarse, y cada métrica declara su fuente y su release.
+                  </span>
+                </div>
+              </div>
+
+              <!-- Cuadrícula de Métricas Verificadas: Common Crawl & Catálogo Local -->
+              <div class="ecosystem-metrics-grid">
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px] text-brand-teal">hub</span>
+                    <span>Centralidad Armónica</span>
+                  </div>
+                  <div class="eco-metric-value text-brand-teal" id="scivis-harmonic-val">--</div>
+                  <div class="eco-metric-sub" id="scivis-harmonic-sub">Web Graph oficial</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px] text-brand-teal">trending_up</span>
+                    <span>PageRank Web</span>
+                  </div>
+                  <div class="eco-metric-value" id="scivis-pagerank-val">--</div>
+                  <div class="eco-metric-sub" id="scivis-pagerank-sub">Ranking global</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">travel_explore</span>
+                    <span>Capturas en Common Crawl</span>
+                  </div>
+                  <div class="eco-metric-value" id="scivis-cc-captures-val">15 URLs</div>
+                  <div class="eco-metric-sub" id="scivis-cc-coll-sub">Muestra CDX oficial</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">history</span>
+                    <span>Último Rastreo Web</span>
+                  </div>
+                  <div class="eco-metric-value text-brand-teal" id="scivis-cc-date-val">2026-08-18</div>
+                  <div class="eco-metric-sub" id="scivis-cc-warc-sub">Timestamp de crawler</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                    <span>Artículos en Catálogo</span>
+                  </div>
+                  <div class="eco-metric-value" id="scivis-articles-val">216</div>
+                  <div class="eco-metric-sub" id="scivis-coverage-sub">Artículos indizados</div>
+                </div>
+
+                <div class="eco-metric-card">
+                  <div class="eco-metric-header">
+                    <span class="material-symbols-outlined text-[18px]">format_quote</span>
+                    <span>Citas Registradas</span>
+                  </div>
+                  <div class="eco-metric-value text-brand-teal" id="scivis-citations-val">128</div>
+                  <div class="eco-metric-sub">Crossref / OpenAlex</div>
+                </div>
+              </div>
+
+              <!-- Diagnóstico Conversacional del Grafo Web (Harmonic Centrality & PageRank) -->
+              <div class="audit-card audit-card-full" id="scivis-conversational-analysis-card" style="margin-top: 20px; border-left: 4px solid var(--brand-teal);">
+                <div class="audit-card-header" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined text-[20px] text-brand-teal">forum</span>
+                    <h4 id="scivis-analysis-title">Diagnóstico de Visibilidad Web: ¿Qué significan estos datos?</h4>
+                  </div>
+                  <span class="scivis-collection-tag" id="scivis-analysis-tier" style="background: rgba(13,148,136,0.15); color: var(--brand-teal); border: 1px solid rgba(13,148,136,0.3); font-weight: 600;">Evaluando...</span>
+                </div>
+                <div class="scivis-conversational-body" style="padding-top: 10px;">
+                  <div id="scivis-analysis-headline" style="font-weight: 700; font-size: 1.08rem; margin-bottom: 12px; color: var(--on-surface, #111E20);"></div>
+                  <div id="scivis-analysis-paragraphs" style="display: flex; flex-direction: column; gap: 10px; line-height: 1.65; color: var(--on-surface-variant, #404849); font-size: 0.93rem;"></div>
+                  
+                  <!-- Desglose Conversado de Métricas Clave -->
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                    <div style="background: var(--surface-container-low, #E8F6F9); border-radius: 8px; padding: 12px; border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: var(--brand-teal-darker, #336368); margin-bottom: 4px;">
+                        <span class="material-symbols-outlined text-[16px]">pin_drop</span>
+                        Harmonic Rank
+                      </div>
+                      <div id="scivis-item-harm-rank" style="font-size: 0.84rem; color: var(--on-surface-variant, #404849); line-height: 1.45;">--</div>
+                    </div>
+                    <div style="background: var(--surface-container-low, #E8F6F9); border-radius: 8px; padding: 12px; border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: var(--brand-teal-darker, #336368); margin-bottom: 4px;">
+                        <span class="material-symbols-outlined text-[16px]">route</span>
+                        Valor Armónico
+                      </div>
+                      <div id="scivis-item-harm-val" style="font-size: 0.84rem; color: var(--on-surface-variant, #404849); line-height: 1.45;">--</div>
+                    </div>
+                    <div style="background: var(--surface-container-low, #E8F6F9); border-radius: 8px; padding: 12px; border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.85rem; color: var(--brand-teal-darker, #336368); margin-bottom: 4px;">
+                        <span class="material-symbols-outlined text-[16px]">verified_user</span>
+                        PageRank Web
+                      </div>
+                      <div id="scivis-item-pr-rank" style="font-size: 0.84rem; color: var(--on-surface-variant, #404849); line-height: 1.45;">--</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Radar de Proximidad en la Web Abierta (Common Crawl) -->
+              <div class="audit-card audit-card-full" id="scivis-radar-proximity-card" style="margin-top: 20px;">
+                <div class="audit-card-header" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined text-[20px] text-brand-teal">radar</span>
+                    <h4>Radar de Proximidad en la Web Abierta (Common Crawl)</h4>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 14px; font-size: 0.8rem;">
+                    <span id="scivis-radar-orbit-badge" style="background: rgba(97, 145, 150, 0.15); color: var(--brand-teal-darker, #1E4F54); padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.78rem;">
+                      Calculando órbita...
+                    </span>
+                  </div>
+                </div>
+                <p class="audit-card-desc" style="margin-bottom: 16px;">
+                  Mapeo polar de la <strong>Centralidad Armónica</strong>: mide la cercanía hipertextual de la revista respecto al epicentro de la web mundial. Cuanto más cerca del centro, a menor número de saltos de enlace se encuentra del resto del grafo global:
+                </p>
+
+                <div class="radar-scope-layout">
+                  <!-- Visor del Radar SVG y Controles -->
+                  <div class="radar-scope-wrapper">
+                    <div class="radar-toolbar">
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-teal-darker, #1E4F54); display: flex; align-items: center; gap: 4px;">
+                          <span class="material-symbols-outlined text-[16px] text-brand-teal">track_changes</span> Consola Polar
+                        </span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" id="scivis-radar-toggle-sweep" class="radar-control-btn" title="Pausar o reanudar el barrido animado">
+                          <span class="material-symbols-outlined text-[14px]">pause</span>
+                          <span>Pausar</span>
+                        </button>
+                        <button type="button" id="scivis-radar-focus-target" class="radar-control-btn" title="Centrar foco en la revista auditada">
+                          <span class="material-symbols-outlined text-[14px]">my_location</span>
+                          <span>Localizar</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="radar-scope-container" id="scivis-radar-container">
+                      <!-- Haz de barrido animado -->
+                      <div class="radar-sweep-beam" id="scivis-radar-beam"></div>
+                      <!-- Tooltip flotante interactivo -->
+                      <div id="scivis-radar-tooltip" class="radar-tooltip" style="display: none;"></div>
+                      <!-- Lienzo SVG interactivo (generoso 500x500) -->
+                      <svg id="scivis-radar-svg" viewBox="0 0 500 500" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: auto; z-index: 2;"></svg>
+                    </div>
+                  </div>
+
+                  <!-- Panel HUD de Lectura Cibermétrica -->
+                  <div class="radar-hud-panel" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="background: var(--surface-container-low, #F0F7F8); border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.5)); border-radius: 10px; padding: 18px;">
+                      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--on-surface-variant, #536062);">Distancia al Epicentro Web</span>
+                        <span id="scivis-radar-distance-pct" style="font-size: 1.22rem; font-weight: 800; color: var(--brand-teal-darker, #1E4F54);">--</span>
+                      </div>
+                      <div id="scivis-radar-rank-readout" style="font-size: 0.92rem; font-weight: 600; color: var(--on-surface); margin-bottom: 8px;">
+                        Rango en Web Graph: --
+                      </div>
+                      <p id="scivis-radar-orbit-desc" style="font-size: 0.84rem; color: var(--on-surface-variant); margin: 0; line-height: 1.48;">
+                        Cargando diagnóstico de proximidad...
+                      </p>
+                    </div>
+
+                    <!-- Leyenda interactiva de Órbitas (Click para inspeccionar) -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                      <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--on-surface-variant); margin-bottom: 2px;">
+                        Órbitas del Hipergrafo (toque para resaltar):
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
+                        <div class="radar-orbit-chip" data-orbit="core" title="Toque para inspeccionar el núcleo">
+                          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #FFD166; flex-shrink: 0;"></span>
+                          <span><strong>Centro:</strong> Núcleo (&le;10k)</span>
+                        </div>
+                        <div class="radar-orbit-chip" data-orbit="orbit1" title="Toque para inspeccionar la Órbita 1">
+                          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #06D6A0; flex-shrink: 0;"></span>
+                          <span><strong>Órbita 1:</strong> Alta Conect.</span>
+                        </div>
+                        <div class="radar-orbit-chip" data-orbit="orbit2" title="Toque para inspeccionar la Órbita 2">
+                          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #38BDF8; flex-shrink: 0;"></span>
+                          <span><strong>Órbita 2:</strong> Cuerpo Ppal.</span>
+                        </div>
+                        <div class="radar-orbit-chip" data-orbit="orbit3" title="Toque para inspeccionar la Órbita 3">
+                          <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #C084FC; flex-shrink: 0;"></span>
+                          <span><strong>Órbita 3:</strong> Intermedia</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Clave de visibilidad para IA y buscadores (preservando texto ajustado) -->
+                    <div style="background: rgba(97, 145, 150, 0.08); border-left: 3px solid var(--brand-teal); border-radius: 0 6px 6px 0; padding: 12px 14px; font-size: 0.8rem; line-height: 1.45; color: var(--on-surface);">
+                      <strong>Impacto en Descubrimiento e IA:</strong>
+                      <span id="scivis-radar-ai-impact">
+                        La posición en el Web Graph favorece la accesibilidad estructural del dominio, pero la inclusión en corpus de IA y la prioridad de rastreo de cada proveedor no están garantizadas: dependen de robots.txt, sitemaps y de enlaces entrantes desde dominios establecidos.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Consola de Contraste y Comparación Polar -->
+                <div class="radar-comparison-section" id="scivis-radar-comparison-section" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span class="material-symbols-outlined text-[20px] text-brand-teal">compare_arrows</span>
+                      <h5 style="margin: 0; font-size: 0.96rem; font-weight: 700; color: var(--on-surface);">Contraste Cibermétrico: Comparar con otras Revistas en el Radar</h5>
+                    </div>
+                    <span id="scivis-radar-compare-counter" style="background: rgba(97, 145, 150, 0.15); color: var(--brand-teal-darker, #1E4F54); padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 0.76rem;">
+                      0 / 3 contrastadas
+                    </span>
+                  </div>
+                  <p style="font-size: 0.83rem; color: var(--on-surface-variant); margin: 0 0 14px 0; line-height: 1.5;">
+                    Proyecte de 1 a 3 revistas adicionales en el radar para comparar simultáneamente su órbita, saltos hipertextuales y distancia al epicentro de la web abierta (Common Crawl):
+                  </p>
+
+                  <!-- Barra de Búsqueda y Acción de Comparación -->
+                  <div class="radar-compare-toolbar">
+                    <div class="radar-compare-input-wrapper">
+                      <span class="material-symbols-outlined text-[18px]" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--on-surface-variant); pointer-events: none;">search</span>
+                      <input type="text" id="scivis-radar-compare-input" class="radar-compare-input" placeholder="Escriba revista, ISSN o dominio para contrastar (ej. El Profesional de la Información, Comunicar...)" />
+                      <button type="button" id="scivis-radar-compare-add-btn" class="radar-compare-submit-btn">
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                        <span>Contrastar</span>
+                      </button>
+                    </div>
+                    <div id="scivis-radar-compare-error" style="display: none; font-size: 0.8rem; color: var(--accent-red, #EF4444); margin-top: 6px; font-weight: 600;"></div>
+                  </div>
+
+                  <!-- Sugerencias rápidas del área temática -->
+                  <div id="scivis-radar-suggestions-container" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="font-size: 0.74rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.04em;">Sugerencias del área:</span>
+                    <div id="scivis-radar-compare-suggestions" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                      <!-- Chips inyectados dinámicamente -->
+                    </div>
+                  </div>
+
+                  <!-- Matriz / Cuadrícula de Tarjetas de Contraste Activas -->
+                  <div id="scivis-radar-comparison-matrix" class="radar-comparison-matrix" style="margin-top: 18px; display: none;">
+                    <!-- Inyectado por renderRadarComparisonCards() -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auditoría Hipertextual de Ciencia Abierta: In-Links vs. Out-Links -->
+              <div class="audit-card audit-card-full" id="scivis-in-out-card" style="margin-top: 20px;">
+                <div class="audit-card-header" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined text-[20px] text-brand-teal">sync_alt</span>
+                    <h4>Auditoría Hipertextual: In-Links vs. Out-Links de Ciencia Abierta</h4>
+                  </div>
+                  <span id="scivis-health-badge" class="scivis-collection-tag" style="background: rgba(13,148,136,0.15); color: var(--brand-teal); border: 1px solid rgba(13,148,136,0.3); font-weight: 700;">Faro de Ciencia Abierta</span>
+                </div>
+                <p class="audit-card-desc">Evaluación en tiempo real del flujo de conocimiento: quién enlaza a la revista (tracción e impacto social) y hacia dónde enlazan sus artículos (apertura a datos y ciencia abierta).</p>
+
+                <!-- Cuadrícula In / Out -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 14px;">
+                  <!-- Columna IN-LINKS -->
+                  <div style="background: var(--surface-container-low, #E8F6F9); border-radius: 10px; padding: 14px; border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--brand-teal-darker, #336368); font-size: 0.92rem;">
+                        <span class="material-symbols-outlined text-[18px]">call_received</span>
+                        IN-LINKS (Tracción y Citas Vivas)
+                      </div>
+                      <span id="scivis-in-wiki-count" style="font-size: 0.78rem; font-weight: 700; background: rgba(97,145,150,0.2); padding: 2px 8px; border-radius: 12px; color: var(--brand-teal-darker, #336368);">7 en Wikipedia</span>
+                    </div>
+
+                    <div style="font-size: 0.83rem; color: var(--on-surface-variant, #404849); line-height: 1.5; margin-bottom: 10px;">
+                      Artículos de <strong>Wikipedia</strong> y blogs científicos que citan y enlazan al portal:
+                    </div>
+                    <div id="scivis-wiki-note" style="display: none; margin-bottom: 8px; font-size: 0.78rem; color: var(--accent-amber, #D97706); background: rgba(217,119,6,0.08); border-radius: 6px; padding: 6px 8px; line-height: 1.45;"></div>
+                    <div id="scivis-in-links-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;"></div>
+                  </div>
+
+                  <!-- Columna OUT-LINKS -->
+                  <div style="background: var(--surface-container-low, #E8F6F9); border-radius: 10px; padding: 14px; border: 1px solid var(--outline-subtle, rgba(192, 200, 201, 0.4));">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--brand-teal-darker, #336368); font-size: 0.92rem;">
+                        <span class="material-symbols-outlined text-[18px]">call_made</span>
+                        OUT-LINKS (Ciencia Abierta & Datos)
+                      </div>
+                      <span id="scivis-out-total-count" style="font-size: 0.78rem; font-weight: 700; background: rgba(97,145,150,0.2); padding: 2px 8px; border-radius: 12px; color: var(--brand-teal-darker, #336368);">Enlaces</span>
+                    </div>
+
+                    <div style="font-size: 0.83rem; color: var(--on-surface-variant, #404849); line-height: 1.5; margin-bottom: 10px;">
+                      Apertura hacia <strong>repositorios de datos</strong> (Zenodo, GitHub), DOIs y universidades:
+                    </div>
+                    <div id="scivis-out-categories-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+                    <button id="btn-toggle-outlinks-detail" class="btn btn-ghost sm" type="button" style="margin-top: 10px; width: 100%; font-size: 0.77rem; display: flex; align-items: center; justify-content: center; gap: 5px; border: 1px dashed rgba(97,145,150,0.4); border-radius: 6px; padding: 5px 8px;">
+                      <span class="material-symbols-outlined text-[15px]">list</span>
+                      <span id="toggle-outlinks-btn-text">Ver enlaces externos detectados</span>
+                    </button>
+                    <div id="scivis-outlinks-drawer" style="display: none; margin-top: 8px; max-height: 220px; overflow-y: auto; background: rgba(255,255,255,0.9); border-radius: 6px; padding: 8px 10px; border: 1px solid var(--outline-subtle, rgba(0,0,0,0.08)); font-size: 0.74rem;"></div>
+                  </div>
+                </div>
+
+                <!-- Gemelos web + mapa de posición (CC host-embedding) -->
+                <div id="scivis-twins-section" style="display: none; margin-top: 16px; padding: 14px; background: var(--surface-container-low, #E8F6F9); border-radius: 10px; border: 1px solid var(--outline-subtle, rgba(192,200,201,0.4));">
+                  <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--brand-teal-darker, #336368); font-size: 0.95rem; margin-bottom: 4px;">
+                    <span class="material-symbols-outlined text-[18px]">hub</span>
+                    Gemelos web &amp; mapa de posición (embedding de hosts · Common Crawl)
+                  </div>
+                  <div id="scivis-twins-note" style="font-size: 0.75rem; color: var(--on-surface-variant, #404849); line-height: 1.45; margin-bottom: 10px;"></div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px;">
+                    <div>
+                      <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--brand-teal); margin-bottom: 6px;">Vecindario estructural (cos)</div>
+                      <div id="scivis-twins-neighbors" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                    </div>
+                    <div>
+                      <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #8d6e63; margin-bottom: 6px;">Brecha de enlaces (quién enlaza a tus gemelos y no a ti)</div>
+                      <div id="scivis-twins-gap" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                      <div style="font-size: 0.66rem; color: var(--on-surface-variant); font-style: italic; margin-top: 6px; line-height: 1.35;">Adquisición legítima (gestión editorial ante estos hubs). No intercambio recíproco: eso penaliza y destruye la medición.</div>
+                    </div>
+                  </div>
+                  <div style="margin-top: 12px; border-top: 1px solid rgba(0,97,104,0.15); padding-top: 10px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+                      <div style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--brand-teal);">Buscador de vecindario web (kNN · los 52.9M hosts)</div>
+                      <div style="display:flex;align-items:center;gap:12px;">
+                        <a id="scivis-map2d-external" href="https://commoncrawl-web-graph-embeddings.static.hf.space/" target="_blank" rel="noopener noreferrer" style="font-size: 0.74rem; color: #8d6e63; text-decoration: underline;" title="Mapa 2D de toda la web coloreado por idioma/tema. Su buscador solo encuentra los 20.000 sitios más enlazados: sirve para contexto global, no para localizar una revista concreta.">Ver mapa 2D de contexto (global) ↗</a>
+                      </div>
+                    </div>
+                    <div id="scivis-map-hint" style="font-size: 0.72rem; color: var(--on-surface-variant, #404849); margin-bottom: 8px; line-height: 1.45;"></div>
+                    <div id="scivis-map-holder"></div>
+                  </div>
+                </div>
+
+                <!-- Diagnóstico y Recomendaciones UCC+I -->
+                <div style="margin-top: 16px; padding: 14px; background: rgba(255,255,255,0.7); border-radius: 8px; border-left: 3px solid var(--brand-teal);">
+                  <div style="font-weight: 700; font-size: 0.92rem; color: var(--on-surface, #111E20); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-outlined text-[18px] text-brand-teal">lightbulb</span>
+                    Recomendaciones Estratégicas de la Unidad de Cultura Científica:
+                  </div>
+                  <div id="scivis-health-summary" style="font-size: 0.88rem; color: var(--on-surface-variant, #404849); line-height: 1.55; margin-bottom: 8px;"></div>
+                  <ul id="scivis-recommendations-list" style="margin: 0; padding-left: 20px; font-size: 0.86rem; color: var(--on-surface-variant, #404849); line-height: 1.6;"></ul>
+                </div>
+              </div>
+
+              <!-- Llamado a la Acción (CTA de Consultoría UCC+I) -->
+              <div class="audit-card audit-card-full" id="scivis-cta-card" style="margin-top: 20px; background: linear-gradient(135deg, var(--surface-container-low, #E8F6F9) 0%, #FFFFFF 100%); border: 2px solid rgba(97,145,150,0.35); text-align: center; padding: 24px 20px;">
+                <div style="max-width: 650px; margin: 0 auto;">
+                  <span class="material-symbols-outlined text-[36px] text-brand-teal" style="margin-bottom: 8px;">hub</span>
+                  <h3 id="scivis-cta-title" style="font-size: 1.25rem; font-weight: 800; color: var(--on-surface, #111E20); margin: 0 0 6px 0;">¿Desea escalar la accesibilidad y el impacto de su revista?</h3>
+                  <div style="font-size: 0.84rem; font-weight: 700; color: var(--brand-teal-darker, #336368); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Servicio de Acompañamiento Estratégico UCC+I</div>
+                  <p id="scivis-cta-desc" style="font-size: 0.92rem; color: var(--on-surface-variant, #404849); line-height: 1.6; margin: 0 0 18px 0;">
+                    Nuestra Unidad de Cultura Científica le asesora para optimizar la posición de su revista en el Web Graph de Common Crawl, abrir enlaces a datos de investigación y posicionar sus contenidos en la nueva web semántica y de la Inteligencia Artificial.
+                  </p>
+                  <a id="scivis-cta-btn" href="mailto:culturacientifica@thinkuy.org" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--brand-teal, #619196); color: #FFFFFF; font-weight: 700; font-size: 0.95rem; padding: 12px 24px; border-radius: 30px; text-decoration: none; box-shadow: 0 4px 14px rgba(97,145,150,0.3); transition: all 0.2s ease;">
+                    <span class="material-symbols-outlined text-[20px]">handshake</span>
+                    <span id="scivis-cta-btn-text">Solicitar Acompañamiento Editorial UCC+I</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Muestra de URLs Reales Rastreadas por Common Crawl -->
+              <div class="audit-card audit-card-full" id="scivis-urls-card" style="margin-top: 20px;">
+                <div class="audit-card-header">
+                  <span class="material-symbols-outlined text-[18px] text-brand-teal">dataset</span>
+                  <h4>Muestra de URLs Rastreadas en Common Crawl (WARC)</h4>
+                </div>
+                <p class="audit-card-desc">Endpoints reales verificados en la última colección de Common Crawl:</p>
+                <div id="scivis-sample-urls-list" class="cc-urls-list"></div>
+              </div>
+
+              <!-- Benchmarking de Revistas Líderes y Temas Dominantes -->
+              <div class="journal-audit-grid">
+                <div class="audit-card">
+                  <div class="audit-card-header">
+                    <span class="material-symbols-outlined text-[18px] text-brand-teal">leaderboard</span>
+                    <h4>Benchmarking: Revistas en el Ecosistema</h4>
+                  </div>
+                  <p class="audit-card-desc">Revistas del acervo comparadas por volumen real de artículos y citas:</p>
+                  <div id="scivis-competitors-list" class="competitors-list"></div>
+                </div>
+
+                <div class="audit-card">
+                  <div class="audit-card-header">
+                    <span class="material-symbols-outlined text-[18px] text-brand-purple">radar</span>
+                    <h4>Mapeo Bibliométrico de Oportunidades Temáticas</h4>
+                  </div>
+                  <p class="audit-card-desc">Taxonomía de Topics OpenAlex con análisis de velocidad relativa (RGR):</p>
+                  <div class="topics-agenda-group">
+                    <div class="agenda-subgroup">
+                      <span class="agenda-label">Temas Consolidados (Núcleo Tradicional):</span>
+                      <div id="scivis-dominant-topics" class="tags-cluster"></div>
+                    </div>
+                    <div class="agenda-subgroup">
+                      <span class="agenda-label text-brand-teal">Oportunidades de Frontera (Emergentes):</span>
+                      <div id="scivis-emerging-topics" class="tags-cluster"></div>
+                    </div>
+                    <div class="agenda-subgroup">
+                      <span class="agenda-label" style="color: #c05621;">Vacíos Editoriales / Nichos Detectados:</span>
+                      <div id="scivis-gap-topics" class="tags-cluster"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Editores y Revisores Pares Sugeridos -->
+              <div class="audit-card audit-card-full" style="margin-top: 20px;">
+                <div class="audit-card-header">
+                  <span class="material-symbols-outlined text-[18px] text-brand-teal">group_add</span>
+                  <h4>Candidatos para Comité Editorial y Revisores Pares</h4>
+                </div>
+                <p class="audit-card-desc">Investigadores reales con ORCID verificado, publicaciones y métricas comprobadas en estos campos:</p>
+                <div id="scivis-editors-list" class="editors-suggested-grid"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Chips -->
+          <div class="home-action-chips">
+            <button class="action-chip" id="btn-chip-review" type="button" data-view="review" style="border-color: var(--brand-teal); font-weight: 600;">
+              <span class="chip-icon material-symbols-outlined text-brand-teal">rule_folder</span>
+              <span>Revisión Sistemática (PRISMA)</span>
+            </button>
+            <button class="action-chip" id="btn-chip-explore" type="button" data-view="explorer">
+              <span class="chip-icon material-symbols-outlined">article</span>
+              <span>Explora temas</span>
+            </button>
+            <button class="action-chip" id="btn-chip-reviewers" type="button" data-view="reviewers">
+              <span class="chip-icon material-symbols-outlined">group</span>
+              <span>Encontrar revisores</span>
+            </button>
+            <button class="action-chip" id="btn-chip-journals" type="button" data-view="journals">
+              <span class="chip-icon material-symbols-outlined">menu_book</span>
+              <span>Encontrar revistas</span>
+            </button>
+            <button class="action-chip" id="btn-chip-radar" type="button" data-view="radar">
+              <span class="chip-icon material-symbols-outlined">orbit</span>
+              <span>Radar de proximidad</span>
+            </button>
+          </div>
+
+          <p class="home-footer-disclaimer">
+            Thinkuy se fundamenta en datos y revistas del Catálogo 2.0 de Latindex, SciELO, Redalyc, Crossref y OpenAlex en acceso abierto.
+          </p>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VISTA 2: EXPLORADOR DE ARTÍCULOS & FEED
+           ==================================================================== -->
+      <section id="view-explorer" class="spa-view">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>Explorador Bibliométrico</h2>
+              <p class="panel-sub">Filtra y explora artículos en conversación con tu campo de estudio.</p>
+            </div>
+          </div>
+
+          <div class="controls-toolbar">
+            <div class="filter-field" style="flex: 1 1 300px;">
+              <label class="filter-label" for="keywords">Palabras clave</label>
+              <input id="keywords" class="filter-input" type="text" placeholder="comunicación política, desinformación..." list="kw-suggest">
+              <datalist id="kw-suggest"></datalist>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label">Idiomas</label>
+              <div class="chip-checkboxes" id="langs">
+                <label class="chip-label"><input type="checkbox" value="es" checked> <span>Español</span></label>
+                <label class="chip-label"><input type="checkbox" value="pt" checked> <span>Portugués</span></label>
+                <label class="chip-label"><input type="checkbox" value="en"> <span>English</span></label>
+              </div>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label">Fuentes</label>
+              <div class="chip-checkboxes" id="sources">
+                <label class="chip-label"><input type="checkbox" value="scielo" checked> <span>SciELO</span></label>
+                <label class="chip-label"><input type="checkbox" value="crossref" checked> <span>Crossref</span></label>
+                <label class="chip-label"><input type="checkbox" value="openalex" checked> <span>OpenAlex</span></label>
+                <label class="chip-label"><input type="checkbox" value="redalyc" checked> <span>Redalyc</span></label>
+              </div>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label" for="limit">Artículos</label>
+              <select id="limit" class="filter-select">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="35">35</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label" for="days">Ventana</label>
+              <select id="days" class="filter-select">
+                <option value="90">3 meses</option>
+                <option value="180">6 meses</option>
+                <option value="365">1 año</option>
+                <option value="1095">3 años</option>
+                <option value="3650" selected>Todo el catálogo</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label" for="sort">Ordenar por</label>
+              <select id="sort" class="filter-select">
+                <option value="relevance" selected>Relevancia</option>
+                <option value="recent">Más recientes</option>
+                <option value="cited">Más citados</option>
+              </select>
+            </div>
+
+            <div class="filter-field" style="flex-direction: row; gap: 8px;">
+              <button id="btn-cfp" class="btn btn-ghost" title="Filtrar por el CFP vigente">◎ CFP vigente</button>
+              <button id="btn-pin" class="btn" title="Vigilar estas keywords">📌 Anclar</button>
+              <button id="btn-apply" class="btn btn-primary">Aplicar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-num" id="stat-articles">–</span>
+            <span class="stat-label">Artículos en Catálogo</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="stat-journals">–</span>
+            <span class="stat-label">Revistas Cubiertas</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="stat-feed">0</span>
+            <span class="stat-label">Alertas en Radar</span>
+          </div>
+        </div>
+
+        <!-- Vigilancia Activa de Descriptores (Watchlist & Notificaciones) -->
+        <div class="card-panel watch-panel-card" style="margin-bottom: 20px;">
+          <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div class="panel-title-group">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined text-brand-teal" style="font-size: 22px;">radar</span>
+                <h3 style="margin: 0; font-size: 1.05rem;">Vigilancias de Descriptores Anclados</h3>
+              </div>
+              <p class="panel-sub" style="margin: 4px 0 0;">El radar te avisa cuando ingresan al catálogo nuevas publicaciones que coincidan con tus temas anclados.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button id="btn-notify" class="btn btn-secondary sm" type="button" title="Activar avisos en el navegador">
+                <span class="material-symbols-outlined text-[16px]">notifications</span>
+                <span>Activar notificaciones</span>
+              </button>
+            </div>
+          </div>
+          <div id="watch-list" class="watch-list-container">
+            <!-- Anclas cargadas dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Articles Feed -->
+        <div id="feed" class="articles-feed" aria-live="polite"></div>
+
+        <!-- Sources Status & Emerging Authors Panels -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 24px;">
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h3>Estado de las fuentes</h3>
+              </div>
+            </div>
+            <div id="sources-status" class="data-tabular" style="font-size: 13px;">Cargando fuentes...</div>
+          </div>
+
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h3>🔥 Temas en Tendencia</h3>
+                <p class="panel-sub">Haz clic en un descriptor para explorar sus publicaciones en el radar.</p>
+              </div>
+            </div>
+            <div id="trending-topics-list" class="trending-topics-container">Cargando temas...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VISTA 3: ¿DÓNDE PUBLICAR? (REVISTAS & CFPS)
+           ==================================================================== -->
+      <section id="view-journals" class="spa-view">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>¿Dónde Publicar? (Match de Revistas & CFPs)</h2>
+              <p class="panel-sub">Encuentra la revista ideal con métricas de indexación (Scopus, WoS, SciELO) y llamadas vigentes.</p>
+            </div>
+          </div>
+
+          <div class="match-input-container">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <select id="match-rpc-select" class="filter-select" title="Seleccionar artículo del corpus">
+                <option value="">-- Elige un artículo del corpus o describe tu manuscrito abajo --</option>
+              </select>
+              <input id="match-journal-input" class="filter-input" type="text" placeholder="Pega el título, resumen o descriptores del manuscrito...">
+            </div>
+            <button id="btn-find-journal-matches" class="btn btn-primary" style="height: fit-content; align-self: flex-end;">
+              Buscar Revistas Idóneas
+            </button>
+          </div>
+        </div>
+
+        <div id="match-journals-grid" class="journals-grid">
+          <div class="stat-box" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <p style="color: var(--on-surface-variant);">Selecciona un artículo o escribe el tema de tu investigación para calcular las revistas más afines.</p>
+          </div>
+        </div>
+
+        <!-- Huella editorial por OAI-PMH (Modo Revista): el escalón 1 de la ingesta.
+             Una sola petición entrega la revista completa: metadata, resumen y palabras clave. -->
+        <div class="card-panel" style="margin-top: 16px;">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>Huella Editorial de una Revista (OAI-PMH)</h2>
+              <p class="panel-sub">
+                Pega la URL de una revista OJS. Se detecta su endpoint <code>/oai</code>, se cosecha
+                la metadata completa y se calcula su perfil: años, idiomas, palabras clave y
+                cobertura de resumen y DOI. Sin descargar PDFs y sin modelos.
+              </p>
+            </div>
+          </div>
+          <div class="match-input-container">
+            <input id="journal-oai-url" class="filter-input" type="text"
+                   placeholder="https://revista.ejemplo.org/index.php/mirevista">
+            <button id="btn-journal-oai" class="btn btn-primary" style="height: fit-content; align-self: flex-end;">
+              Cosechar huella editorial
+            </button>
+          </div>
+          <div id="journal-oai-status" class="panel-sub" style="margin-top:8px;" hidden></div>
+          <div id="journal-oai-result" hidden></div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VISTA 4: EDITORES Y REVISORES
+           ==================================================================== -->
+      <section id="view-reviewers" class="spa-view">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>Sugerencia de Editores y Revisores Pares</h2>
+              <p class="panel-sub">Localiza investigadores y evaluadores con afinidad epistemológica para tu manuscrito.</p>
+            </div>
+          </div>
+
+          <div class="match-input-container">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <select id="match-reviewer-select" class="filter-select" title="Seleccionar artículo del corpus">
+                <option value="">-- Elige un artículo del corpus o describe tu manuscrito abajo --</option>
+              </select>
+              <input id="match-reviewer-input" class="filter-input" type="text" placeholder="Pega el título o resumen para perfilar evaluadores...">
+            </div>
+            <button id="btn-find-reviewer-matches" class="btn btn-primary" style="height: fit-content; align-self: flex-end;">
+              Buscar Revisores Pares
+            </button>
+          </div>
+        </div>
+
+        <div id="match-reviewers-grid" class="reviewers-grid">
+          <div class="stat-box" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <p style="color: var(--on-surface-variant);">Selecciona un artículo o introduce tu tema para descubrir revisores y editores con afinidad temática.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VISTA 5: RADAR DE PROXIMIDAD EPISTEMOLÓGICA
+           ==================================================================== -->
+      <section id="view-radar" class="spa-view">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2>Radar de Proximidad Epistemológica</h2>
+              <p class="panel-sub">Visualiza quién orbita tu pregunta y con quién conversa citacionalmente en tiempo real.</p>
+            </div>
+          </div>
+
+          <div class="controls-toolbar">
+            <div class="filter-field" style="flex: 1 1 260px;">
+              <label class="filter-label" for="radar-topic">Pregunta o Tema Central</label>
+              <input id="radar-topic" class="filter-input" type="text" placeholder="Ej. desinformación, polarización en redes...">
+            </div>
+
+            <div class="filter-field" style="flex: 1 1 200px;">
+              <label class="filter-label" for="radar-doi">Centro por DOI (opcional)</label>
+              <input id="radar-doi" class="filter-input" type="text" placeholder="10.1016/...">
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label" for="radar-weights">Pesos de Proximidad</label>
+              <select id="radar-weights" class="filter-select">
+                <option value="0.4,0.3,0.2,0.1">Afinidad .4 · Citas .3 · Actualidad .2 · Trayectoria .1</option>
+                <option value="0.5,0.3,0.1,0.1">Enfatizar afinidad temática</option>
+                <option value="0.2,0.4,0.2,0.2">Enfatizar conversación citacional</option>
+              </select>
+            </div>
+
+            <div class="filter-field">
+              <label class="filter-label" for="radar-min-works">Trayectoria</label>
+              <select id="radar-min-works" class="filter-select">
+                <option value="1">Todos (≥1 obra)</option>
+                <option value="2">Consolidados (≥2 obras)</option>
+                <option value="3">Alta recurrencia (≥3 obras)</option>
+              </select>
+            </div>
+
+            <div class="filter-field" style="flex-direction: row; gap: 8px;">
+              <button id="btn-radar" class="btn btn-primary">Generar Radar</button>
+              <button id="btn-radar-discover" class="btn btn-secondary" title="Buscar novedades en vivo en OpenAlex">
+                <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                <span>Novedades en vivo</span>
+              </button>
+              <button id="btn-radar-settings-toggle" class="btn btn-secondary" title="Ajustes avanzados del algoritmo" type="button" aria-expanded="false" aria-controls="radar-advanced-settings">
+                <span class="material-symbols-outlined text-[16px]">tune</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="radar-advanced-settings" class="radar-advanced-panel" hidden style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(192, 200, 201, 0.45);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-teal);">
+                Ajustes Avanzados del Algoritmo (Pajek Proximity)
+              </span>
+              <button id="btn-radar-settings-reset" type="button" style="font-size: 11px; color: var(--on-surface-variant); cursor: pointer; background: none; border: none; text-decoration: underline;">
+                Restablecer valores
+              </button>
+            </div>
+            <div class="controls-toolbar" style="gap: 12px;">
+              <div class="filter-field" style="flex: 1 1 130px;">
+                <label class="filter-label" for="radar-affinity-divisor" title="Escala máxima esperada de coincidencia semántica">Divisor Afinidad</label>
+                <input id="radar-affinity-divisor" class="filter-input" type="number" min="1" max="500" value="60">
+              </div>
+
+              <div class="filter-field" style="flex: 1 1 140px;">
+                <label class="filter-label" for="radar-productivity-constant" title="Constante de saturación C en n/(n+C)">C. Productividad</label>
+                <input id="radar-productivity-constant" class="filter-input" type="number" min="0.1" max="50.0" step="0.5" value="5.0">
+              </div>
+
+              <div class="filter-field" style="flex: 1 1 130px;">
+                <label class="filter-label" for="radar-min-dist" title="Distancia mínima de repulsión entre nodos">Dist. Mínima Nodos</label>
+                <input id="radar-min-dist" class="filter-input" type="number" min="1.0" max="50.0" step="0.5" value="11.0">
+              </div>
+
+              <div class="filter-field" style="flex: 1 1 150px;">
+                <label class="filter-label" for="radar-recency-decay" title="Función de decaimiento temporal">Decay Recencia</label>
+                <select id="radar-recency-decay" class="filter-select">
+                  <option value="linear" selected>Lineal</option>
+                  <option value="exponential">Exponencial</option>
+                </select>
+              </div>
+
+              <div class="filter-field" style="flex: 1 1 160px; justify-content: flex-end; padding-bottom: 8px;">
+                <label class="chip-label" style="cursor: pointer; font-size: 12px; margin: 0;">
+                  <input type="checkbox" id="radar-normalize-weights" checked style="accent-color: var(--brand-teal);">
+                  <span>Normalizar multiplex [0,1]</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar 2-Column Grid -->
+        <div class="radar-layout-grid">
+          
+          <!-- Canvas Proximity Map -->
+          <div class="radar-canvas-panel">
+            <div style="padding: 12px 18px; border-bottom: 1px solid rgba(192, 200, 201, 0.35); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--brand-teal-darker);">Proyección Semántica y Órbitas de Afinidad</span>
+              <span class="data-tabular" style="font-size: 11px; color: var(--on-surface-variant);" id="radar-status-telemetry">En espera de consulta</span>
+            </div>
+            <div id="radar-sector-legend" class="radar-sector-legend" hidden></div>
+            
+            <div class="radar-canvas-viewport" id="radar-viewport">
+              <canvas id="radar-canvas" class="radar-canvas-element" width="760" height="640"></canvas>
+            </div>
+          </div>
+
+          <!-- Top Authors in Orbit Sidebar -->
+          <div class="radar-top-authors-panel">
+            <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 4px;">Top Autores en Órbita</h3>
+            <p style="font-size: 12px; color: var(--on-surface-variant);">Investigadores más cercanos a tu foco temático.</p>
+
+            <div id="radar-author-card" style="margin-top: 12px;">
+              <div style="padding: 16px; background: var(--surface-container-low); border-radius: var(--radius-md); text-align: center; color: var(--on-surface-variant); font-size: 12px;">
+                Haz clic en cualquier nodo del radar para explorar la ficha del autor y sus papers.
+              </div>
+            </div>
+
+            <div id="proximity-author-list" class="radar-authors-list"></div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal Socrático de Concertación Temática -->
+    <div id="socratic-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>🎯 Cuéntanos qué investigas</h3>
+          <button id="btn-close-socratic" class="modal-close-btn" title="Cerrar">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="socratic-step-1">
+            <p style="margin-bottom: 12px; font-size: 0.95rem; color: var(--on-surface-variant);">
+              Expresa tu objeto de estudio, problema o pregunta de investigación con tus propias palabras:
+            </p>
+            <textarea id="socratic-input" class="inquiry-textarea" rows="4" placeholder="Ejemplo: Me interesa cómo los algoritmos de recomendación en TikTok y YouTube reconfiguran el consumo informativo y la polarización afectiva..."></textarea>
+            <div style="margin-top: 16px; text-align: right;">
+              <button id="btn-socratic-analyze" class="btn btn-primary">Comenzar Diálogo Socrático</button>
+            </div>
+          </div>
+
+          <div id="socratic-step-2" hidden>
+            <div style="background: var(--surface-container-low); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+              <div class="badge badge-source" id="socratic-field-badge" style="margin-bottom: 8px;"></div>
+              <p id="socratic-epistemic" style="font-size: 0.95rem; margin-bottom: 12px;"></p>
+              
+              <h4 style="font-size: 0.95rem; margin-bottom: 8px;">Preguntas para acotar tu horizonte:</h4>
+              <div id="socratic-questions-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+              
+              <p class="data-tabular" id="socratic-density" style="font-size: 11px; color: var(--secondary);"></p>
+            </div>
+            
+            <textarea id="socratic-reflection-input" class="inquiry-textarea" rows="2" placeholder="Tu reflexión o respuesta para afinar el radar..."></textarea>
+            <div style="display: flex; justify-content: space-between; margin-top: 14px;">
+              <button id="btn-socratic-back" class="btn btn-ghost">← Cambiar tema</button>
+              <button id="btn-socratic-concert" class="btn btn-primary">Concertar mi Radar</button>
+            </div>
+          </div>
+
+          <div id="socratic-step-3" hidden>
+            <div style="text-align: center; padding: 16px 0;">
+              <span style="font-size: 36px;">🎯</span>
+              <h4 id="socratic-result-title" style="margin: 8px 0;"></h4>
+              <p id="socratic-result-summary" style="font-size: 0.9rem; color: var(--on-surface-variant); margin-bottom: 16px;"></p>
+              
+              <div style="background: var(--surface-container-low); border-radius: var(--radius-md); padding: 14px; text-align: left; font-size: 0.85rem; margin-bottom: 16px;">
+                <div><b>Descriptores concertados:</b> <span id="socratic-result-kws"></span></div>
+                <div style="margin-top: 6px;"><b>Revistas clave:</b> <span id="socratic-result-journals"></span></div>
+              </div>
+
+              <div style="display: flex; justify-content: center; gap: 12px;">
+                <button id="btn-socratic-pin" class="btn btn-secondary">📌 Anclar Radar</button>
+                <button id="btn-socratic-apply" class="btn btn-primary">Ver Publicaciones</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Invitación Formal a Revisor / Comité Editorial -->
+    <div id="scivis-invite-modal" class="modal-backdrop" hidden>
+      <div class="modal-card" style="max-width: 680px; width: 92%;">
+        <div class="modal-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(97, 145, 150, 0.12); display: flex; align-items: center; justify-content: center; color: var(--brand-teal);">
+              <span class="material-symbols-outlined text-[20px]">mail</span>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.1rem; color: var(--on-surface);">Carta de Invitación Editorial</h3>
+              <p style="margin: 0; font-size: 0.8rem; color: var(--on-surface-variant);">Plantilla formal para evaluación de manuscritos o comité editorial</p>
+            </div>
+          </div>
+          <button id="btn-close-invite-modal" class="modal-close-btn" title="Cerrar">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+          <!-- Resumen del Académico -->
+          <div style="background: var(--surface-container-low); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--outline-subtle, rgba(0,0,0,0.06));">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+              <span id="invite-author-name" style="font-size: 1.05rem; font-weight: 700; color: var(--on-surface);">--</span>
+              <a id="invite-author-orcid" href="#" target="_blank" rel="noopener" class="radar-orcid-badge" style="font-size: 0.78rem;">ORCID ↗</a>
+            </div>
+            <div style="font-size: 0.84rem; color: var(--on-surface-variant); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 14px;">
+              <span id="invite-author-affiliation">--</span>
+              <span id="invite-author-specialty" style="color: var(--brand-teal-darker); font-weight: 600;">--</span>
+            </div>
+          </div>
+
+          <!-- Selector de Rol Propuesto -->
+          <div style="margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase;">Rol propuesto:</label>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="invite-role-reviewer" class="btn btn-primary sm" style="padding: 4px 12px; font-size: 0.8rem;">Revisor Par (Peer Reviewer)</button>
+              <button type="button" id="invite-role-board" class="btn btn-outline sm" style="padding: 4px 12px; font-size: 0.8rem;">Comité Editorial / Asesor</button>
+            </div>
+          </div>
+
+          <!-- Asunto del Correo -->
+          <div style="margin-bottom: 12px;">
+            <label for="invite-email-subject" style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; color: var(--on-surface-variant);">Asunto del Mensaje:</label>
+            <input type="text" id="invite-email-subject" class="form-input" style="width: 100%; font-size: 0.88rem; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--outline-subtle, #ccc);" />
+          </div>
+
+          <!-- Cuerpo Editable de la Carta -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+              <label for="invite-email-body" style="font-size: 0.8rem; font-weight: 700; color: var(--on-surface-variant);">Cuerpo de la Carta (editable):</label>
+              <span style="font-size: 0.74rem; color: var(--secondary);">Puedes personalizar los corchetes [ ... ]</span>
+            </div>
+            <textarea id="invite-email-body" class="inquiry-textarea" rows="9" style="font-family: inherit; font-size: 0.86rem; line-height: 1.5; padding: 12px; width: 100%; border-radius: 8px; resize: vertical; box-sizing: border-box;"></textarea>
+          </div>
+
+          <!-- Acciones -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--outline-subtle, rgba(0,0,0,0.06)); padding-top: 14px;">
+            <button type="button" id="btn-cancel-invite" class="btn btn-ghost sm">Cerrar</button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="btn-copy-invite" class="btn btn-outline sm" style="display: flex; align-items: center; gap: 6px;">
+                <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                <span id="copy-btn-text">Copiar Carta</span>
+              </button>
+              <a id="btn-mailto-invite" href="#" class="btn btn-primary sm" style="display: flex; align-items: center; gap: 6px; text-decoration: none;">
+                <span class="material-symbols-outlined text-[16px]">send</span>
+                <span>Abrir en Correo</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Huella y Difusión Web de DOIs -->
+    <div id="doi-tracker-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3 id="tracker-modal-title">Huella Web y Difusión</h3>
+            <p id="tracker-modal-doi" class="data-tabular" style="font-size: 12px; color: var(--brand-teal-dark);"></p>
+          </div>
+          <button id="btn-close-tracker" class="modal-close-btn" title="Cerrar">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="tracker-loading" style="text-align: center; padding: 30px;">
+            <p>Rastreando menciones en la web abierta, Wikipedia, foros y literatura académica...</p>
+          </div>
+          <div id="tracker-content" hidden>
+            <div id="tracker-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px;"></div>
+            <div id="tracker-academic-panel"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Diagnóstico Inteligente de Archivos (Vía Híbrida) -->
+    <div class="modal-backdrop" id="modal-file-audit" hidden>
+      <div class="modal-card" style="max-width: 650px;">
+        <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="material-symbols-outlined text-brand-teal" style="font-size:24px;">analytics</span>
+            <h3 class="modal-title" style="margin:0; font-size:1.1rem;">Diagnóstico de Completitud Bibliográfica</h3>
+          </div>
+          <button class="modal-close-btn" id="btn-close-audit-modal" title="Cerrar">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 1rem 1.25rem;">
+          <div id="audit-loading" style="text-align:center; padding: 2rem;">
+            <span class="material-symbols-outlined animate-spin" style="font-size:32px; color:var(--brand-teal);">sync</span>
+            <p style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary);">Auditando estructura, delimitadores y cobertura de columnas...</p>
+          </div>
+          <div id="audit-content" hidden>
+            <!-- Resumen y Formato detectado -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 14px; background:rgba(255,255,255,0.03); border-radius:6px;">
+              <div>
+                <div style="font-size:0.75rem; color:var(--text-secondary);">Archivo analizado:</div>
+                <strong id="audit-filename" style="font-size:0.95rem;">-</strong>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:0.75rem; color:var(--text-secondary);">Formato detectado:</div>
+                <span id="audit-format" class="source-badge badge-openalex">-</span>
+              </div>
+            </div>
+
+            <!-- Métricas de Cobertura -->
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-bottom:14px;">
+              <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; text-align:center;">
+                <div style="font-size:0.72rem; color:var(--text-secondary);">Publicaciones</div>
+                <div id="audit-total-rows" style="font-size:1.25rem; font-weight:700; color:var(--text-primary);">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; text-align:center;">
+                <div style="font-size:0.72rem; color:var(--text-secondary);">Títulos y Abstracts</div>
+                <div id="audit-abstract-pct" style="font-size:1.25rem; font-weight:700; color:#10B981;">0%</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; text-align:center;">
+                <div style="font-size:0.72rem; color:var(--text-secondary);">DOIs y Revistas</div>
+                <div id="audit-doi-pct" style="font-size:1.25rem; font-weight:700; color:#F59E0B;">0%</div>
+              </div>
+            </div>
+
+            <!-- Alerta de advertencia -->
+            <div id="audit-warning-box" style="padding:10px 14px; background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); border-radius:6px; margin-bottom:12px; font-size:0.8rem; color:#FDE68A;">
+              <div style="display:flex; align-items:flex-start; gap:8px;">
+                <span class="material-symbols-outlined text-[18px]" style="color:#F59E0B;">warning</span>
+                <div id="audit-warning-text"></div>
+              </div>
+            </div>
+
+            <!-- Propuesta asistida Vía Híbrida -->
+            <div style="padding:12px 14px; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:6px; margin-bottom:14px; font-size:0.82rem; color:#A7F3D0;">
+              <div style="display:flex; align-items:flex-start; gap:8px;">
+                <span class="material-symbols-outlined text-[18px]" style="color:#10B981;">auto_fix_high</span>
+                <div>
+                  <strong>Solución Asistida (Vía Híbrida)</strong>:
+                  <div id="audit-solution-text" style="margin-top:2px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Muestra de filas -->
+            <div style="margin-bottom:14px;">
+              <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px; font-weight:600;">Vista preliminar de títulos detectados:</div>
+              <div id="audit-sample-list" style="max-height:110px; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:6px; padding:6px 10px; font-size:0.75rem;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px; border-top:1px solid var(--border-color); padding:10px 16px;">
+          <button type="button" class="btn btn-secondary sm" id="btn-cancel-audit">Cancelar</button>
+          <button type="button" class="btn btn-primary sm" id="btn-confirm-import-commit" disabled>
+            <span class="material-symbols-outlined text-[16px]">file_download_done</span>
+            <span>Importar Obras y Activar Enriquecedor</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js?v=5.45"></script>
+</body>
+</html>

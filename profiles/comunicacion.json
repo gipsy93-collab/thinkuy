@@ -1,0 +1,941 @@
+{
+  "id": "comunicacion",
+  "name": "Comunicación",
+  "languages": [
+    "es",
+    "pt",
+    "en"
+  ],
+  "collections": [
+    "scl",
+    "chl",
+    "col",
+    "mex",
+    "arg",
+    "esp",
+    "prt",
+    "cub",
+    "per",
+    "ury",
+    "ven",
+    "ecu",
+    "bol",
+    "cri",
+    "pry"
+  ],
+  "discovery_terms": [
+    "comunicaci",
+    "comunicaç",
+    "communicat",
+    "communication",
+    "periodismo",
+    "periodism",
+    "journalism",
+    "mídia",
+    "midia",
+    "audiovisual",
+    "publicidad",
+    "cinematograf",
+    "cinema",
+    "medios",
+    "media studies",
+    "informacion",
+    "informação",
+    "information and communication",
+    "comunicacion y cultura"
+  ],
+  "seed_journals": [
+    {
+      "title": "Comunicar",
+      "issn_print": "1134-3478",
+      "issn_online": "1988-3293",
+      "country": "ES"
+    },
+    {
+      "title": "El Profesional de la Información",
+      "issn_print": "1386-6710",
+      "issn_online": "1699-2407",
+      "country": "ES"
+    },
+    {
+      "title": "Revista Latina de Comunicación Social",
+      "issn_print": "1138-5820",
+      "issn_online": "1138-5820",
+      "country": "ES"
+    },
+    {
+      "title": "Zer: Revista de Estudios de Comunicación",
+      "issn_print": "1137-1102",
+      "issn_online": "1989-631X",
+      "country": "ES"
+    },
+    {
+      "title": "Razón y Palabra",
+      "issn_print": "1605-4806",
+      "issn_online": "1605-4806",
+      "country": "EC"
+    },
+    {
+      "title": "Comunicación y Sociedad (España)",
+      "issn_print": "0214-0039",
+      "issn_online": "2174-0895",
+      "country": "ES"
+    },
+    {
+      "title": "Estudios sobre el Mensaje Periodístico",
+      "issn_print": "1134-1629",
+      "issn_online": "1988-2696",
+      "country": "ES"
+    },
+    {
+      "title": "Historia y Comunicación Social",
+      "issn_print": "1137-0734",
+      "issn_online": "1988-3056",
+      "country": "ES"
+    },
+    {
+      "title": "Ámbitos. Revista Internacional de Comunicación",
+      "issn_print": "1139-1979",
+      "issn_online": "1988-5733",
+      "country": "ES"
+    },
+    {
+      "title": "adComunica. Revista Científica de Estrategias, Tendencias e Innovación en Comunicación",
+      "issn_print": "2174-0992",
+      "issn_online": "2254-2728",
+      "country": "ES"
+    },
+    {
+      "title": "Miguel Hernández Communication Journal",
+      "issn_print": "1989-8681",
+      "issn_online": "1989-8681",
+      "country": "ES"
+    },
+    {
+      "title": "Icono 14",
+      "issn_print": "1697-8293",
+      "issn_online": "1697-8293",
+      "country": "ES"
+    },
+    {
+      "title": "Doxa Comunicación",
+      "issn_print": "1696-019X",
+      "issn_online": "2386-3978",
+      "country": "ES"
+    },
+    {
+      "title": "Anàlisi: Quaderns de Comunicació i Cultura",
+      "issn_print": "0211-2175",
+      "issn_online": "2340-5236",
+      "country": "ES"
+    },
+    {
+      "title": "Tripodos",
+      "issn_print": "1138-3305",
+      "issn_online": "2340-5007",
+      "country": "ES"
+    },
+    {
+      "title": "Communication & Society",
+      "issn_print": "0214-0039",
+      "issn_online": "2386-7876",
+      "country": "ES"
+    },
+    {
+      "title": "Index.comunicación",
+      "issn_print": "2174-1859",
+      "issn_online": "2174-1859",
+      "country": "ES"
+    },
+    {
+      "title": "Fonseca, Journal of Communication",
+      "issn_print": "2172-9077",
+      "issn_online": "2172-9077",
+      "country": "ES"
+    },
+    {
+      "title": "Vivat Academia",
+      "issn_print": "1575-2844",
+      "issn_online": "1575-2844",
+      "country": "ES"
+    },
+    {
+      "title": "Revista Mediterránea de Comunicación",
+      "issn_print": "1989-872X",
+      "issn_online": "1989-872X",
+      "country": "ES"
+    },
+    {
+      "title": "Comunicación y Sociedad (México)",
+      "issn_print": "0188-252X",
+      "issn_online": "2448-9042",
+      "country": "MX"
+    },
+    {
+      "title": "Revista Mexicana de Comunicación",
+      "issn_print": "0187-9219",
+      "issn_online": "0187-9219",
+      "country": "MX"
+    },
+    {
+      "title": "Virtualis",
+      "issn_print": "2007-2678",
+      "issn_online": "2007-2678",
+      "country": "MX"
+    },
+    {
+      "title": "Global Media Journal México",
+      "issn_print": "2007-2031",
+      "issn_online": "1550-7521",
+      "country": "MX"
+    },
+    {
+      "title": "Revista Mexicana de Opinión Pública",
+      "issn_print": "1870-7300",
+      "issn_online": "2448-4911",
+      "country": "MX"
+    },
+    {
+      "title": "Palabra Clave",
+      "issn_print": "0122-8285",
+      "issn_online": "2027-534X",
+      "country": "CO"
+    },
+    {
+      "title": "Signo y Pensamiento",
+      "issn_print": "0120-4823",
+      "issn_online": "2027-2731",
+      "country": "CO"
+    },
+    {
+      "title": "Anagramas. Rumbos y Sentidos de la Comunicación",
+      "issn_print": "1692-2522",
+      "issn_online": "2248-4086",
+      "country": "CO"
+    },
+    {
+      "title": "Luciérnaga Comunicación",
+      "issn_print": "2027-1557",
+      "issn_online": "2027-1557",
+      "country": "CO"
+    },
+    {
+      "title": "Encuentros (Universidad Autónoma del Caribe)",
+      "issn_print": "1692-5858",
+      "issn_online": "2322-9415",
+      "country": "CO"
+    },
+    {
+      "title": "Comunicación y Ciudadanía",
+      "issn_print": "2027-6287",
+      "issn_online": "2027-6287",
+      "country": "CO"
+    },
+    {
+      "title": "Intercom: Revista Brasileira de Ciências da Comunicação",
+      "issn_print": "1809-5844",
+      "issn_online": "1980-3508",
+      "country": "BR"
+    },
+    {
+      "title": "E-Compós",
+      "issn_print": "1808-2599",
+      "issn_online": "1808-2599",
+      "country": "BR"
+    },
+    {
+      "title": "Galáxia (São Paulo)",
+      "issn_print": "1519-311X",
+      "issn_online": "1982-2553",
+      "country": "BR"
+    },
+    {
+      "title": "MATRIZes",
+      "issn_print": "1982-2073",
+      "issn_online": "1982-8160",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Famecos: Mídia, Cultura e Tecnologia",
+      "issn_print": "1415-0549",
+      "issn_online": "1980-3729",
+      "country": "BR"
+    },
+    {
+      "title": "Comunicação & Sociedade (São Bernardo do Campo)",
+      "issn_print": "0101-2657",
+      "issn_online": "2175-7755",
+      "country": "BR"
+    },
+    {
+      "title": "Líbero",
+      "issn_print": "1517-6105",
+      "issn_online": "1984-692X",
+      "country": "BR"
+    },
+    {
+      "title": "InTexto",
+      "issn_print": "1807-8583",
+      "issn_online": "1807-8583",
+      "country": "BR"
+    },
+    {
+      "title": "Comunicação Mídia e Consumo",
+      "issn_print": "1806-4981",
+      "issn_online": "1983-7070",
+      "country": "BR"
+    },
+    {
+      "title": "Brazilian Journalism Research",
+      "issn_print": "1808-4079",
+      "issn_online": "1981-9854",
+      "country": "BR"
+    },
+    {
+      "title": "Signos do Consumo",
+      "issn_print": "1984-5057",
+      "issn_online": "1984-5057",
+      "country": "BR"
+    },
+    {
+      "title": "RuMoRes",
+      "issn_print": "1981-4070",
+      "issn_online": "1981-4070",
+      "country": "BR"
+    },
+    {
+      "title": "Ação Midiática",
+      "issn_print": "2238-0701",
+      "issn_online": "2238-0701",
+      "country": "BR"
+    },
+    {
+      "title": "ESFERAS",
+      "issn_print": "2446-6190",
+      "issn_online": "2446-6190",
+      "country": "BR"
+    },
+    {
+      "title": "Cuadernos.info",
+      "issn_print": "0719-367X",
+      "issn_online": "0719-3661",
+      "country": "CL"
+    },
+    {
+      "title": "Comunicación y Medios",
+      "issn_print": "0716-3991",
+      "issn_online": "0719-1529",
+      "country": "CL"
+    },
+    {
+      "title": "Perspectivas de la Comunicación",
+      "issn_print": "0718-4867",
+      "issn_online": "0718-4867",
+      "country": "CL"
+    },
+    {
+      "title": "Cuadernos del Centro de Estudios en Diseño y Comunicación",
+      "issn_print": "1668-0227",
+      "issn_online": "1853-3523",
+      "country": "AR"
+    },
+    {
+      "title": "Question/Cuestión",
+      "issn_print": "1669-6581",
+      "issn_online": "1669-6581",
+      "country": "AR"
+    },
+    {
+      "title": "Austral Comunicación",
+      "issn_print": "2313-9129",
+      "issn_online": "2313-9137",
+      "country": "AR"
+    },
+    {
+      "title": "InMediaciones de la Comunicación",
+      "issn_print": "1510-5091",
+      "issn_online": "1688-8626",
+      "country": "UY"
+    },
+    {
+      "title": "Avatares de la Comunicación y la Cultura",
+      "issn_print": "1853-5925",
+      "issn_online": "1853-5925",
+      "country": "AR"
+    },
+    {
+      "title": "Oficios Terrestres",
+      "issn_print": "1668-5431",
+      "issn_online": "1853-3248",
+      "country": "AR"
+    },
+    {
+      "title": "La Trama de la Comunicación",
+      "issn_print": "1668-5628",
+      "issn_online": "2314-1204",
+      "country": "AR"
+    },
+    {
+      "title": "Tram(p)as de la Comunicación y la Cultura",
+      "issn_print": "1668-5547",
+      "issn_online": "2314-274X",
+      "country": "AR"
+    },
+    {
+      "title": "Intersecciones en Comunicación",
+      "issn_print": "2250-4184",
+      "issn_online": "2250-4184",
+      "country": "AR"
+    },
+    {
+      "title": "Chasqui. Revista Latinoamericana de Comunicación",
+      "issn_print": "1390-1079",
+      "issn_online": "1390-924X",
+      "country": "EC"
+    },
+    {
+      "title": "ComHumanitas: Revista Científica de Comunicación",
+      "issn_print": "1390-776X",
+      "issn_online": "1390-776X",
+      "country": "EC"
+    },
+    {
+      "title": "Contratexto",
+      "issn_print": "1025-9945",
+      "issn_online": "1993-4904",
+      "country": "PE"
+    },
+    {
+      "title": "Correspondencias & Análisis",
+      "issn_print": "2224-235X",
+      "issn_online": "2304-235X",
+      "country": "PE"
+    },
+    {
+      "title": "Revista de Comunicación (Universidad de Piura)",
+      "issn_print": "1684-0933",
+      "issn_online": "2227-1465",
+      "country": "PE"
+    },
+    {
+      "title": "dixit",
+      "issn_print": "1688-3497",
+      "issn_online": "0797-3695",
+      "country": "UY"
+    },
+    {
+      "title": "Punto Cero",
+      "issn_print": "1815-0276",
+      "issn_online": "2224-8838",
+      "country": "BO"
+    },
+    {
+      "title": "Anuario Electrónico de Estudios en Comunicación Social Disertaciones",
+      "issn_print": "1856-9536",
+      "issn_online": "1856-9536",
+      "country": "VE"
+    },
+    {
+      "title": "Comunicación. Estudios venezolanos de comunicación",
+      "issn_print": "0798-1856",
+      "issn_online": "2542-3301",
+      "country": "VE"
+    },
+    {
+      "title": "Observatorio (OBS*)",
+      "issn_print": "1646-5954",
+      "issn_online": "1646-5954",
+      "country": "PT"
+    },
+    {
+      "title": "Comunicação e Sociedade",
+      "issn_print": "1645-2089",
+      "issn_online": "2183-3575",
+      "country": "PT"
+    },
+    {
+      "title": "Media & Jornalismo",
+      "issn_print": "1645-5681",
+      "issn_online": "2183-5462",
+      "country": "PT"
+    },
+    {
+      "title": "Estudos em Comunicação",
+      "issn_print": "1646-4974",
+      "issn_online": "1646-4974",
+      "country": "PT"
+    }
+  ],
+  "anchors": [],
+  "cfps": [],
+  "editorial_axes": [
+    "comunicación política",
+    "fotografía y ética",
+    "narrativas televisivas",
+    "ética y estética",
+    "metodologías de investigación",
+    "historia de la comunicación",
+    "industria cinematográfica",
+    "videojuegos",
+    "ecología de los medios"
+  ],
+  "common_vocab": [
+    "artificial",
+    "audiencias",
+    "audiovisual",
+    "cientifica",
+    "cientificas",
+    "cientifico",
+    "cientificos",
+    "comunicacao",
+    "comunicacion",
+    "comunicaciones",
+    "comunicacoes",
+    "comunitaria",
+    "comunitario",
+    "cultura",
+    "cultural",
+    "culturales",
+    "desinformacao",
+    "desinformacion",
+    "digitais",
+    "digital",
+    "digitales",
+    "discurso",
+    "discursos",
+    "divulgacao",
+    "divulgacion",
+    "educacao",
+    "educacion",
+    "institucional",
+    "inteligencia",
+    "intercultural",
+    "investigacao",
+    "investigacion",
+    "jornalismo",
+    "jornalista",
+    "jornalistas",
+    "mediatica",
+    "mediatico",
+    "medios",
+    "narrativa",
+    "narrativas",
+    "organizacional",
+    "periodismo",
+    "periodista",
+    "periodistas",
+    "politica",
+    "politicas",
+    "politico",
+    "politicos",
+    "propaganda",
+    "publicidad",
+    "sociais",
+    "social",
+    "sociales",
+    "tecnologia",
+    "tecnologias"
+  ],
+  "token_equivalences": [
+    [
+      "comunicacion",
+      "comunicacao"
+    ],
+    [
+      "cientifica",
+      "cientifico"
+    ]
+  ],
+  "word_variant_groups": [
+    [
+      "periodismo",
+      "periodista",
+      "periodistas",
+      "periodistica",
+      "periodisticas",
+      "periodistico",
+      "periodisticos",
+      "jornalismo",
+      "jornalista",
+      "jornalistas",
+      "jornalistica",
+      "jornalisticas",
+      "jornalistico",
+      "jornalisticos"
+    ]
+  ],
+  "topics": [
+    {
+      "id": "ecologia_medios",
+      "name": "Ecología de los Medios y Cultura Tecnológica",
+      "name_pt": "Ecologia dos Meios e Cultura Tecnológica",
+      "description": "El entorno mediático como ambiente cultural, interfaces, extensiones humanas, McLuhanismo e IA.",
+      "keywords_es": [
+        "ecología de los medios",
+        "medio como mensaje",
+        "entorno tecnológico",
+        "extensión humana",
+        "cultura digital",
+        "inteligencia artificial",
+        "algoritmos",
+        "plataformas digitales",
+        "metaverso",
+        "realidad virtual",
+        "marshall mcluhan",
+        "mediatización",
+        "tecnología y sociedad"
+      ],
+      "keywords_pt": [
+        "ecologia dos meios",
+        "meio como mensagem",
+        "ambiente tecnológico",
+        "extensão humana",
+        "cultura digital",
+        "inteligência artificial",
+        "algoritmos",
+        "plataformas digitais",
+        "mediatização",
+        "tecnologia e sociedade"
+      ],
+      "journals_focus": [
+        "Comunicar",
+        "Palabra Clave",
+        "MATRIZes"
+      ]
+    },
+    {
+      "id": "comunicacion_politica",
+      "name": "Comunicación Política, Opinión Pública y Desinformación",
+      "name_pt": "Comunicação Política, Opinião Pública e Desinformação",
+      "description": "Campañas electorales, framing, polarización, desinformación, discurso del odio y esfera pública.",
+      "keywords_es": [
+        "comunicación política",
+        "desinformación",
+        "fake news",
+        "polarización",
+        "opinión pública",
+        "campañas electorales",
+        "propaganda",
+        "discurso político",
+        "democracia",
+        "esfera pública",
+        "redes sociales y política",
+        "discurso de odio",
+        "framing",
+        "encuadres"
+      ],
+      "keywords_pt": [
+        "comunicação política",
+        "desinformação",
+        "polarização",
+        "opinião pública",
+        "campanhas eleitorais",
+        "propaganda",
+        "discurso político",
+        "democracia",
+        "esfera pública",
+        "redes sociais e política",
+        "discurso de ódio"
+      ],
+      "journals_focus": [
+        "Revista Latina de Comunicación Social",
+        "Doxa Comunicación",
+        "Opinião Pública"
+      ]
+    },
+    {
+      "id": "periodismo_digital",
+      "name": "Periodismo, Medios Digitales y Nuevas Narrativas",
+      "name_pt": "Jornalismo, Mídias Digitais e Novas Narrativas",
+      "description": "Rutinas periodísticas, verificación (fact-checking), pódcast, TikTok, narrativas móviles y modelos de negocio.",
+      "keywords_es": [
+        "periodismo digital",
+        "periodismo",
+        "fact-checking",
+        "verificación",
+        "redacciones",
+        "narrativas periodísticas",
+        "pódcast",
+        "prensa",
+        "tiktok y noticias",
+        "medios locales",
+        "periodismo de datos",
+        "ciberperiodismo",
+        "infomediación",
+        "modelos de negocio"
+      ],
+      "keywords_pt": [
+        "jornalismo digital",
+        "jornalismo",
+        "fact-checking",
+        "verificação",
+        "redações",
+        "narrativas jornalísticas",
+        "podcast",
+        "imprensa",
+        "jornalismo de dados",
+        "ciberjornalismo"
+      ],
+      "journals_focus": [
+        "Estudios sobre el Mensaje Periodístico",
+        "Brazilian Journalism Research",
+        "Cuadernos.info"
+      ]
+    },
+    {
+      "id": "comunicacion_social_comunitaria",
+      "name": "Comunicación Social, Comunitaria y Movimientos Ciudadanos",
+      "name_pt": "Comunicação Social, Comunitária e Movimentos Cidadãos",
+      "description": "Medios comunitarios, derechos humanos, comunicación para el cambio social, género y ciudadanía.",
+      "keywords_es": [
+        "comunicación social",
+        "comunicación comunitaria",
+        "cambio social",
+        "movimientos sociales",
+        "derechos humanos",
+        "género y medios",
+        "ciudadanía",
+        "comunicación alternativa",
+        "apropiación social",
+        "comunicación popular",
+        "indígena",
+        "diversidad"
+      ],
+      "keywords_pt": [
+        "comunicação social",
+        "comunicação comunitária",
+        "mudança social",
+        "movimentos sociais",
+        "direitos humanos",
+        "gênero e mídia",
+        "cidadania",
+        "comunicação alternativa",
+        "apropriação social",
+        "comunicação popular"
+      ],
+      "journals_focus": [
+        "Chasqui",
+        "Signo y Pensamiento",
+        "Intercom: Revista Brasileira de Ciências da Comunicação"
+      ]
+    },
+    {
+      "id": "comunicacion_cientifica_salud",
+      "name": "Comunicación Científica, Salud y Medio Ambiente",
+      "name_pt": "Comunicação Científica, Saúde e Meio Ambiente",
+      "description": "Divulgación científica, comunicación en salud pública, infodemia, cambio climático y comunicación de riesgos.",
+      "keywords_es": [
+        "comunicación científica",
+        "divulgación científica",
+        "comunicación en salud",
+        "infodemia",
+        "ciencia abierta",
+        "medio ambiente",
+        "cambio climático",
+        "comunicación de riesgos",
+        "periodismo científico",
+        "percepción pública de la ciencia",
+        "revistas científicas"
+      ],
+      "keywords_pt": [
+        "comunicação científica",
+        "divulgação científica",
+        "comunicação em saúde",
+        "infodemia",
+        "ciência aberta",
+        "meio ambiente",
+        "mudança climática",
+        "jornalismo científico",
+        "revistas científicas"
+      ],
+      "journals_focus": [
+        "Interface - Comunicação, Saúde, Educação",
+        "El Profesional de la Información",
+        "História, Ciências, Saúde-Manguinhos"
+      ]
+    },
+    {
+      "id": "audiovisual_ficcion_transmedia",
+      "name": "Comunicación Audiovisual, Cine y Ficción Transmedia",
+      "name_pt": "Comunicação Audiovisual, Cinema e Ficção Transmídia",
+      "description": "Cine, series de televisión, streaming, transmedia storytelling, videojuegos, estética y cultura audiovisual.",
+      "keywords_es": [
+        "comunicación audiovisual",
+        "cine",
+        "ficción televisiva",
+        "series",
+        "transmedia",
+        "videojuegos",
+        "narrativa transmedia",
+        "streaming",
+        "netflix",
+        "estética audiovisual",
+        "cultura visual",
+        "animación",
+        "guion"
+      ],
+      "keywords_pt": [
+        "comunicação audiovisual",
+        "cinema",
+        "ficção televisiva",
+        "séries",
+        "transmídia",
+        "videogames",
+        "narrativa transmídia",
+        "streaming",
+        "estética audiovisual",
+        "cultura visual"
+      ],
+      "journals_focus": [
+        "adComunica",
+        "L'Atalante",
+        "Significação: Revista de Cultura Audiovisual"
+      ]
+    },
+    {
+      "id": "comunicacion_organizacional",
+      "name": "Comunicación Organizacional, Corporativa y Relaciones Públicas",
+      "name_pt": "Comunicação Organizacional, Corporativa e Relações Públicas",
+      "description": "Identidad corporativa, gestión de crisis, comunicación interna, reputación, marcas y publicidad.",
+      "keywords_es": [
+        "comunicación organizacional",
+        "comunicación corporativa",
+        "relaciones públicas",
+        "reputación",
+        "gestión de crisis",
+        "identidad institucional",
+        "marcas",
+        "publicidad",
+        "branding",
+        "comunicación interna",
+        "responsabilidad social corporativa",
+        "stakeholders"
+      ],
+      "keywords_pt": [
+        "comunicação organizacional",
+        "comunicação corporativa",
+        "relações públicas",
+        "reputação",
+        "gestão de crise",
+        "identidade institucional",
+        "marcas",
+        "publicidade",
+        "branding",
+        "comunicação interna"
+      ],
+      "journals_focus": [
+        "Revista Internacional de Relaciones Públicas",
+        "Organicom"
+      ]
+    },
+    {
+      "id": "educomunicacion_alfabetizacion",
+      "name": "Educomunicación, Alfabetización Mediática y Juventud",
+      "name_pt": "Educomunicação, Alfabetização Midiática e Juventude",
+      "description": "Educación en medios, competencias digitales, consumos culturales juveniles y uso educativo de pantallas.",
+      "keywords_es": [
+        "educomunicación",
+        "alfabetización mediática",
+        "media literacy",
+        "competencias digitales",
+        "jóvenes y redes",
+        "educación en medios",
+        "audiencias infantiles",
+        "tic en educación",
+        "generación z",
+        "prosumidores"
+      ],
+      "keywords_pt": [
+        "educomunicação",
+        "alfabetização midiática",
+        "competências digitais",
+        "jovens e redes",
+        "educação em mídia",
+        "audiências infantis",
+        "geração z"
+      ],
+      "journals_focus": [
+        "Comunicar",
+        "Revista de Comunicación de la SEECI"
+      ]
+    }
+  ],
+  "socratic_templates": {
+    "ecologia_medios": [
+      "¿Tu indagación se enfoca en el impacto antropológico y cognitivo del medio tecnológico, o en la economía política de las plataformas?",
+      "¿Consideras la tecnología como una herramienta instrumental o como un entorno cultural que reconfigura las relaciones humanas?",
+      "¿Pretendes abordar modelos algorítmicos concretos (IA, redes sociales) o la dimensión teórica/ética de la extensión humana?"
+    ],
+    "comunicacion_politica": [
+      "¿Te interesa más el emisor (estrategias de campaña, encuadres discursivos) o el impacto cognitivo en la ciudadanía (polarización, desinformación)?",
+      "¿Tu foco analítico se sitúa en elecciones y partidos institucionales, o en movilizaciones espontáneas y debates en redes?",
+      "¿Planeas analizar el fenómeno desde la desinformación deliberada o desde la fragmentación de la esfera pública?"
+    ],
+    "periodismo_digital": [
+      "¿Observas las rutinas y condiciones laborales de los periodistas o las nuevas fórmulas narrativas (pódcast, TikTok, newsletters)?",
+      "¿Tu objeto de estudio abarca medios consolidados tradicionales o iniciativas nativas digitales y de proximidad?",
+      "¿Te interesa la verificación (fact-checking) y la credibilidad, o la automatización y la inteligencia artificial en redacciones?"
+    ],
+    "comunicacion_social_comunitaria": [
+      "¿Tu investigación parte de la comunicación como herramienta de resistencia y derechos humanos, o como proceso de apropiación identitaria?",
+      "¿Pones el acento en comunidades rurales, originarias o colectivos urbanos y de género?",
+      "¿El abordaje metodológico es participativo/etnográfico o de análisis discursivo de contenidos alternativos?"
+    ],
+    "comunicacion_cientifica_salud": [
+      "¿Tratas la divulgación científica masiva hacia el público general o la comunicación institucional y de riesgos en crisis sanitarias?",
+      "¿El reto principal que exploras es la alfabetización científica o el combate a la pseudociencia y la infodemia?",
+      "¿Te sitúas en el ámbito biomédico/salud, o en la crisis climática y ambiental?"
+    ],
+    "audiovisual_ficcion_transmedia": [
+      "¿Tu interés reside en las estructuras narrativas y el guion, o en los hábitos de consumo y comunidades de fans en plataformas de streaming?",
+      "¿Analizas la ficción cinematográfica/televisiva o formatos interactivos emergentes como los videojuegos y el metaverso?",
+      "¿Buscas explorar la dimensión estética/autoral o la lógica de las industrias culturales globales?"
+    ],
+    "comunicacion_organizacional": [
+      "¿Te centras en la gestión de crisis y reputación corporativa externa o en la comunicación interna y clima organizacional?",
+      "¿Abordas organizaciones con fines de lucro o instituciones públicas y del tercer sector?",
+      "¿El énfasis está en la sostenibilidad y responsabilidad social (RSC) o en el branding y posicionamiento de marca?"
+    ],
+    "educomunicacion_alfabetizacion": [
+      "¿Tu perspectiva apunta a la enseñanza formal en escuelas/universidades o al aprendizaje informal y consumos juveniles en redes?",
+      "¿Buscas medir competencias críticas frente a las pantallas o la capacitación técnica en producción de contenidos?",
+      "¿Te interesa la protección de audiencias vulnerables (infancia/juventud) o el empoderamiento prosumidor?"
+    ]
+  },
+  "author_boost_terms": [
+    "tiktok",
+    "desinformacion",
+    "algoritmos",
+    "inteligencia",
+    "transmedia",
+    "podcast",
+    "polarizacion",
+    "violencia"
+  ],
+  "author_fallback_tokens": [
+    "comunicacion",
+    "medios",
+    "tecnologia",
+    "periodismo"
+  ],
+  "ubiquitous_terms": [
+    "comunicacion",
+    "comunicación",
+    "comunicacio",
+    "comunicação",
+    "comunicacao",
+    "social",
+    "sociales",
+    "sociais"
+  ],
+  "ui_texts": {
+    "product": "Thinkuy",
+    "field": "Comunicación"
+  },
+  "llm": {
+    "enabled": true,
+    "model": "qwen2.5-coder-7b-instruct",
+    "classify_model": "mistralai/ministral-3-3b",
+    "api_base": "http://127.0.0.1:1234/v1"
+  }
+}

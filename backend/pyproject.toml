@@ -1,0 +1,16 @@
+[project]
+name = "radar-obcc"
+version = "0.1.0"
+description = "Radar OBCC - micro-observatorio personal de producción científica en Ciencias de la Comunicación (enfoque iberoamericano)"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "apscheduler>=3.10",
+    "httpx>=0.27",
+    "pymupdf>=1.24",
+    "python-multipart>=0.0.9",
+]
+
+[tool.uv]
+package = false

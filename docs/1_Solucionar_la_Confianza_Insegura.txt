@@ -1,0 +1,32 @@
+1. Solucionar la "Confianza Insegura en Menciones Neutrales" (Precisión del 67%)
+El problema aquí es que el modelo ve un verbo de dicción (ej. "Smith (2020) señala que...") y, por falta de contexto profundo, asume que es un consenso (positivo) o una refutación (negativo), en lugar de una mera mención neutral.
+La Solución: Minería de Negativos Difíciles Específica para Citas
+No necesitas un dataset externo, necesitas reestructurar tu dataset actual creando "tripletas de citas".
+Paso A: Identifica los falsos positivos. Filtra tu dataset de entrenamiento y busca todas las citas que el modelo etiquetó como "Consenso/Positivo" pero que en realidad eran "Neutrales".
+Paso B: Crea los "Falsos Consensos" (Hard Negatives). Toma esas citas neutrales y crea pares de entrenamiento donde el modelo tenga que aprender la diferencia exacta.
+Ejemplo de Mención Neutral (El objetivo): "Aunque Pérez (2019) menciona que la inflación subió, no concluye que sea el factor principal." -> Etiqueta: NEUTRAL.
+Ejemplo de Consenso (El positivo): "Pérez (2019) demuestra que la inflación subió, confirmando la teoría principal." -> Etiqueta: POSITIVE/CONSENSUS.
+Paso C: Aumenta la frecuencia (Over-sampling). En tu dataloader de QLoRA, asegúrate de que estos ejemplos de "citas neutrales que parecen consenso" aparezcan al menos 3 o 4 veces más por época que los ejemplos fáciles.
+2. Superar el "Límite de Razonamiento Global" (Ironía y Concesiones)
+Un modelo de 1.5B parámetros no tiene la capacidad latente para inferir ironía académica o concesiones indirectas de forma implícita. Si solo le das el texto y la etiqueta, fallará.
+La Solución: "Andamiaje" de Datos (Data Scaffolding) y Cadenas de Pensamiento (CoT)
+Tienes que cambiar el formato de tus datos de entrenamiento. En lugar de pedirle solo la etiqueta, obligalo a razonar en el propio texto de entrenamiento.
+Formato de entrenamiento actual (probablemente):
+Input: "Si bien el autor alaba la metodología, los resultados son, irónicamente, un eco de lo que él mismo criticó en 2018."
+Output: "NEGATIVO" (o "IRONÍA").
+Formato de entrenamiento ajustado (Con CoT explícito):
+Input: "Si bien el autor alaba la metodología, los resultados son, irónicamente, un eco de lo que él mismo criticó en 2018."
+Output: "Razonamiento: El texto usa una estructura concesiva ('Si bien...') seguida de un marcador de ironía ('irónicamente'). Aunque hay palabras positivas ('alaba'), el contexto final revela una crítica. Por lo tanto, el sentimiento real es negativo/irónico. \nEtiqueta: NEGATIVO".
+Al forzar al modelo a generar el "Razonamiento" antes de la "Etiqueta" durante el entrenamiento de QLoRA, estás usando los parámetros del LoRA para aprender la lógica de la ironía, no solo a memorizar patrones de palabras. Esto dispara la accuracy en modelos pequeños.
+3. Ajustes Técnicos Específicos para QLoRA
+Dado que estás usando QLoRA, la arquitectura de los adaptadores es crucial para estos matices:
+Aumenta el Rango (Rank / r) del LoRA: Si estás usando un r=8 o r=16, súbelo a r=32 o r=64. Un modelo de 1.5B necesita más "ancho" en los adaptadores para capturar relaciones semánticas complejas como la ironía. Asegúrate de que lora_alpha sea el doble de r (ej. r=32, alpha=64).
+Target Modules: Asegúrate de que el LoRA se esté aplicando a todas las proyecciones lineales de las capas de atención (q_proj, k_proj, v_proj, o_proj) y también a las capas MLP (gate_proj, up_proj, down_proj). Si solo entrenas las capas de atención, el modelo no tendrá capacidad para el razonamiento lógico profundo.
+Función de Pérdida (Loss Function): El problema del 67% en neutros indica que la función de pérdida estándar (Cross-Entropy) está ignorando la clase neutral porque es más difícil de optimizar.
+Opción A: Usa Class Weights (Pesos de clase). Dale un peso de 2.0 o 3.0 a la clase "Neutral" en tu función de pérdida.
+Opción B (Más avanzada): Si tu framework lo permite, cambia a Focal Loss. Focal Loss reduce automáticamente el peso de los ejemplos "fáciles" (que el modelo ya sabe clasificar) y obliga al modelo a enfocarse casi exclusivamente en los "negativos difíciles" (las citas ambiguas).
+Resumen del Plan de Acción para tu siguiente Epoch:
+Filtra tu dataset y extrae los ejemplos donde el modelo se confunde entre "Neutral" y "Consenso".
+Reescríbelos en pares contrastivos (Hard Negatives) para que el modelo vea la diferencia exacta.
+Añade una frase de razonamiento (CoT) en las etiquetas de los ejemplos de ironía y concesiones complejas.
+Sube el r de tu QLoRA a 32 o 64 y aumenta el peso de la clase Neutral en la pérdida.

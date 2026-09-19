@@ -1,0 +1,305 @@
+{
+  "id": "ciencia_politica",
+  "name": "Ciencia Política",
+  "languages": [
+    "es",
+    "pt",
+    "en"
+  ],
+  "collections": [
+    "scl",
+    "chl",
+    "col",
+    "mex",
+    "arg",
+    "esp",
+    "prt",
+    "cub",
+    "per",
+    "ury",
+    "ven",
+    "ecu",
+    "bol",
+    "cri",
+    "pry"
+  ],
+  "discovery_terms": [
+    "ciencia política",
+    "ciencia politica",
+    "political science",
+    "politica comparada",
+    "political theory",
+    "gobierno",
+    "government",
+    "democracia",
+    "gobernanza",
+    "partidos",
+    "elecciones",
+    "políticas públicas",
+    "politicas publicas",
+    "relaciones internacionales",
+    "international relations",
+    "political",
+    "politics",
+    "política",
+    "politica"
+  ],
+  "seed_journals": [
+    {
+      "title": "Colombia Internacional",
+      "issn_print": "0121-5612",
+      "issn_online": "1900-6004",
+      "country": "CO"
+    },
+    {
+      "title": "Dados",
+      "issn_print": "0011-5258",
+      "issn_online": "1678-4588",
+      "country": "BR"
+    },
+    {
+      "title": "Media and Communication",
+      "issn_print": "2183-2439",
+      "issn_online": null,
+      "country": "PT"
+    },
+    {
+      "title": "Politics and Governance",
+      "issn_print": "2183-2463",
+      "issn_online": null,
+      "country": "PT"
+    },
+    {
+      "title": "Política Revista de Ciencia Política",
+      "issn_print": "0716-1077",
+      "issn_online": "0719-5338",
+      "country": "CL"
+    },
+    {
+      "title": "Revista Brasileira de Ciências Sociais",
+      "issn_print": "0102-6909",
+      "issn_online": "1806-9053",
+      "country": "BR"
+    },
+    {
+      "title": "Revista de ciencia política",
+      "issn_print": "0716-1417",
+      "issn_online": "0718-090X",
+      "country": "CL"
+    },
+    {
+      "title": "Revista de Sociologia e Política",
+      "issn_print": "0104-4478",
+      "issn_online": "1678-9873",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Internacional de Sociología",
+      "issn_print": "0034-9712",
+      "issn_online": "1988-429X",
+      "country": "ES"
+    }
+  ],
+  "anchors": [],
+  "cfps": [],
+  "editorial_axes": [
+    "política comparada",
+    "democracia y autoritarismo",
+    "comportamiento electoral",
+    "políticas públicas",
+    "relaciones internacionales",
+    "teoría política"
+  ],
+  "common_vocab": [
+    "campanas",
+    "ciudadania",
+    "democracia",
+    "elecciones",
+    "estado",
+    "gobernanza",
+    "gobierno",
+    "instituciones",
+    "opinion",
+    "partidos",
+    "politica",
+    "political",
+    "politicas",
+    "populismo",
+    "publica",
+    "regimen",
+    "sociales",
+    "voto"
+  ],
+  "token_equivalences": [
+    [
+      "cientifica",
+      "cientifico"
+    ]
+  ],
+  "word_variant_groups": [],
+  "topics": [
+    {
+      "id": "politica_comparada",
+      "name": "Política Comparada y Regímenes Políticos",
+      "name_pt": "Política Comparada e Regimes Políticos",
+      "description": "Democracia, autoritarismo, transiciones, instituciones políticas y calidad de la democracia.",
+      "keywords_es": [
+        "política comparada",
+        "regímenes políticos",
+        "democracia",
+        "autoritarismo",
+        "transición política",
+        "instituciones políticas",
+        "calidad de la democracia",
+        "sistemas electorales"
+      ],
+      "keywords_pt": [
+        "política comparada",
+        "regimes políticos",
+        "democracia",
+        "autoritarismo",
+        "transição política",
+        "instituições políticas",
+        "qualidade da democracia",
+        "sistemas eleitorais"
+      ],
+      "journals_focus": [
+        "Revista de Ciencia Política",
+        "Colombia Internacional",
+        "Dados"
+      ]
+    },
+    {
+      "id": "comportamiento_electoral",
+      "name": "Comportamiento Electoral, Partidos y Opinión Pública",
+      "name_pt": "Comportamento Eleitoral, Partidos e Opinião Pública",
+      "description": "Elecciones, voto, partidos políticos, campañas, opinión pública y populismo.",
+      "keywords_es": [
+        "comportamiento electoral",
+        "elecciones",
+        "voto",
+        "partidos políticos",
+        "campañas electorales",
+        "opinión pública",
+        "populismo",
+        "polarización política"
+      ],
+      "keywords_pt": [
+        "comportamento eleitoral",
+        "eleições",
+        "voto",
+        "partidos políticos",
+        "campanhas eleitorais",
+        "opinião pública",
+        "populismo",
+        "polarização política"
+      ],
+      "journals_focus": [
+        "Revista de Sociologia e Política",
+        "Opinião Pública",
+        "Política"
+      ]
+    },
+    {
+      "id": "politicas_publicas",
+      "name": "Políticas Públicas y Gobernanza",
+      "name_pt": "Políticas Públicas e Governança",
+      "description": "Diseño, implementación y evaluación de políticas públicas, gobernanza y administración pública.",
+      "keywords_es": [
+        "políticas públicas",
+        "gobernanza",
+        "implementación",
+        "evaluación de políticas",
+        "administración pública",
+        "capacidad estatal",
+        "agendas públicas"
+      ],
+      "keywords_pt": [
+        "políticas públicas",
+        "governança",
+        "implementação",
+        "avaliação de políticas",
+        "administração pública",
+        "capacidade estatal",
+        "agendas públicas"
+      ],
+      "journals_focus": [
+        "Revista Internacional de Sociología",
+        "Brazilian Journal of Public Administration"
+      ]
+    },
+    {
+      "id": "relaciones_internacionales",
+      "name": "Relaciones Internacionales y Geopolítica",
+      "name_pt": "Relações Internacionais e Geopolítica",
+      "description": "Política exterior, integración regional, geopolítica, seguridad y organismos internacionales.",
+      "keywords_es": [
+        "relaciones internacionales",
+        "geopolítica",
+        "política exterior",
+        "integración regional",
+        "seguridad internacional",
+        "diplomacia",
+        "cooperación internacional"
+      ],
+      "keywords_pt": [
+        "relações internacionais",
+        "geopolítica",
+        "política externa",
+        "integração regional",
+        "segurança internacional",
+        "diplomacia",
+        "cooperação internacional"
+      ],
+      "journals_focus": [
+        "Colombia Internacional",
+        "Foro Internacional"
+      ]
+    }
+  ],
+  "socratic_templates": {
+    "politica_comparada": [
+      "¿Tu foco es el diseño institucional o la dinámica empírica de la democratización?",
+      "¿Comparas regímenes a nivel nacional o subnacional, o procesos de cambio reciente?"
+    ],
+    "comportamiento_electoral": [
+      "¿Analizas el comportamiento del votante o la estrategia de partidos y campañas?",
+      "¿Te interesa la opinión pública medida (encuestas) o el discurso político en plataformas?"
+    ],
+    "politicas_publicas": [
+      "¿Estudias el ciclo de la política (agenda-diseño-implementación) o la evaluación de resultados?",
+      "¿El énfasis es la capacidad estatal o la interacción con actores sociales?"
+    ],
+    "relaciones_internacionales": [
+      "¿Tu problema es de seguridad y geopolítica, o de cooperación e integración regional?",
+      "¿Trabajas con teoría de las RI clásica o con perspectivas del Sur global?"
+    ]
+  },
+  "author_boost_terms": [
+    "democracia",
+    "elecciones",
+    "populismo",
+    "polarizacion",
+    "gobernanza",
+    "autoritarismo",
+    "partidos",
+    "voto",
+    "politica"
+  ],
+  "author_fallback_tokens": [
+    "politica",
+    "democracia",
+    "estado",
+    "gobierno"
+  ],
+  "ui_texts": {
+    "product": "Thinkuy",
+    "field": "Ciencia Política"
+  },
+  "llm": {
+    "enabled": true,
+    "model": "qwen2.5-coder-7b-instruct",
+    "classify_model": "mistralai/ministral-3-3b",
+    "api_base": "http://127.0.0.1:1234/v1"
+  }
+}

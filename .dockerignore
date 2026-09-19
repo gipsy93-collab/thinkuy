@@ -1,0 +1,15 @@
+# Lo que NO debe entrar en la imagen del contenedor.
+.venv/
+backend/.venv/
+**/__pycache__/
+**/*.pyc
+backend/scratch/
+data/
+.git/
+.env
+*.db
+*.db-wal
+*.db-shm
+data/html_render/
+__pycache__/
+.pytest_cache/

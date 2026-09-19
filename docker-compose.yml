@@ -1,0 +1,38 @@
+# Thinkuy como servicio. La base de datos vive en el servidor, no en la máquina del investigador.
+#
+#   docker compose up --build        # levantar
+#   docker compose logs -f           # ver registros
+#   docker compose down              # detener (los datos del volumen se conservan)
+#
+# Prueba desde cualquier parte con un túnel (ver docs/SERVIDOR.md).
+
+services:
+  thinkuy:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # El dato persistente: catálogo, protocolos, cribados, fichas. Fuera de la imagen.
+      - ./data:/data
+    environment:
+      # --- Obligatorio en un despliegue público ---
+      # Nunca `*`: sin esto, cualquier sitio puede llamar a la API desde el navegador de un tercero.
+      THINKUY_CORS_ORIGINS: "http://localhost:8000"
+      # Una única instancia escritora (SQLite serializa las escrituras).
+      THINKUY_INDEX_LIVE_RESULTS: "0"
+      THINKUY_DATA_DIR: "/data"
+      # Normalizaciones del corpus iberoamericano
+      THINKUY_FIELD: "general"
+    # --- Secretos: se leen del archivo .env si existe, que NUNCA se sube al repositorio ---
+    # `required: false` para que la herramienta arranque sin claves (las fuentes que las pidan
+    # se declaran no disponibles en lugar de tumbar el servidor). Ver .env.example
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

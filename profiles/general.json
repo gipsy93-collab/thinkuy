@@ -1,0 +1,29 @@
+{
+  "id": "general",
+  "name": "Campo general (multidisciplinar)",
+  "languages": ["es", "pt", "en"],
+  "collections": ["scl", "chl", "col", "mex", "arg", "esp", "prt", "cub", "per", "ury", "ven", "ecu", "bol", "cri", "pry"],
+  "discovery_terms": [],
+  "seed_journals": [],
+  "anchors": [],
+  "cfps": [],
+  "editorial_axes": [],
+  "common_vocab": [],
+  "token_equivalences": [],
+  "word_variant_groups": [],
+  "topics": [],
+  "socratic_templates": {},
+  "author_boost_terms": [],
+  "author_fallback_tokens": [],
+  "ubiquitous_terms": [],
+  "ui_texts": {
+    "product": "Thinkuy",
+    "field": "Campo general (multidisciplinar)"
+  },
+  "llm": {
+    "enabled": true,
+    "model": "qwen2.5-coder-7b-instruct",
+    "classify_model": "mistralai/ministral-3-3b",
+    "api_base": "http://127.0.0.1:1234/v1"
+  }
+}

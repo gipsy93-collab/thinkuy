@@ -1,0 +1,2105 @@
+{
+  "id": "ciencia_abierta",
+  "name": "Ciencia Abierta y Metaciencia",
+  "languages": [
+    "es",
+    "pt",
+    "en"
+  ],
+  "collections": [
+    "scl",
+    "chl",
+    "col",
+    "mex",
+    "arg",
+    "esp",
+    "prt",
+    "cub",
+    "per",
+    "ury",
+    "ven",
+    "ecu",
+    "bol",
+    "cri",
+    "pry"
+  ],
+  "discovery_terms": [
+    "bibliometr",
+    "altmetr",
+    "cienciometr",
+    "cientometr",
+    "scientometr",
+    "ciência aberta",
+    "ciencia abierta",
+    "open science",
+    "acceso abierto",
+    "acesso aberto",
+    "open access",
+    "metacienc",
+    "metaresearch",
+    "meta-research",
+    "comunicación científica",
+    "comunicacao cientifica",
+    "scholarly communication",
+    "revisión por pares",
+    "revisao por pares",
+    "peer review",
+    "research evaluation",
+    "reproducibilidad",
+    "reproducibility",
+    "información científic",
+    "ciencia da informaç",
+    "science communicat",
+    "divulgación cient",
+    "divulgacao cient"
+  ],
+  "seed_journals": [
+    {
+      "title": "Transinformação",
+      "issn_print": "2318-0889",
+      "issn_online": "0103-3786",
+      "country": null
+    },
+    {
+      "title": "RDBCI: Revista Digital de Biblioteconomia e Ciência da Informação",
+      "issn_print": "1678-765X",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "Información, cultura y sociedad",
+      "issn_print": "1514-8327",
+      "issn_online": "1851-1740",
+      "country": "Argentina"
+    },
+    {
+      "title": "E-Ciencias de la Información",
+      "issn_print": "1659-4142",
+      "issn_online": "1659-4142",
+      "country": "Costa Rica"
+    },
+    {
+      "title": "Revista Cubana de Información en Ciencias de la Salud",
+      "issn_print": "2307-2113",
+      "issn_online": "2307-2113",
+      "country": "Cuba"
+    },
+    {
+      "title": "Revista de Comunicación",
+      "issn_print": "1684-0933",
+      "issn_online": "2227-1465",
+      "country": "Perú"
+    },
+    {
+      "title": "Ciência da Informação",
+      "issn_print": "1518-8353",
+      "issn_online": "0100-1965",
+      "country": null
+    },
+    {
+      "title": "Em Questão",
+      "issn_print": "1807-8893",
+      "issn_online": "1808-5245",
+      "country": "Brasil"
+    },
+    {
+      "title": "Revista Latina de Comunicación Social",
+      "issn_print": "1138-5820",
+      "issn_online": "1138-5820",
+      "country": "España"
+    },
+    {
+      "title": "Encontros Bibli",
+      "issn_print": "1518-2924",
+      "issn_online": "1518-2924",
+      "country": "Brasil"
+    },
+    {
+      "title": "Revista Mediterránea de Comunicación",
+      "issn_print": "1989-872X",
+      "issn_online": "1989-872X",
+      "country": "España"
+    },
+    {
+      "title": "Fides et Ratio - Revista de Difusión cultural y científica de la Universidad La Salle en Bolivia",
+      "issn_print": "2071-081X",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "Austral Comunicación",
+      "issn_print": "2313-9129",
+      "issn_online": "2313-9137",
+      "country": "AR"
+    },
+    {
+      "title": "Communication & Society",
+      "issn_print": "2386-7876",
+      "issn_online": "2386-7876",
+      "country": "España"
+    },
+    {
+      "title": "Comunicação e Sociedade",
+      "issn_print": "1645-2089",
+      "issn_online": "2183-3575",
+      "country": "Portugal"
+    },
+    {
+      "title": "Cuadernos.info",
+      "issn_print": "0719-3661",
+      "issn_online": "0719-367X",
+      "country": "Chile"
+    },
+    {
+      "title": "Palabra Clave",
+      "issn_print": "0122-8285",
+      "issn_online": "2027-534X",
+      "country": "Colombia"
+    },
+    {
+      "title": "RISTI - Revista Ibérica de Sistemas e Tecnologias de Informação",
+      "issn_print": "2183-0126",
+      "issn_online": "1646-9895",
+      "country": null
+    },
+    {
+      "title": "Revista San Gregorio",
+      "issn_print": "2528-7907",
+      "issn_online": "1390-7247",
+      "country": null
+    },
+    {
+      "title": "Signo y Pensamiento",
+      "issn_print": "0120-4823",
+      "issn_online": "2027-2731",
+      "country": "CO"
+    },
+    {
+      "title": "Vivat Academia",
+      "issn_print": "1575-2844",
+      "issn_online": "1575-2844",
+      "country": "España"
+    },
+    {
+      "title": "Informatio",
+      "issn_print": "2301-1378",
+      "issn_online": "2301-1378",
+      "country": "Uruguay"
+    },
+    {
+      "title": "Liberabit",
+      "issn_print": "1729-4827",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "Palabra clave",
+      "issn_print": "1853-9912",
+      "issn_online": "1853-9912",
+      "country": "Argentina"
+    },
+    {
+      "title": "Comunicación y medios",
+      "issn_print": "0716-3991",
+      "issn_online": "0719-1529",
+      "country": "Chile"
+    },
+    {
+      "title": "Dixit",
+      "issn_print": "1688-3497",
+      "issn_online": "0797-3691",
+      "country": null
+    },
+    {
+      "title": "Galáxia (São Paulo)",
+      "issn_print": "1982-2553",
+      "issn_online": "1519-311X",
+      "country": "BR"
+    },
+    {
+      "title": "Observatorio (OBS*)",
+      "issn_print": "1646-5954",
+      "issn_online": "1646-5954",
+      "country": "PT"
+    },
+    {
+      "title": "Revista Científica y Tecnológica UPSE",
+      "issn_print": "1390-7697",
+      "issn_online": "1390-7697",
+      "country": "Ecuador"
+    },
+    {
+      "title": "Virtualis",
+      "issn_print": "2007-2678",
+      "issn_online": "2007-2678",
+      "country": "MX"
+    },
+    {
+      "title": "Intercom: Revista Brasileira de Ciências da Comunicação",
+      "issn_print": "1980-3508",
+      "issn_online": "1809-5844",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Científica UISRAEL",
+      "issn_print": "2631-2786",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "Revista de Ciencias Humanísticas y Sociales (ReHuSo)",
+      "issn_print": "2550-6587",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "Texto Livre",
+      "issn_print": "1983-3652",
+      "issn_online": null,
+      "country": null
+    },
+    {
+      "title": "e3 - Revista de Economia, Empresas e Empreendedores na CPLP",
+      "issn_print": "2183-380X",
+      "issn_online": "2183-7201",
+      "country": null
+    },
+    {
+      "title": "Comunicar",
+      "issn_print": "1134-3478",
+      "issn_online": "1988-3293",
+      "country": "ES"
+    }
+  ],
+  "anchors": [],
+  "cfps": [],
+  "editorial_axes": [
+    "métricas de la ciencia y altmetría",
+    "ciencia abierta y acceso abierto",
+    "comunicación científica y divulgación",
+    "evaluación de la investigación y revisión por pares",
+    "bibliotecología y ciencia de la información",
+    "integridad y reproducibilidad"
+  ],
+  "common_vocab": [
+    "bibliometria",
+    "bibliometría",
+    "altmetria",
+    "altmetría",
+    "altmetrics",
+    "cienciometria",
+    "cienciometría",
+    "scientometrics",
+    "scientometria",
+    "ciencia abierta",
+    "ciência aberta",
+    "open science",
+    "acceso abierto",
+    "acesso aberto",
+    "open access",
+    "metaciencia",
+    "metacienc",
+    "metaresearch",
+    "comunicacion cientifica",
+    "comunicación científica",
+    "comunicacao cientifica",
+    "divulgacion cientifica",
+    "divulgação científica",
+    "revision por pares",
+    "revisão por pares",
+    "peer review",
+    "evaluacion",
+    "evaluación",
+    "avaliacao",
+    "citacion",
+    "citación",
+    "citacao",
+    "cita",
+    "citation",
+    "indice h",
+    "índice h",
+    "factor de impacto",
+    "impact factor",
+    "scopus",
+    "web of science",
+    "wos",
+    "openalex",
+    "repositorio",
+    "repositorios",
+    "preprint",
+    "preprints",
+    "datos abiertos",
+    "dados abertos",
+    "revista cientifica",
+    "revista científica",
+    "periodico cientifico",
+    "integracion",
+    "integridad cientifica",
+    "reproducibilidad",
+    "retraccion",
+    "biblioteconomia",
+    "bibliotecología",
+    "ciencia da informacao",
+    "informacion",
+    "alfabetizacion informacional",
+    "literacia da informacao",
+    "acceso abierto diamante",
+    "revista diamante",
+    "scielo",
+    "redalyc",
+    "dialnet",
+    "latindex",
+    "doaj"
+  ],
+  "token_equivalences": [
+    [
+      "bibliometria",
+      "bibliometría"
+    ],
+    [
+      "ciencia abierta",
+      "ciência aberta"
+    ],
+    [
+      "acceso abierto",
+      "acesso aberto"
+    ],
+    [
+      "comunicacion cientifica",
+      "comunicacao cientifica"
+    ],
+    [
+      "revision por pares",
+      "revisao por pares"
+    ],
+    [
+      "citacion",
+      "citacao"
+    ],
+    [
+      "evaluacion",
+      "avaliacao"
+    ],
+    [
+      "informacion",
+      "informacao"
+    ],
+    [
+      "reproducibilidad",
+      "reprodutibilidade"
+    ]
+  ],
+  "word_variant_groups": [
+    [
+      "bibliometria",
+      "bibliometría",
+      "bibliometrico",
+      "bibliométrico",
+      "bibliometrica",
+      "bibliométrica",
+      "bibliometricos",
+      "bibliométricos",
+      "bibliometricas",
+      "bibliométricas",
+      "bibliometrías"
+    ],
+    [
+      "altmetrics",
+      "altmetria",
+      "altmetría",
+      "altmetrico",
+      "altmétrico"
+    ],
+    [
+      "cienciometria",
+      "cienciometría",
+      "scientometrics",
+      "cientometria",
+      "cientometría"
+    ],
+    [
+      "citacion",
+      "citación",
+      "citacao",
+      "citacoes",
+      "cita",
+      "citas",
+      "citation"
+    ],
+    [
+      "preprint",
+      "preprints",
+      "preimpresion",
+      "preimpresión",
+      "prepublicacion"
+    ],
+    [
+      "repositorio",
+      "repositorios",
+      "repositorio institucional",
+      "repositorios institucionales"
+    ],
+    [
+      "revision",
+      "revisión",
+      "revisao",
+      "revisão",
+      "arbitraje"
+    ]
+  ],
+  "topics": [
+    {
+      "id": "metricas_cientificas",
+      "name": "Métricas de la Ciencia y Altmetría",
+      "name_pt": "Métricas da Ciência e Altmetria",
+      "description": "Indicadores bibliométricos, altmétricos y cienciométricos para medir el impacto y la circulación de la investigación.",
+      "keywords_es": [
+        "bibliometría",
+        "cienciometría",
+        "altmetría",
+        "altmetrics",
+        "índice h",
+        "factor de impacto",
+        "citación",
+        "indicadores",
+        "scopus",
+        "web of science",
+        "métricas alternativas",
+        "análisis de citas",
+        "colaboración científica"
+      ],
+      "keywords_pt": [
+        "bibliometria",
+        "cienciometria",
+        "altmetria",
+        "altmetrics",
+        "índice h",
+        "fator de impacto",
+        "citação",
+        "indicadores",
+        "scopus",
+        "web of science",
+        "métricas alternativas",
+        "análise de citações",
+        "colaboração científica"
+      ],
+      "journals_focus": [
+        "Transinformação",
+        "RDBCI: Revista Digital de Biblioteconomia e Ciência da Informação",
+        "Ciência da Informação",
+        "Em Questão"
+      ]
+    },
+    {
+      "id": "ciencia_abierta",
+      "name": "Ciencia Abierta y Acceso Abierto",
+      "name_pt": "Ciência Aberta e Acesso Aberto",
+      "description": "Acceso abierto, datos abiertos, preprints y el ecosistema de publicación abierta iberoamericana.",
+      "keywords_es": [
+        "ciencia abierta",
+        "acceso abierto",
+        "datos abiertos",
+        "preprints",
+        "repositorios institucionales",
+        "revistas diamante",
+        "doaj",
+        "ciencia ciudadana",
+        "infraestructura abierta"
+      ],
+      "keywords_pt": [
+        "ciência aberta",
+        "acesso aberto",
+        "dados abertos",
+        "preprints",
+        "repositórios institucionais",
+        "revistas diamante",
+        "doaj",
+        "ciência cidadã",
+        "infraestrutura aberta"
+      ],
+      "journals_focus": [
+        "Información, cultura y sociedad",
+        "E-Ciencias de la Información",
+        "Encontros Bibli",
+        "Informatio"
+      ]
+    },
+    {
+      "id": "comunicacion_cientifica",
+      "name": "Comunicación Científica y Divulgación",
+      "name_pt": "Comunicação Científica e Divulgação",
+      "description": "Circulación pública del conocimiento: divulgación, periodismo científico y alfabetización científica.",
+      "keywords_es": [
+        "comunicación científica",
+        "divulgación científica",
+        "periodismo científico",
+        "alfabetización científica",
+        "medios y ciencia",
+        "cultura científica",
+        "apropiación social"
+      ],
+      "keywords_pt": [
+        "comunicação científica",
+        "divulgação científica",
+        "jornalismo científico",
+        "alfabetização científica",
+        "mídia e ciência",
+        "cultura científica",
+        "apropriação social"
+      ],
+      "journals_focus": [
+        "Revista de Comunicación",
+        "Comunicar",
+        "Palabra Clave",
+        "Revista Latina de Comunicación Social"
+      ]
+    },
+    {
+      "id": "evaluacion_revision",
+      "name": "Evaluación de la Investigación y Revisión por Pares",
+      "name_pt": "Avaliação da Pesquisa e Revisão por Pares",
+      "description": "Evaluación científica, revisión por pares, integridad y reproducibilidad.",
+      "keywords_es": [
+        "revisión por pares",
+        "evaluación de la investigación",
+        "integridad científica",
+        "reproducibilidad",
+        "retracciones",
+        "acceso abierto diamante",
+        "políticas de evaluación",
+        "cienciometría responsable"
+      ],
+      "keywords_pt": [
+        "revisão por pares",
+        "avaliação da pesquisa",
+        "integridade científica",
+        "reprodutibilidade",
+        "retratações",
+        "acesso aberto diamante",
+        "políticas de avaliação",
+        "cienciometria responsável"
+      ],
+      "journals_focus": [
+        "Transinformação",
+        "Comunicação e Sociedade",
+        "Revista Cubana de Información en Ciencias de la Salud"
+      ]
+    },
+    {
+      "id": "bibliotecologia",
+      "name": "Bibliotecología y Ciencia de la Información",
+      "name_pt": "Biblioteconomia e Ciência da Informação",
+      "description": "Organización, circulación y acceso a la información científica; bibliotecas y alfabetización informacional.",
+      "keywords_es": [
+        "bibliotecología",
+        "ciencia de la información",
+        "alfabetización informacional",
+        "gestión de la información",
+        "bibliotecas universitarias",
+        "acceso a la información",
+        "información científica"
+      ],
+      "keywords_pt": [
+        "biblioteconomia",
+        "ciência da informação",
+        "literacia da informação",
+        "gestão da informação",
+        "bibliotecas universitárias",
+        "acesso à informação",
+        "informação científica"
+      ],
+      "journals_focus": [
+        "RDBCI: Revista Digital de Biblioteconomia e Ciência da Informação",
+        "Ciência da Informação",
+        "Encontros Bibli",
+        "Información, cultura y sociedad"
+      ]
+    }
+  ],
+  "socratic_templates": {},
+  "author_boost_terms": [
+    "bibliometr",
+    "altmetr",
+    "cienciometr",
+    "scientometr",
+    "ciencia abierta",
+    "acceso abierto"
+  ],
+  "author_fallback_tokens": [
+    "bibliometria",
+    "altmetrics",
+    "ciencia abierta"
+  ],
+  "ubiquitous_terms": [
+    "ciencia abierta",
+    "ciência aberta",
+    "open science",
+    "metaciencia",
+    "metaresearch",
+    "meta-research"
+  ],
+  "thesaurus": [
+    {
+      "id": "metricas_cientificas",
+      "prefLabel": {
+        "es": "Métricas de la Ciencia y Altmetría",
+        "pt": "Métricas da Ciência e Altmetria",
+        "en": "Métricas de la Ciencia y Altmetría"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "narrower": [
+        "bibliometria",
+        "altmetria",
+        "cienciometria",
+        "citacion",
+        "citacao",
+        "indice-h",
+        "factor-de-impacto",
+        "scopus",
+        "web-of-science",
+        "indicadores",
+        "metricas-alternativas",
+        "analisis-de-citas",
+        "colaboracion-cientifica",
+        "colaboracao-cientifica"
+      ],
+      "note": "Indicadores bibliométricos, altmétricos y cienciométricos para medir el impacto y la circulación de la investigación.",
+      "source": "Tema curado del perfil de Ciencia Abierta"
+    },
+    {
+      "id": "ciencia_abierta",
+      "prefLabel": {
+        "es": "Ciencia Abierta y Acceso Abierto",
+        "pt": "Ciência Aberta e Acesso Aberto",
+        "en": "Ciencia Abierta y Acceso Abierto"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "narrower": [
+        "ciencia-abierta",
+        "acceso-abierto",
+        "datos-abiertos",
+        "doaj",
+        "repositorios-institucionales",
+        "revistas-diamante",
+        "ciencia-ciudadana",
+        "infraestructura-abierta",
+        "repositorios-institucionais",
+        "infraestrutura-aberta"
+      ],
+      "note": "Acceso abierto, datos abiertos, preprints y el ecosistema de publicación abierta iberoamericana.",
+      "source": "Tema curado del perfil de Ciencia Abierta"
+    },
+    {
+      "id": "comunicacion_cientifica",
+      "prefLabel": {
+        "es": "Comunicación Científica y Divulgación",
+        "pt": "Comunicação Científica e Divulgação",
+        "en": "Comunicación Científica y Divulgación"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "narrower": [
+        "comunicacion-cientifica",
+        "comunicacao-cientifica",
+        "divulgacion-cientifica",
+        "periodismo-cientifico",
+        "alfabetizacion-cientifica",
+        "medios-y-ciencia",
+        "cultura-cientifica",
+        "apropiacion-social",
+        "midia-e-ciencia",
+        "apropriacao-social"
+      ],
+      "note": "Circulación pública del conocimiento: divulgación, periodismo científico y alfabetización científica.",
+      "source": "Tema curado del perfil de Ciencia Abierta"
+    },
+    {
+      "id": "evaluacion_revision",
+      "prefLabel": {
+        "es": "Evaluación de la Investigación y Revisión por Pares",
+        "pt": "Avaliação da Pesquisa e Revisão por Pares",
+        "en": "Evaluación de la Investigación y Revisión por Pares"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "narrower": [
+        "revision-por-pares",
+        "integridad-cientifica",
+        "reproducibilidad",
+        "acceso-abierto-diamante",
+        "evaluacion-de-la-investigacion",
+        "retracciones",
+        "politicas-de-evaluacion",
+        "cienciometria-responsable",
+        "avaliacao-da-pesquisa",
+        "retratacoes",
+        "politicas-de-avaliacao",
+        "cienciometria-responsavel"
+      ],
+      "note": "Evaluación científica, revisión por pares, integridad y reproducibilidad.",
+      "source": "Tema curado del perfil de Ciencia Abierta"
+    },
+    {
+      "id": "bibliotecologia",
+      "prefLabel": {
+        "es": "Bibliotecología y Ciencia de la Información",
+        "pt": "Biblioteconomia e Ciência da Informação",
+        "en": "Bibliotecología y Ciencia de la Información"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "narrower": [
+        "biblioteconomia",
+        "ciencia-da-informacao",
+        "alfabetizacion-informacional",
+        "literacia-da-informacao",
+        "gestion-de-la-informacion",
+        "bibliotecas-universitarias",
+        "acceso-a-la-informacion",
+        "informacion-cientifica",
+        "acesso-a-informacao",
+        "informacao-cientifica"
+      ],
+      "note": "Organización, circulación y acceso a la información científica; bibliotecas y alfabetización informacional.",
+      "source": "Tema curado del perfil de Ciencia Abierta"
+    },
+    {
+      "id": "bibliometria",
+      "prefLabel": {
+        "es": "bibliometría",
+        "pt": "bibliometria",
+        "en": "bibliometrics"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q603441"
+    },
+    {
+      "id": "altmetria",
+      "prefLabel": {
+        "es": "almétricas",
+        "pt": "altmetria",
+        "en": "altmetrics"
+      },
+      "altLabels": {
+        "es": [
+          "altmetria",
+          "altmetrics"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q14565201"
+    },
+    {
+      "id": "cienciometria",
+      "prefLabel": {
+        "es": "cienciometría",
+        "pt": "cientometria",
+        "en": "scientometrics"
+      },
+      "altLabels": {
+        "es": [
+          "scientometria"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q472342"
+    },
+    {
+      "id": "scientometrics",
+      "prefLabel": {
+        "es": "Revista scientometrics",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [
+          "scientometrics"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q4049153"
+    },
+    {
+      "id": "ciencia-abierta",
+      "prefLabel": {
+        "es": "ciencia abierta",
+        "pt": "ciência aberta",
+        "en": "open science"
+      },
+      "altLabels": {
+        "es": [
+          "ciência aberta",
+          "open science"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q309823"
+    },
+    {
+      "id": "acceso-abierto",
+      "prefLabel": {
+        "es": "acceso abierto",
+        "pt": "acesso livre",
+        "en": "open access"
+      },
+      "altLabels": {
+        "es": [
+          "acesso aberto",
+          "open access"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q232932"
+    },
+    {
+      "id": "metaciencia",
+      "prefLabel": {
+        "es": "metaciencia",
+        "pt": "metaciência",
+        "en": "metascience"
+      },
+      "altLabels": {
+        "es": [
+          "metacienc"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q30599095"
+    },
+    {
+      "id": "metaresearch",
+      "prefLabel": {
+        "es": "metaresearch",
+        "pt": null,
+        "en": "Metaresearch for Evaluating Reproducibility in Ecology and Evolution"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q30491949"
+    },
+    {
+      "id": "comunicacion-cientifica",
+      "prefLabel": {
+        "es": "ponencia",
+        "pt": "comunicação",
+        "en": "conference paper"
+      },
+      "altLabels": {
+        "es": [
+          "comunicacion cientifica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q23927052"
+    },
+    {
+      "id": "comunicacao-cientifica",
+      "prefLabel": {
+        "es": "publicación científica",
+        "pt": "publicação científica",
+        "en": "scientific publication"
+      },
+      "altLabels": {
+        "es": [
+          "comunicacao cientifica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q591041"
+    },
+    {
+      "id": "divulgacion-cientifica",
+      "prefLabel": {
+        "es": "divulgación científica",
+        "pt": "divulgação científica",
+        "en": "popular science"
+      },
+      "altLabels": {
+        "es": [
+          "divulgação científica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q995600"
+    },
+    {
+      "id": "revision-por-pares",
+      "prefLabel": {
+        "es": "revisión por pares",
+        "pt": "revisão por pares",
+        "en": "peer review"
+      },
+      "altLabels": {
+        "es": [
+          "revisão por pares",
+          "peer review"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q215028"
+    },
+    {
+      "id": "evaluacion",
+      "prefLabel": {
+        "es": "evaluación",
+        "pt": "avaliação educacional",
+        "en": "evaluation"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q1379672"
+    },
+    {
+      "id": "avaliacao",
+      "prefLabel": {
+        "es": "reseña",
+        "pt": "resenha",
+        "en": "review"
+      },
+      "altLabels": {
+        "es": [
+          "avaliacao"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q265158"
+    },
+    {
+      "id": "citacion",
+      "prefLabel": {
+        "es": "Citación",
+        "pt": "Intimação",
+        "en": "summons"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q708245"
+    },
+    {
+      "id": "citacao",
+      "prefLabel": {
+        "es": "cita",
+        "pt": "citação",
+        "en": "citation"
+      },
+      "altLabels": {
+        "es": [
+          "citacao"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q1713"
+    },
+    {
+      "id": "cita",
+      "prefLabel": {
+        "es": "proverbio",
+        "pt": "provérbio",
+        "en": "proverb"
+      },
+      "altLabels": {
+        "es": [
+          "cita"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q35102"
+    },
+    {
+      "id": "citation",
+      "prefLabel": {
+        "es": "Citation",
+        "pt": null,
+        "en": "Citation"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q471395"
+    },
+    {
+      "id": "indice-h",
+      "prefLabel": {
+        "es": "Índice h",
+        "pt": "Índice h",
+        "en": "h-index"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q310663"
+    },
+    {
+      "id": "factor-de-impacto",
+      "prefLabel": {
+        "es": "factor de impacto",
+        "pt": "Fator de impacto",
+        "en": "impact factor"
+      },
+      "altLabels": {
+        "es": [
+          "impact factor",
+          "fator de impacto"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q5330"
+    },
+    {
+      "id": "scopus",
+      "prefLabel": {
+        "es": "Scopus",
+        "pt": "Scopus",
+        "en": "Scopus"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q371467"
+    },
+    {
+      "id": "web-of-science",
+      "prefLabel": {
+        "es": "Web of Science",
+        "pt": "Web of Science",
+        "en": "Web of Science"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q1201886"
+    },
+    {
+      "id": "openalex",
+      "prefLabel": {
+        "es": "OpenAlex",
+        "pt": "OpenAlex",
+        "en": "OpenAlex"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q107507571"
+    },
+    {
+      "id": "repositorio",
+      "prefLabel": {
+        "es": "repositorio de código fuente",
+        "pt": "Repositório (controle de versão)",
+        "en": "source code repository"
+      },
+      "altLabels": {
+        "es": [
+          "repositorio"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q3133368"
+    },
+    {
+      "id": "repositorios",
+      "prefLabel": {
+        "es": "repositorio de software",
+        "pt": "repositório",
+        "en": "software repository"
+      },
+      "altLabels": {
+        "es": [
+          "repositorios"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q1334294"
+    },
+    {
+      "id": "preprint",
+      "prefLabel": {
+        "es": "prepublicación",
+        "pt": "pré-publicação",
+        "en": "preprint"
+      },
+      "altLabels": {
+        "es": [
+          "preprint",
+          "preprints"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q580922"
+    },
+    {
+      "id": "datos-abiertos",
+      "prefLabel": {
+        "es": "datos abiertos",
+        "pt": "dados abertos",
+        "en": "open data"
+      },
+      "altLabels": {
+        "es": [
+          "dados abertos"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q309901"
+    },
+    {
+      "id": "revista-cientifica",
+      "prefLabel": {
+        "es": "revista científica",
+        "pt": "revista científica",
+        "en": "scientific journal"
+      },
+      "altLabels": {
+        "es": [
+          "periodico cientifico"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q5633421"
+    },
+    {
+      "id": "integracion",
+      "prefLabel": {
+        "es": "integración",
+        "pt": "integral",
+        "en": "integral"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q80091"
+    },
+    {
+      "id": "integridad-cientifica",
+      "prefLabel": {
+        "es": "Integridad científica",
+        "pt": "Integridade da investigação",
+        "en": "scientific integrity"
+      },
+      "altLabels": {
+        "es": [
+          "integridade científica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q55979379"
+    },
+    {
+      "id": "reproducibilidad",
+      "prefLabel": {
+        "es": "reproducibilidad",
+        "pt": "reprodutibilidade",
+        "en": "reproducibility"
+      },
+      "altLabels": {
+        "es": [
+          "reprodutibilidade"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q1425625"
+    },
+    {
+      "id": "retraccion",
+      "prefLabel": {
+        "es": "contractura de Volkmann",
+        "pt": "contratura de Volkmann",
+        "en": "Volkmann's contracture"
+      },
+      "altLabels": {
+        "es": [
+          "retraccion"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q1968751"
+    },
+    {
+      "id": "biblioteconomia",
+      "prefLabel": {
+        "es": "biblioteconomía y documentación",
+        "pt": "biblioteconomia",
+        "en": "library science"
+      },
+      "altLabels": {
+        "es": [
+          "biblioteconomia",
+          "bibliotecología"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q199655"
+    },
+    {
+      "id": "ciencia-da-informacao",
+      "prefLabel": {
+        "es": "ciencia de la información",
+        "pt": "ciência da informação",
+        "en": "information science"
+      },
+      "altLabels": {
+        "es": [
+          "ciencia da informacao"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q16387"
+    },
+    {
+      "id": "informacion",
+      "prefLabel": {
+        "es": "información",
+        "pt": "informação",
+        "en": "information"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q11028"
+    },
+    {
+      "id": "alfabetizacion-informacional",
+      "prefLabel": {
+        "es": "alfabetización informacional",
+        "pt": "Letramento",
+        "en": "information literacy"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q679789"
+    },
+    {
+      "id": "literacia-da-informacao",
+      "prefLabel": {
+        "es": "literacia da informacao",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "acceso-abierto-diamante",
+      "prefLabel": {
+        "es": "acceso abierto diamante",
+        "pt": "acesso aberto diamante",
+        "en": "diamond open access"
+      },
+      "altLabels": {
+        "es": [
+          "acesso aberto diamante"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q86623052"
+    },
+    {
+      "id": "revista-diamante",
+      "prefLabel": {
+        "es": "revista diamante",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "scielo",
+      "prefLabel": {
+        "es": "SciELO",
+        "pt": "Scientific Eletronic Library Online",
+        "en": "SciELO"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q7433389"
+    },
+    {
+      "id": "redalyc",
+      "prefLabel": {
+        "es": "Redalyc",
+        "pt": "Redalyc",
+        "en": "Redalyc"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q7305434"
+    },
+    {
+      "id": "dialnet",
+      "prefLabel": {
+        "es": "Dialnet",
+        "pt": "Dialnet",
+        "en": "Dialnet"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q3025975"
+    },
+    {
+      "id": "latindex",
+      "prefLabel": {
+        "es": "Latindex",
+        "pt": "Latindex",
+        "en": "Latindex"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "source": "Wikidata Q6496562"
+    },
+    {
+      "id": "doaj",
+      "prefLabel": {
+        "es": "Directory of Open Access Journals",
+        "pt": "Directory of Open Access Journals",
+        "en": null
+      },
+      "altLabels": {
+        "es": [
+          "doaj"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q1227538"
+    },
+    {
+      "id": "indicadores",
+      "prefLabel": {
+        "es": "indicador de pH",
+        "pt": "indicador de pH",
+        "en": "pH indicator"
+      },
+      "altLabels": {
+        "es": [
+          "indicadores"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q300951"
+    },
+    {
+      "id": "metricas-alternativas",
+      "prefLabel": {
+        "es": "métricas alternativas",
+        "pt": "Métricas alternativas e dados de citação de publicações em acesso aberto sobre inteligência artificial no campo da saúde",
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q132902004"
+    },
+    {
+      "id": "analisis-de-citas",
+      "prefLabel": {
+        "es": "análisis de citas",
+        "pt": "análise de citações",
+        "en": "citation analysis"
+      },
+      "altLabels": {
+        "es": [
+          "análise de citações"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q206276"
+    },
+    {
+      "id": "colaboracion-cientifica",
+      "prefLabel": {
+        "es": "colaboración científica",
+        "pt": null,
+        "en": "Colaboración científica y ámbitos de investigación en Gastroenterología y Hepatología y Revista Española de Enfermedades Digestivas (2000–2009)"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q59509503"
+    },
+    {
+      "id": "colaboracao-cientifica",
+      "prefLabel": {
+        "es": "LIGO Scientific Collaboration",
+        "pt": "Colaboração Científica LIGO",
+        "en": "LIGO Scientific Collaboration"
+      },
+      "altLabels": {
+        "es": [
+          "colaboração científica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "metricas_cientificas"
+      ],
+      "source": "Wikidata Q6458663"
+    },
+    {
+      "id": "repositorios-institucionales",
+      "prefLabel": {
+        "es": "repositorios institucionales",
+        "pt": null,
+        "en": "Repositorios Institucionales en Universidades: Un Análisis desde la Experiencia en Cuba"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q99611874"
+    },
+    {
+      "id": "revistas-diamante",
+      "prefLabel": {
+        "es": "revistas diamante",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "ciencia-ciudadana",
+      "prefLabel": {
+        "es": "ciencia ciudadana",
+        "pt": "ciência cidadã",
+        "en": "citizen science"
+      },
+      "altLabels": {
+        "es": [
+          "ciência cidadã"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q1093434"
+    },
+    {
+      "id": "infraestructura-abierta",
+      "prefLabel": {
+        "es": "infraestructura abierta",
+        "pt": "BOINC",
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q209563"
+    },
+    {
+      "id": "repositorios-institucionais",
+      "prefLabel": {
+        "es": "Repositórios institucionais digitais de informação científica: implementação com o software DSpace como solução técnica",
+        "pt": "Repositórios institucionais digitais de informação científica: implementação com o software DSpace como solução técnica",
+        "en": "Repositórios institucionais digitais de informação científica: implementação com o software DSpace como solução técnica"
+      },
+      "altLabels": {
+        "es": [
+          "repositórios institucionais"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Wikidata Q111171847"
+    },
+    {
+      "id": "infraestrutura-aberta",
+      "prefLabel": {
+        "es": "infraestrutura aberta",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "ciencia_abierta"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "periodismo-cientifico",
+      "prefLabel": {
+        "es": "periodismo científico",
+        "pt": "jornalismo científico",
+        "en": "science journalism"
+      },
+      "altLabels": {
+        "es": [
+          "jornalismo científico"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q1505283"
+    },
+    {
+      "id": "alfabetizacion-cientifica",
+      "prefLabel": {
+        "es": "alfabetización científica",
+        "pt": "literacia científica",
+        "en": "scientific literacy"
+      },
+      "altLabels": {
+        "es": [
+          "alfabetização científica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q2064596"
+    },
+    {
+      "id": "medios-y-ciencia",
+      "prefLabel": {
+        "es": "medios y ciencia",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "cultura-cientifica",
+      "prefLabel": {
+        "es": "Cultura cientifica",
+        "pt": null,
+        "en": "Cultura Científica"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q50520838"
+    },
+    {
+      "id": "apropiacion-social",
+      "prefLabel": {
+        "es": "apropiación social",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q136178022"
+    },
+    {
+      "id": "midia-e-ciencia",
+      "prefLabel": {
+        "es": "mídia e ciência",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "apropriacao-social",
+      "prefLabel": {
+        "es": "apropriação social",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "comunicacion_cientifica"
+      ],
+      "source": "Wikidata Q136041379"
+    },
+    {
+      "id": "evaluacion-de-la-investigacion",
+      "prefLabel": {
+        "es": "evaluación de la investigación",
+        "pt": null,
+        "en": "research assessment"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q16685913"
+    },
+    {
+      "id": "retracciones",
+      "prefLabel": {
+        "es": "Retracciones",
+        "pt": null,
+        "en": "Retracciones"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q125562537"
+    },
+    {
+      "id": "politicas-de-evaluacion",
+      "prefLabel": {
+        "es": "políticas de evaluación",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "cienciometria-responsable",
+      "prefLabel": {
+        "es": "cienciometría responsable",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "avaliacao-da-pesquisa",
+      "prefLabel": {
+        "es": "avaliação da pesquisa",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "retratacoes",
+      "prefLabel": {
+        "es": "retratações",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "politicas-de-avaliacao",
+      "prefLabel": {
+        "es": "políticas de avaliação",
+        "pt": null,
+        "en": "Políticas de avaliação científica no Brasil de agora: Tendências e controvérsias em torno do fator de impacto"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Wikidata Q130217193"
+    },
+    {
+      "id": "cienciometria-responsavel",
+      "prefLabel": {
+        "es": "cienciometria responsável",
+        "pt": null,
+        "en": null
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "evaluacion_revision"
+      ],
+      "source": "Vocabulario del campo (sin equivalente en Wikidata)"
+    },
+    {
+      "id": "gestion-de-la-informacion",
+      "prefLabel": {
+        "es": "gestión de la información",
+        "pt": "gestão da informação",
+        "en": "information management"
+      },
+      "altLabels": {
+        "es": [
+          "gestão da informação"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q579488"
+    },
+    {
+      "id": "bibliotecas-universitarias",
+      "prefLabel": {
+        "es": "biblioteca universitaria",
+        "pt": "biblioteca acadêmica",
+        "en": "academic library"
+      },
+      "altLabels": {
+        "es": [
+          "bibliotecas universitarias"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q856234"
+    },
+    {
+      "id": "acceso-a-la-informacion",
+      "prefLabel": {
+        "es": "acceso a la información",
+        "pt": "acesso à informação",
+        "en": "information access"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q593289"
+    },
+    {
+      "id": "informacion-cientifica",
+      "prefLabel": {
+        "es": "información científica",
+        "pt": null,
+        "en": "scientific information"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q59163626"
+    },
+    {
+      "id": "acesso-a-informacao",
+      "prefLabel": {
+        "es": "acesso à informação",
+        "pt": "acesso à informação",
+        "en": "access to information"
+      },
+      "altLabels": {
+        "es": [],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q55603120"
+    },
+    {
+      "id": "informacao-cientifica",
+      "prefLabel": {
+        "es": "Informação científica em tempos de pandemia: análise do tempo de indexação de artigos de periódicos com vocabulário controlado MeSH no PubMed",
+        "pt": "Informação científica em tempos de pandemia: análise do tempo de indexação de artigos de periódicos com vocabulário controlado MeSH no PubMed",
+        "en": "Informação científica em tempos de pandemia: análise do tempo de indexação de artigos de periódicos com vocabulário controlado MeSH no PubMed"
+      },
+      "altLabels": {
+        "es": [
+          "informação científica"
+        ],
+        "pt": [],
+        "en": []
+      },
+      "broader": [
+        "bibliotecologia"
+      ],
+      "source": "Wikidata Q112679527"
+    }
+  ],
+  "ui_texts": {
+    "product": "Thinkuy",
+    "field": "Ciencia Abierta y Metaciencia"
+  },
+  "llm": {
+    "enabled": true,
+    "model": "qwen2.5-coder-7b-instruct",
+    "classify_model": "mistralai/ministral-3-3b",
+    "api_base": "http://127.0.0.1:1234/v1"
+  }
+}

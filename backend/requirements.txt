@@ -1,0 +1,13 @@
+# Dependencias del SERVIDOR Thinkuy (backend + PWA).
+# Las de entrenamiento (torch, transformers, trl, unsloth, pandas) NO van aquí:
+# viven en el entorno de Unsloth y no las usa el servicio.
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+httpx==0.28.1
+APScheduler==3.11.3
+pymupdf==1.28.2
+playwright==1.63.0
+python-multipart==0.0.32
+
+# Desarrollo y pruebas (no hacen falta para servir)
+pytest==9.1.1

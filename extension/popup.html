@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thinkuy</title>
+  <style>
+    :root {
+      --bg: #0B1226; --bg2: #14204A; --line: #23325F;
+      --text: #E6ECFF; --muted: #8FA0D4; --cyan: #22D3EE; --amber: #F59E0B; --green: #34D399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 380px; font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text); font-size: 13px;
+    }
+    header {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-bottom: 1px solid var(--line); background: var(--bg2);
+    }
+    header img { width: 30px; height: 30px; border-radius: 7px; }
+    header h1 { font-size: 15px; }
+    header h1 span { color: var(--cyan); }
+    header .tag { color: var(--muted); font-size: 11px; font-style: italic; }
+    .badge { margin-left: auto; background: var(--amber); color: #1a1202; font-weight: 700;
+      border-radius: 999px; padding: 2px 9px; font-size: 12px; }
+    #list { padding: 10px 14px; display: grid; gap: 10px; max-height: 420px; overflow-y: auto; }
+    .item { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+    .item h3 { font-size: 12.5px; line-height: 1.35; }
+    .item h3 a { color: var(--text); text-decoration: none; }
+    .item h3 a:hover { color: var(--cyan); }
+    .item .meta { color: var(--muted); font-size: 11px; margin-top: 4px; }
+    .item .meta .j { color: var(--cyan); }
+    .item .why { color: var(--amber); font-size: 11px; margin-top: 6px; }
+    .item .exports { display: flex; gap: 6px; margin-top: 8px; }
+    .item .exports a { font-size: 10px; color: var(--muted); border: 1px solid var(--line);
+      border-radius: 6px; padding: 3px 8px; text-decoration: none; }
+    .item .exports a:hover { color: var(--amber); border-color: var(--amber); }
+    .empty { padding: 30px; text-align: center; color: var(--muted); }
+    footer { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line); background: var(--bg2); }
+    footer button { flex: 1; background: var(--bg); color: var(--text); border: 1px solid var(--line);
+      padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    footer button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .loading { padding: 30px; text-align: center; color: var(--muted); }
+    .pins { padding: 8px 14px 4px; display: grid; gap: 6px; max-height: 140px; overflow-y: auto; }
+    .pin { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--line);
+      border-radius: 8px; padding: 6px 10px; font-size: 11px; cursor: pointer; }
+    .pin:hover { border-color: var(--cyan); }
+    .pin .pl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pin .pn { color: var(--amber); font-weight: 700; }
+    .pins-title { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; padding: 2px 2px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" alt="">
+    <div>
+      <h1>Thinkuy</h1>
+      <div class="tag">Radar de comunicación científica</div>
+    </div>
+    <span class="badge" id="count" hidden>0</span>
+  </header>
+  <div id="list"><div class="loading">Escaneando…</div></div>
+  <div id="pins" class="pins" hidden></div>
+  <footer>
+    <button id="open">Abrir Radar</button>
+    <button id="refresh">⟳ Actualizar</button>
+    <button id="options">⚙</button>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

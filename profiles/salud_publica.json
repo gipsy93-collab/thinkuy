@@ -1,0 +1,512 @@
+{
+  "id": "salud_publica",
+  "name": "Salud Pública",
+  "languages": [
+    "es",
+    "pt",
+    "en"
+  ],
+  "collections": [
+    "scl",
+    "chl",
+    "col",
+    "mex",
+    "arg",
+    "esp",
+    "prt",
+    "cub",
+    "per",
+    "ury",
+    "ven",
+    "ecu",
+    "bol",
+    "cri",
+    "pry"
+  ],
+  "discovery_terms": [
+    "salud pública",
+    "salud publica",
+    "saúde pública",
+    "saude publica",
+    "public health",
+    "epidemiología",
+    "epidemiologia",
+    "epidemiology",
+    "health",
+    "salud",
+    "saúde",
+    "medicina",
+    "vigilancia",
+    "promoción de la salud",
+    "promocao da saude",
+    "salud ambiental",
+    "saúde ambiental",
+    "atención primaria",
+    "atencao primaria"
+  ],
+  "seed_journals": [
+    {
+      "title": "Acta bioethica",
+      "issn_print": "0717-5906",
+      "issn_online": "1726-569X",
+      "country": "CL"
+    },
+    {
+      "title": "Acta Médica Portuguesa",
+      "issn_print": "0870-399X",
+      "issn_online": "1646-0758",
+      "country": "PT"
+    },
+    {
+      "title": "Boletín de Malariología y Salud Ambiental",
+      "issn_print": "1690-4648",
+      "issn_online": null,
+      "country": "VE"
+    },
+    {
+      "title": "Cadernos de Saúde Pública",
+      "issn_print": "0102-311X",
+      "issn_online": "1678-4464",
+      "country": "BR"
+    },
+    {
+      "title": "CADERNOS IBERO-AMERICANOS DE DIREITO SANITÁRIO",
+      "issn_print": "2317-8396",
+      "issn_online": "2358-1824",
+      "country": "BR"
+    },
+    {
+      "title": "Cadernos Saúde Coletiva",
+      "issn_print": "1414-462X",
+      "issn_online": "2358-291X",
+      "country": "BR"
+    },
+    {
+      "title": "Ciência & Saúde Coletiva",
+      "issn_print": "1413-8123",
+      "issn_online": "1678-4561",
+      "country": "BR"
+    },
+    {
+      "title": "Colombia medica",
+      "issn_print": "0120-8322",
+      "issn_online": "1657-9534",
+      "country": "CO"
+    },
+    {
+      "title": "Enfermería Clínica",
+      "issn_print": "1130-8621",
+      "issn_online": "1579-2013",
+      "country": "ES"
+    },
+    {
+      "title": "Epidemiologia e Serviços de Saúde",
+      "issn_print": "1679-4974",
+      "issn_online": "2237-9622",
+      "country": "BR"
+    },
+    {
+      "title": "Gaceta Médica de Caracas",
+      "issn_print": "0367-4762",
+      "issn_online": "2739-0012",
+      "country": "VE"
+    },
+    {
+      "title": "Gaceta Médica de México",
+      "issn_print": "0016-3813",
+      "issn_online": "2696-1288",
+      "country": "MX"
+    },
+    {
+      "title": "Gaceta Sanitaria",
+      "issn_print": "0213-9111",
+      "issn_online": "1578-1283",
+      "country": "ES"
+    },
+    {
+      "title": "Gerencia y Políticas de Salud",
+      "issn_print": "1657-7027",
+      "issn_online": "2500-6177",
+      "country": "CO"
+    },
+    {
+      "title": "Horizonte Sanitario",
+      "issn_print": "1665-3262",
+      "issn_online": "2007-7459",
+      "country": "MX"
+    },
+    {
+      "title": "Hygeia - Revista Brasileira de Geografia Médica e da Saúde",
+      "issn_print": "1980-1726",
+      "issn_online": null,
+      "country": "BR"
+    },
+    {
+      "title": "International Journal of Health Science",
+      "issn_print": "2764-0159",
+      "issn_online": null,
+      "country": "BR"
+    },
+    {
+      "title": "International Journal of Health Sciences",
+      "issn_print": "2550-696X",
+      "issn_online": "2550-6978",
+      "country": "EC"
+    },
+    {
+      "title": "JMPHC | Journal of Management & Primary Health Care | ISSN 2179-6750",
+      "issn_print": "2179-6750",
+      "issn_online": null,
+      "country": "BR"
+    },
+    {
+      "title": "Media and Communication",
+      "issn_print": "2183-2439",
+      "issn_online": null,
+      "country": "PT"
+    },
+    {
+      "title": "Physis Revista de Saúde Coletiva",
+      "issn_print": "0103-7331",
+      "issn_online": "1809-4481",
+      "country": "BR"
+    },
+    {
+      "title": "Politics and Governance",
+      "issn_print": "2183-2463",
+      "issn_online": null,
+      "country": "PT"
+    },
+    {
+      "title": "Psicologia Saúde & Doenças",
+      "issn_print": "1645-0086",
+      "issn_online": "2182-8407",
+      "country": "PT"
+    },
+    {
+      "title": "Reciis",
+      "issn_print": "1981-6278",
+      "issn_online": "1981-6286",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Brasileira de Epidemiologia",
+      "issn_print": "1415-790X",
+      "issn_online": "1980-5497",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Brasileira de Medicina de Família e Comunidade",
+      "issn_print": "1809-5909",
+      "issn_online": "2179-7994",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Brasileira de Política Internacional",
+      "issn_print": "0034-7329",
+      "issn_online": "1983-3121",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Científica General José María Córdova",
+      "issn_print": "1900-6586",
+      "issn_online": "2500-7645",
+      "country": "CO"
+    },
+    {
+      "title": "Revista cubana de medicina general integral",
+      "issn_print": "0864-2125",
+      "issn_online": "1561-3038",
+      "country": "CU"
+    },
+    {
+      "title": "Revista cubana de medicina tropical",
+      "issn_print": "0375-0760",
+      "issn_online": null,
+      "country": "CU"
+    },
+    {
+      "title": "Revista Cubana de Salud Pública",
+      "issn_print": "0864-3466",
+      "issn_online": "1561-3127",
+      "country": "CU"
+    },
+    {
+      "title": "Revista de Direito Sanitário",
+      "issn_print": "1516-4179",
+      "issn_online": "2316-9044",
+      "country": "BR"
+    },
+    {
+      "title": "Revista de Educação Continuada em Medicina Veterinária e Zootecnia do CRMV-SP",
+      "issn_print": "2179-6645",
+      "issn_online": "2596-1306",
+      "country": "BR"
+    },
+    {
+      "title": "Revista de Patologia Tropical / Journal of Tropical Pathology",
+      "issn_print": "0301-0406",
+      "issn_online": "1080-8178",
+      "country": "BR"
+    },
+    {
+      "title": "Revista de Salud Pública",
+      "issn_print": "0124-0064",
+      "issn_online": "2539-3596",
+      "country": "CO"
+    },
+    {
+      "title": "Revista Mvz Córdoba",
+      "issn_print": "0122-0268",
+      "issn_online": "1909-0544",
+      "country": "CO"
+    },
+    {
+      "title": "Revista Pan-Amazônica de Saúde",
+      "issn_print": "2176-6215",
+      "issn_online": "2176-6223",
+      "country": "BR"
+    },
+    {
+      "title": "Revista Peruana de Medicina Experimental y Salud Pública",
+      "issn_print": "1726-4634",
+      "issn_online": "1726-4642",
+      "country": "PE"
+    },
+    {
+      "title": "Salud Colectiva",
+      "issn_print": "1669-2381",
+      "issn_online": "1851-8265",
+      "country": "AR"
+    },
+    {
+      "title": "Salud Pública de México",
+      "issn_print": "0036-3634",
+      "issn_online": "1606-7916",
+      "country": "MX"
+    },
+    {
+      "title": "Salud UIS",
+      "issn_print": "0121-0807",
+      "issn_online": "2145-8464",
+      "country": "CO"
+    },
+    {
+      "title": "Salud Uninorte",
+      "issn_print": "0120-5552",
+      "issn_online": "2011-7531",
+      "country": "CO"
+    },
+    {
+      "title": "Saúde e Sociedade",
+      "issn_print": "0104-1290",
+      "issn_online": "1984-0470",
+      "country": "BR"
+    },
+    {
+      "title": "Saúde em Debate",
+      "issn_print": "0103-1104",
+      "issn_online": "2358-2898",
+      "country": "BR"
+    },
+    {
+      "title": "Therya",
+      "issn_print": "2007-3364",
+      "issn_online": null,
+      "country": "MX"
+    }
+  ],
+  "anchors": [],
+  "cfps": [],
+  "editorial_axes": [
+    "salud pública",
+    "epidemiología",
+    "promoción de la salud",
+    "sistemas de salud",
+    "salud ambiental",
+    "comunicación en salud"
+  ],
+  "common_vocab": [
+    "atencion",
+    "clinica",
+    "comunidad",
+    "derechos",
+    "epidemiologia",
+    "epidemiologicas",
+    "medicina",
+    "pandemia",
+    "poblacion",
+    "prevencion",
+    "promocion",
+    "publica",
+    "riesgo",
+    "salud",
+    "saludable",
+    "vigilancia"
+  ],
+  "token_equivalences": [
+    [
+      "cientifica",
+      "cientifico"
+    ]
+  ],
+  "word_variant_groups": [],
+  "topics": [
+    {
+      "id": "epidemiologia_vigilancia",
+      "name": "Epidemiología y Vigilancia en Salud",
+      "name_pt": "Epidemiologia e Vigilância em Saúde",
+      "description": "Epidemiología, vigilancia, brotes, infecciones, análisis de datos de salud pública.",
+      "keywords_es": [
+        "epidemiología",
+        "vigilancia",
+        "brotes",
+        "infecciones",
+        "salud pública",
+        "análisis epidemiológico",
+        "pandemia",
+        "covid"
+      ],
+      "keywords_pt": [
+        "epidemiologia",
+        "vigilância",
+        "surtos",
+        "infecções",
+        "saúde pública",
+        "análise epidemiológica",
+        "pandemia",
+        "covid"
+      ],
+      "journals_focus": [
+        "Cadernos de Saúde Pública",
+        "Epidemiologia e Serviços de Saúde",
+        "Gaceta Sanitaria"
+      ]
+    },
+    {
+      "id": "determinantes_promocion",
+      "name": "Determinantes Sociales y Promoción de la Salud",
+      "name_pt": "Determinantes Sociais e Promoção da Saúde",
+      "description": "Determinantes sociales, inequidades, promoción de la salud, comunidades y participación.",
+      "keywords_es": [
+        "determinantes sociales",
+        "promoción de la salud",
+        "inequidades",
+        "participación comunitaria",
+        "educación en salud",
+        "derecho a la salud"
+      ],
+      "keywords_pt": [
+        "determinantes sociais",
+        "promoção da saúde",
+        "iniquidades",
+        "participação comunitária",
+        "educação em saúde",
+        "direito à saúde"
+      ],
+      "journals_focus": [
+        "Ciência & Saúde Coletiva",
+        "Cadernos de Saúde Pública",
+        "Revista de Saúde Pública"
+      ]
+    },
+    {
+      "id": "sistemas_salud",
+      "name": "Sistemas de Salud y Políticas Sanitarias",
+      "name_pt": "Sistemas de Saúde e Políticas Sanitárias",
+      "description": "Organización y financiamiento de sistemas de salud, políticas sanitarias, atención primaria y gestión.",
+      "keywords_es": [
+        "sistemas de salud",
+        "políticas sanitarias",
+        "atención primaria",
+        "financiamiento en salud",
+        "gestión de servicios",
+        "cobertura universal"
+      ],
+      "keywords_pt": [
+        "sistemas de saúde",
+        "políticas sanitárias",
+        "atenção primária",
+        "financiamento em saúde",
+        "gestão de serviços",
+        "cobertura universal"
+      ],
+      "journals_focus": [
+        "Gerencia y Políticas de Salud",
+        "Cadernos de Saúde Pública",
+        "Revista de Saúde Pública"
+      ]
+    },
+    {
+      "id": "salud_ambiental",
+      "name": "Salud Ambiental y Cambio Climático",
+      "name_pt": "Saúde Ambiental e Mudança Climática",
+      "description": "Salud ambiental, cambio climático, contaminación, riesgos ambientales y comunicación de riesgos.",
+      "keywords_es": [
+        "salud ambiental",
+        "cambio climático",
+        "contaminación",
+        "riesgos ambientales",
+        "comunicación de riesgos",
+        "ambiente y salud"
+      ],
+      "keywords_pt": [
+        "saúde ambiental",
+        "mudança climática",
+        "poluição",
+        "riscos ambientais",
+        "comunicação de riscos",
+        "ambiente e saúde"
+      ],
+      "journals_focus": [
+        "Boletín de Malariología y Salud Ambiental",
+        "Hygeia",
+        "Cadernos de Saúde Pública"
+      ]
+    }
+  ],
+  "socratic_templates": {
+    "epidemiologia_vigilancia": [
+      "¿Estudias brotes y vigilancia o la epidemiología de enfermedades crónicas?",
+      "¿Usas datos secundarios masivos o diseños de campo/cohortes?"
+    ],
+    "determinantes_promocion": [
+      "¿Tu interés es la medición de inequidades o la intervención comunitaria?",
+      "¿Trabajas con poblaciones vulnerables o con políticas intersectoriales?"
+    ],
+    "sistemas_salud": [
+      "¿Analizas el financiamiento/organización o la experiencia de los servicios?",
+      "¿Tu escala es nacional, regional o comparada?"
+    ],
+    "salud_ambiental": [
+      "¿Te centras en exposición y riesgo o en comunicación de riesgos a la población?",
+      "¿El problema es climático o de contaminación local?"
+    ]
+  },
+  "author_boost_terms": [
+    "epidemiologia",
+    "vacunacion",
+    "determinantes",
+    "atencion primaria",
+    "salud publica",
+    "pandemia",
+    "covid",
+    "vigilancia",
+    "prevencion"
+  ],
+  "author_fallback_tokens": [
+    "salud",
+    "salud publica",
+    "epidemiologia",
+    "medicina"
+  ],
+  "ui_texts": {
+    "product": "Thinkuy",
+    "field": "Salud Pública"
+  },
+  "llm": {
+    "enabled": false,
+    "model": "",
+    "api_base": ""
+  }
+}

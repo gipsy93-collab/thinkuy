@@ -1,0 +1,44 @@
+# --- Secretos (nunca al repositorio) ---
+.env
+*.env
+!.env.example
+
+# --- Entornos virtuales y cachés de Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Datos y bases (estado de trabajo, no código) ---
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# --- Sondas y logs de desarrollo ---
+scratch/
+logs/
+*.log
+matches.txt
+backend/scratch_*.py
+
+# --- Modelos y caché de entrenamiento (pesados) ---
+models/
+unsloth_compiled_cache/
+_unsloth_sentencepiece_temp/
+entrenamiento/
+
+# --- Backups locales de migración ---
+_BACKUP_FASE0/
+*.bak
+
+# --- Sesión de OpenCode (estado local, no fuente) ---
+.opencode/
+
+# --- Sistema ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+probe_amapi.py

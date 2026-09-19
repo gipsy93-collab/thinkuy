@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Thinkuy · Radar</title>
+  <style>
+    :root {
+      --bg: #0B1226; --card: #14204A; --line: #23325F;
+      --text: #E6ECFF; --muted: #8FA0D4; --cyan: #22D3EE; --amber: #F59E0B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text); font-size: 13px;
+      padding: 10px;
+    }
+    header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    header svg { width: 28px; height: 28px; flex-shrink: 0; }
+    header h1 { font-size: 14px; line-height: 1.2; }
+    header h1 span { color: var(--cyan); }
+    header .sub { color: var(--muted); font-size: 10px; }
+    .cfp {
+      background: rgba(245, 158, 11, .08); border: 1px dashed #8a6a22;
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; font-size: 11px;
+    }
+    .cfp a { color: var(--amber); }
+    .item {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+    }
+    .item h3 { font-size: 12.5px; line-height: 1.35; font-weight: 600; }
+    .item h3 a { color: var(--text); text-decoration: none; }
+    .item h3 a:hover { color: var(--cyan); }
+    .meta { color: var(--muted); font-size: 11px; margin-top: 4px; }
+    .why { color: var(--amber); font-size: 10.5px; margin-top: 6px; }
+    .empty { color: var(--muted); text-align: center; padding: 28px 8px; }
+    footer {
+      display: flex; gap: 8px; margin-top: 10px; padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    footer a {
+      flex: 1; text-align: center; text-decoration: none;
+      border: 1px solid var(--line); border-radius: 8px;
+      padding: 7px 6px; color: var(--text); font-size: 11px;
+    }
+    footer a.primary { background: var(--cyan); color: #04101F; border-color: var(--cyan); font-weight: 700; }
+    .modes { display: flex; gap: 4px; margin-bottom: 8px; }
+    .modes button {
+      flex: 1; background: var(--card); color: var(--muted); border: 1px solid var(--line);
+      border-radius: 999px; padding: 4px 6px; font-size: 10px; cursor: pointer;
+    }
+    .modes button.on { color: var(--cyan); border-color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <header>
+    <svg viewBox="0 0 512 512" aria-hidden="true">
+      <rect width="512" height="512" rx="96" fill="#0B1226"/>
+      <g fill="none" stroke="#22D3EE" stroke-width="14">
+        <circle cx="256" cy="256" r="227"/><circle cx="256" cy="256" r="154"/><circle cx="256" cy="256" r="81"/>
+        <line x1="26" y1="256" x2="486" y2="256"/><line x1="256" y1="26" x2="256" y2="486"/>
+      </g>
+      <path d="M256 256 L 398 152 A 227 227 0 0 1 419 256 Z" fill="#F59E0B" opacity="0.55"/>
+      <circle cx="256" cy="256" r="20" fill="#F59E0B"/>
+    </svg>
+    <div>
+      <h1>Thinkuy <span>Radar</span></h1>
+      <div class="sub" id="tagline">Radar de comunicación científica</div>
+    </div>
+  </header>
+  <div class="modes">
+    <button data-mode="conversation" class="on" id="m-conv"></button>
+    <button data-mode="cfp" id="m-cfp"></button>
+    <button data-mode="latest" id="m-latest"></button>
+  </div>
+  <div class="cfp" id="cfp"></div>
+  <div id="list"><div class="empty">…</div></div>
+  <footer>
+    <a id="submit" class="primary" target="_blank" rel="noopener"></a>
+    <a id="open" target="_blank" rel="noopener"></a>
+  </footer>
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const lang = (qs.get("lang") === "en") ? "en" : "es";
+    let mode = ["conversation", "cfp", "latest"].includes(qs.get("mode")) ? qs.get("mode") : "conversation";
+    const limit = qs.get("limit") || "5";
+    const T = lang === "en" ? {
+      conv: "Conversation", cfp: "CFP", latest: "Latest",
+      submit: "Submit", open: "Open radar",
+      empty: "No conversation signals yet.",
+      err: "Could not reach the radar.",
+      cites: "Cites reference corpus",
+    } : {
+      conv: "Conversación", cfp: "CFP", latest: "Recientes",
+      submit: "Enviar artículo", open: "Abrir radar",
+      empty: "Aún no hay señales de conversación.",
+      err: "No se pudo contactar el radar.",
+      cites: "Cita el corpus",
+    };
+    document.documentElement.lang = lang;
+    document.getElementById("m-conv").textContent = T.conv;
+    document.getElementById("m-cfp").textContent = T.cfp;
+    document.getElementById("m-latest").textContent = T.latest;
+    document.getElementById("submit").textContent = T.submit;
+    document.getElementById("open").textContent = T.open;
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll(".modes button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+      load();
+    }
+    document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+
+    const serverHost = qs.get("server") ? qs.get("server").replace(/\/+$/, "") : "";
+    const apiBase = serverHost ? serverHost : "";
+
+    async function load() {
+      const list = document.getElementById("list");
+      list.innerHTML = '<div class="empty">…</div>';
+      try {
+        const r = await fetch(`${apiBase}/api/widget?mode=${mode}&lang=${lang}&limit=${limit}`);
+        if (!r.ok) throw new Error(r.status);
+        const data = await r.json();
+        document.getElementById("cfp").innerHTML = data.cfp && data.cfp.title
+          ? `<b>CFP</b> · ${esc(data.cfp.period)} · <a href="${esc(data.cfp.url)}" target="_blank" rel="noopener">${esc(data.cfp.title)}</a>`
+          : "";
+        document.getElementById("submit").href = data.submit_url || "#";
+        document.getElementById("open").href = data.radar_url ? (apiBase + data.radar_url) : (apiBase + "/app/");
+        if (!data.articles.length) {
+          list.innerHTML = `<div class="empty">${T.empty}</div>`;
+          return;
+        }
+        list.innerHTML = data.articles.map(a => {
+          const authors = (a.authors || []).join(", ");
+          const why = (a.why || []).map(w => esc(w)).join(" · ");
+          return `<article class="item">
+            <h3><a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title)}</a></h3>
+            <div class="meta">${esc(authors)}${authors ? " — " : ""}<i>${esc(a.journal_title || "")}</i>${a.year ? " · " + a.year : ""}</div>
+            ${why ? `<div class="why">⦿ ${why}</div>` : ""}
+          </article>`;
+        }).join("");
+      } catch (e) {
+        list.innerHTML = `<div class="empty">${T.err}</div>`;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
