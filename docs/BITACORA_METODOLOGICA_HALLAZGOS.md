@@ -3795,3 +3795,46 @@ globales restantes y la limpieza de CSS supervisada.
 
 **Artefactos:** `pwa/js/review.js`, `pwa/js/utils.js`, `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
 
+---
+
+## Hito 69: `app.js` deja de ser un monolito: radar y revista salen a sus módulos - 19 de septiembre de 2026
+
+> **Fase 4, cierre del recorte.** Con el método del Hito 68 (medir el contrato de dependencias
+> antes de cortar), se extraen los dos bloques restantes: **radar** y **revista**.
+
+### 1. El corte, guiado por regiones contiguas
+
+El análisis estático del Hito 68 no bastaba aquí: había **chunks sin nombre** (registros de eventos,
+IIFE) que también pertenecían a radar. Así que se extrajeron **regiones contiguas verificadas**:
+
+| Módulo | Regiones | Contenido |
+| :--- | :--- | :--- |
+| **`radar.js`** (1.816 líneas) | 427-1530 + 3180-4074 | Radar de proximidad autoral, leyenda de sectores, tarjetas de autor, **comparación de revistas** y los handlers de `window` |
+| **`journal.js`** (1.291 líneas) | 4076-4981 + 5426-5836 + 5933-6027 | Auditoría editorial, invitación a evaluadores, **match de revistas/revisores** y huella **OAI-PMH** |
+
+### 2. Las tres costuras, resueltas explícitamente
+
+Extraer dejó a la vista las dependencias que `app.js` satisfacía en silencio:
+
+- **Estado compartido** → `state.js`: `radarComparedJournals`, `currentHomePersona`, `currentJournalAuditData`.
+- **Helpers puros** → `utils.js`: `debounce`, `keywordStrings`, `selectableKeywordChip`, `authorsLine`.
+- **Dependencias app.js→módulo** → **`bridge.js`**: un objeto donde `app.js` publica lo que radar/journal invocan (`loadWatch`, `renderFeed`, `renderStats`, `renderSources`, `refreshSuggest`, `refreshNotifyButton`, `readForm`, `addWatch`, `openDoiTracker`). Sin importaciones circulares y declarado en un solo sitio.
+
+### 3. Verificación
+
+`node --check` detectó y permitió corregir dos declaraciones mal trasplantadas (`let state.…`) antes
+de nada. Después: `smoke_pwa` → **OK** verificando **17 handlers de `window`** (los de radar incluidos,
+lo que prueba que `radar.js` se cargó y ejecutó); `dev_check` → **OK** (ruff limpio, **246/246**).
+PWA en **`v=5.52` / `thinkuy-v76`**.
+
+### 4. Tamaño resultante
+
+`app.js` pasó de **~7.160 → ~2.400 líneas**; el resto vive en módulos: `radar.js` (1.816),
+`journal.js` (1.291), `review.js` (953), `state.js` (67), `api.js`, `dom.js`, `utils.js`, `bridge.js`.
+
+**Commit:** `3790fe5`.
+
+**Pendiente (menor):** consolidar los globales que quedan en `app.js` y la limpieza de CSS supervisada.
+
+**Artefactos:** `pwa/js/radar.js`, `pwa/js/journal.js`, `pwa/js/bridge.js`, `pwa/js/utils.js`, `pwa/js/state.js`, `pwa/js/app.js`, `pwa/sw.js`.
+
