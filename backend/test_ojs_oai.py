@@ -2,7 +2,6 @@
 
 Sin red: el cliente HTTP se inyecta con XML OAI-PMH canónico.
 """
-import pytest
 
 from radar.harvester import oai_dc, ojs_oai
 

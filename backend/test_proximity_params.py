@@ -4,7 +4,6 @@ import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-
 from radar import config, db, network, proximity
 from radar.api.main import app
 

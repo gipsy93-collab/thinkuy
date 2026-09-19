@@ -4,7 +4,6 @@ Sin red: se inyecta la cosecha OAI y el render del navegador con `monkeypatch`.
 """
 import pytest
 from fastapi.testclient import TestClient
-
 from radar.api import main as api_main
 from radar.harvester import ojs_oai, render_js
 

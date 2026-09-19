@@ -12,8 +12,7 @@ import time
 
 import httpx
 
-from .. import config, db
-from .. import text_extractor
+from .. import config, db, text_extractor
 from . import europepmc
 
 log = logging.getLogger("radar.fulltext_auto")

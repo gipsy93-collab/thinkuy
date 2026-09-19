@@ -1,31 +1,18 @@
 """Subrouter de la API de Thinkuy."""
 from __future__ import annotations
 
-import json
 import logging
-import re
-from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Body, File, HTTPException, Query, UploadFile
 
-from ... import config, db, profile
+from ... import config, db, text_extractor
+from ...harvester import abstract_chain, unpaywall
 from ..common import (
     _as_int,
-    _as_list,
-    _date_int,
-    _field_profile,
-    _http,
-    _query_articles,
-    _safe_doi,
-    _widget_card,
-    _with_display_keywords,
 )
-from ... import text_extractor
-from ...harvester import abstract_chain, unpaywall
 
 router = APIRouter(tags=['fulltext'])
 log = logging.getLogger('radar.api.fulltext')
@@ -36,7 +23,7 @@ def _resolver_con_render(url: str, previo: dict, client: httpx.Client) -> dict:
     Devuelve el resultado del escalón 2 tal cual si el render no está disponible, si
     `robots.txt` lo prohíbe o si tampoco aporta el resumen — siempre declarando el motivo.
     """
-    from ...harvester import abstract_chain, render_js
+    from ...harvester import render_js
 
     if not render_js.disponible():
         previo["render_js"] = {"usado": False, "detalle": "Playwright no está instalado"}
@@ -111,7 +98,6 @@ async def extract_pdf_endpoint(
 ):
     """Convierte un PDF a Markdown estructurado y extrae contextos de citación cualitativa."""
     import tempfile
-    from pathlib import Path
 
     suffix = Path(file.filename or "paper.pdf").suffix or ".pdf"
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -249,7 +235,6 @@ def fulltext_fetch_oa_endpoint(
     import tempfile
     from pathlib import Path as _Path
 
-    from ...harvester import unpaywall
 
     doi = (doi or "").strip().lower()
     if not doi:
@@ -335,7 +320,6 @@ def metadata_abstract_endpoint(payload: dict = Body(default={})):
     Redalyc, cuando existe, está en el registro OAI— de modo que hoy es último recurso
     disponible, no una necesidad demostrada.
     """
-    from ...harvester import abstract_chain
 
     url = str(payload.get("url") or "").strip()
     html = payload.get("html") or ""
@@ -385,7 +369,8 @@ def fulltext_backfill_auto_endpoint(payload: dict = Body(default={})):
     """
     import tempfile
     from pathlib import Path as _Path
-    from ...harvester import fulltext_auto, unpaywall
+
+    from ...harvester import fulltext_auto
 
     protocol_id = payload.get("protocol_id")
     limit = _as_int(payload.get("limit"), default=10, minimum=1, maximum=50)

@@ -3,30 +3,16 @@ from __future__ import annotations
 
 import json
 import logging
-import re
-from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Body, HTTPException, Query, Request, Response
 
-from ... import config, db, profile
+from ... import charting, citation_graph, config, db
 from ..common import (
     _as_int,
-    _as_list,
-    _date_int,
     _extract_owner_id,
-    _field_profile,
-    _http,
-    _query_articles,
-    _safe_doi,
-    _widget_card,
-    _with_display_keywords,
 )
-from ... import charting, citation_graph
-from ...harvester import dialnet, europepmc, openalex, scielo
 
 router = APIRouter(tags=['charting'])
 log = logging.getLogger('radar.api.charting')
@@ -91,7 +77,6 @@ def chart_propose_endpoint(protocol_id: int, payload: dict = Body(...)):
     Entrada: `{"doi": "...", "title": "...", "abstract": "...", "keywords": [...]}`.
     Con `use_model: false` se usa solo la extracción determinista (resúmenes estructurados).
     """
-    from ... import charting
 
     resumen = str(payload.get("abstract") or "").strip()
     titulo = str(payload.get("title") or "").strip()

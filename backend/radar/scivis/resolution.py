@@ -3,27 +3,23 @@
 from __future__ import annotations
 
 import json
-import logging
 import re
 import sqlite3
-import ssl
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Tuple
 
-from .. import config, db
-from ..normalize import norm, edit_distance, unescape
+from .. import config
+from ..normalize import edit_distance, norm
 from .common import (
-    log,
     KNOWN_JOURNAL_DOMAINS,
     _clean_domain,
-    _split_url_scope,
-    _url_matches_scope,
-    _is_portal_host,
     _get_db_conn,
+    _split_url_scope,
+    log,
 )
+
 
 def _resolve_journal_domain_openalex(query: str) -> Tuple[Optional[str], Dict[str, Any]]:
     """

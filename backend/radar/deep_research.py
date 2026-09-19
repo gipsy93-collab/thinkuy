@@ -18,8 +18,8 @@ import sqlite3
 
 import httpx
 
-from . import profile, reports
 from . import librarian as _lib
+from . import profile, reports
 
 LLM_API = os.environ.get("THINKUY_LLM_API", "")
 LLM_MODEL = os.environ.get("THINKUY_LLM_MODEL", "gpt-4o-mini")

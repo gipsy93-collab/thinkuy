@@ -4,30 +4,19 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from datetime import date
 
-import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Body, HTTPException
 
-from ... import config, db, profile
+from ... import config, db, librarian, profile, socratic, topics
+from ...conversation import score_article, why_labels
+from ...matching import parse_keywords, rank_articles
 from ..common import (
     _as_int,
-    _as_list,
-    _date_int,
     _field_profile,
-    _http,
     _query_articles,
-    _safe_doi,
-    _widget_card,
     _with_display_keywords,
 )
-from ... import librarian, socratic, topics
-from ...conversation import score_article, why_labels
-from ...harvester import live_search
-from ...matching import parse_keywords, rank_articles
 
 router = APIRouter(tags=['librarian'])
 log = logging.getLogger('radar.api.librarian')
@@ -88,7 +77,6 @@ def librarian_assist(payload: dict = Body(...)):
         raise HTTPException(422, "inquiry es obligatorio")
     limit = _as_int(payload.get("limit"), default=50, minimum=1, maximum=150)
 
-    from ... import librarian
 
     all_fields = topics.fields()
     has_delimiters = bool(re.search(r'[,;"\n]', inquiry))

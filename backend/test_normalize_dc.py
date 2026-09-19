@@ -5,7 +5,6 @@ por reglas** (modificaría texto limpio) y **no se detecta con fidelidad** por s
 superficie, de modo que el módulo no emite veredicto y el texto citable se obtiene del PDF.
 """
 import pytest
-
 from radar import normalize
 
 # Texto limpio realista: compuestos con guion, marcas, URL, claves con mayúsculas internas,

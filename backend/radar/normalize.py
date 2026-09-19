@@ -191,7 +191,7 @@ _SENALES_GLIFOS = (
     re.compile(rf"(?:^|\s)&(?:\s|$)|&[{_LETRA}]"),        # '&' suelto o pegado: '& conocer'
     re.compile(rf"[bcdfghklmnpqrstvwxyz]j[{_LETRA}]"),    # 'j' tras consonante: 'geográjka'
     re.compile(rf"[{_LETRA}][A-ZÁÉÍÓÚÜÑÇ][{_LETRA}]"),    # mayúscula interior: 'CaüfomhA'
-    re.compile(rf"\b[bcdfghjklmnpqrstvwxyz]{{5,}}\b"),    # palabra sin vocales: 'jhls'
+    re.compile(r"\b[bcdfghjklmnpqrstvwxyz]{5,}\b"),    # palabra sin vocales: 'jhls'
 )
 
 # Señal de PEGOTE: cambio de minúscula a MAYÚSCULA dentro de palabra ('delSoconusco').

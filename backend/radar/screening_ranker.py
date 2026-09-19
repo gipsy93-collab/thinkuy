@@ -10,11 +10,10 @@ para soberanía de datos, ejecución ultrarrápida y cero dependencias pesadas:
 from __future__ import annotations
 
 import math
-import re
 from collections import Counter
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set
 
-from .normalize import norm, tokens
+from .normalize import tokens
 
 # Stopwords académicas trilingües (ES / EN / PT)
 _STOPWORDS: Set[str] = {

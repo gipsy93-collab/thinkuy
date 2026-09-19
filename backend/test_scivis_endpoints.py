@@ -1,7 +1,6 @@
 """Pruebas para los endpoints SCIVIS (/api/scivis/*)."""
 import pytest
 from fastapi.testclient import TestClient
-
 from radar import config, db
 from radar.api import main as api_main
 

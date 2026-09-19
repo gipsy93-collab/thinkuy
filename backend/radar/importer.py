@@ -16,7 +16,7 @@ from typing import Any
 
 import httpx
 
-from . import citation_graph, db
+from . import db
 from .normalize import norm
 
 log = logging.getLogger("radar.importer")
@@ -72,7 +72,6 @@ def _inspect_csv(text: str, filename: str) -> dict[str, Any]:
     col_year = next((i for i, h in enumerate(headers_norm) if any(k in h for k in ("year", "año", "ano", "date", "fecha"))), None)
     col_doi = next((i for i, h in enumerate(headers_norm) if "doi" in h), None)
     col_journal = next((i for i, h in enumerate(headers_norm) if any(k in h for k in ("journal", "revista", "source", "venue", "publisher"))), None)
-    col_cites = next((i for i, h in enumerate(headers_norm) if any(k in h for k in ("citation count", "cited by", "citas", "cited"))), None)
 
     total_rows = 0
     with_title = 0

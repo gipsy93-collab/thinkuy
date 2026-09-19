@@ -5,7 +5,6 @@ Se prueba lo que decide el comportamiento: el permiso de `robots.txt`, la caché
 """
 import httpx
 import pytest
-
 from radar.harvester import render_js
 
 

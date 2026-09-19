@@ -158,6 +158,7 @@ def co_cited_live(doi: str, limit: int = 10, client: Any = None) -> list[dict]:
     aprovechando el cluster global de co-citación de OpenAlex ('related_works').
     """
     import httpx
+
     from . import config
 
     c_doi = clean_doi(doi)
@@ -859,8 +860,9 @@ def expand_seed_graph(
     if not seed_id and norm_doi:
         try:
             import httpx
-            from ..harvester.openalex import parse_item
+
             from .. import db as r_db
+            from ..harvester.openalex import parse_item
             r = httpx.get(f"https://api.openalex.org/works/https://doi.org/{norm_doi}", timeout=8.0)
             if r.status_code == 200:
                 item = r.json()

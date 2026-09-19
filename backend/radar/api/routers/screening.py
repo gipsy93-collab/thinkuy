@@ -1,33 +1,18 @@
 """Subrouter de la API de Thinkuy."""
 from __future__ import annotations
 
-import json
 import logging
 import re
-from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
-import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Body, File, HTTPException, Query, Request, UploadFile
 
-from ... import config, db, profile
+from ... import citation_graph, db, importer, screening_ranker
+from ...matching import match_article, parse_keywords, rank_articles
 from ..common import (
     _as_int,
-    _as_list,
-    _date_int,
     _extract_owner_id,
-    _field_profile,
-    _http,
-    _query_articles,
-    _safe_doi,
-    _widget_card,
-    _with_display_keywords,
 )
-from ... import citation_graph, importer, screening_ranker
-from ...harvester import dialnet, live_probe, live_search
-from ...matching import match_article, parse_keywords, rank_articles
 
 router = APIRouter(tags=['screening'])
 log = logging.getLogger('radar.api.screening')

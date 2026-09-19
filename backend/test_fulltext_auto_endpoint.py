@@ -4,7 +4,6 @@ Verifica la auto-ingesta coordinada de textos completos (Europe PMC XML + PDFs O
 """
 import pytest
 from fastapi.testclient import TestClient
-
 from radar import config, db
 from radar.api import main as api_main
 

@@ -5,29 +5,22 @@ import json
 import logging
 import re
 from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 
-import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, HTTPException, Query, Response
+from fastapi.responses import JSONResponse
 
-from ... import config, db, profile
+from ... import author_match, db, network, profile, quality, topics
+from ...citations import citation_filename, format_citation
+from ...conversation import rank_conversation, score_article, why_labels
+from ...matching import match_article, parse_keywords, rank_articles
 from ..common import (
-    _as_int,
-    _as_list,
     _date_int,
     _field_profile,
-    _http,
     _query_articles,
     _safe_doi,
     _widget_card,
     _with_display_keywords,
 )
-from ... import author_match, network, quality, topics
-from ...citations import citation_filename, format_citation
-from ...conversation import rank_conversation, score_article, why_labels
-from ...matching import match_article, parse_keywords, rank_articles
 
 router = APIRouter(tags=['feed'])
 log = logging.getLogger('radar.api.feed')

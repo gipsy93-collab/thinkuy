@@ -6,8 +6,8 @@ y datos de charteo (JBI), impidiendo la contaminación cruzada de datos.
 """
 import pytest
 from fastapi.testclient import TestClient
-from radar.api.main import app
 from radar import db
+from radar.api.main import app
 
 
 @pytest.fixture
@@ -47,7 +47,6 @@ def test_protocol_isolation_between_users(client):
         headers={"X-User-Id": "bob"},
     )
     assert res_bob.status_code == 200
-    proto_bob_id = res_bob.json()["protocol_id"]
 
     # 3. Bob consulta la lista de protocolos: solo debe ver el suyo (y los 'default' públicos si hubiera)
     list_bob = client.get("/api/review/protocols", headers={"X-User-Id": "bob"})
@@ -168,7 +167,6 @@ def test_default_backward_compatibility(client):
         json={"title": "Protocolo Local Monousuario"},
     )
     assert res.status_code == 200
-    pid = res.json()["protocol_id"]
     assert res.json()["protocol"]["owner_id"] == "default"
 
     # Listado sin header debe mostrarlo sin problemas
@@ -200,7 +198,6 @@ def test_jwt_bearer_token_authentication(client):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert proto_res.status_code == 200
-    carlos_pid = proto_res.json()["protocol_id"]
     assert proto_res.json()["protocol"]["owner_id"] == "carlos"
 
     # 4. Alice intenta ver los protocolos: no ve el de Carlos

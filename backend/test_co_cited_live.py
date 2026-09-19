@@ -1,7 +1,8 @@
 """Pruebas unitarias para co-citación con soporte API-First en vivo (citation_graph.py)."""
 import sqlite3
-import pytest
+
 from radar import citation_graph
+
 
 def test_co_cited_local():
     conn = sqlite3.connect(":memory:")

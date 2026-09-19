@@ -7,7 +7,6 @@ Sin red: el cliente HTTP se inyecta y el PDF se sintetiza en memoria.
 """
 import pymupdf as fitz
 import pytest
-
 from radar.harvester import abstract_chain
 
 
@@ -323,7 +322,6 @@ def test_el_contrato_de_salida_es_estable(campo):
 def test_endpoint_resuelve_el_resumen_desde_el_html_entregado():
     """Sin `url` no hay descarga: se trabaja el HTML recibido (aquí, citation_abstract)."""
     from fastapi.testclient import TestClient
-
     from radar.api import main as api_main
 
     cliente = TestClient(api_main.app)
@@ -339,7 +337,6 @@ def test_endpoint_resuelve_el_resumen_desde_el_html_entregado():
 def test_endpoint_devuelve_sin_resumen_sin_inventar_nada():
     """Ficha sin resumen ni PDF consultable: campo vacío y motivo explícito."""
     from fastapi.testclient import TestClient
-
     from radar.api import main as api_main
 
     cliente = TestClient(api_main.app)
@@ -356,7 +353,6 @@ def test_endpoint_devuelve_sin_resumen_sin_inventar_nada():
 
 def test_endpoint_exige_url_o_html():
     from fastapi.testclient import TestClient
-
     from radar.api import main as api_main
 
     cliente = TestClient(api_main.app)

@@ -14,7 +14,6 @@ import gzip
 import io
 import json
 import logging
-from datetime import date
 
 import httpx
 
@@ -78,7 +77,7 @@ def check_snapshot(http: httpx.Client) -> dict:
     try:
         r = http.get(url, headers={"Range": "bytes=0-0"}, timeout=30)
         reachable = r.status_code in (200, 206)
-    except Exception as e:
+    except Exception:
         reachable = False
     return {
         "ok": reachable,

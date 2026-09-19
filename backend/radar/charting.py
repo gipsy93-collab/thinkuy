@@ -134,7 +134,6 @@ def proponer_con_modelo(texto: str, titulo: str, http=None) -> dict:
         f"Devuelve SOLO JSON con esta forma: {esquema}"
     )
     try:
-        from .normalize import unescape
         crudo = librarian._chat(sistema, usuario, temperature=0.0, max_tokens=700, timeout=45.0)
         datos = librarian._extract_json(crudo) or {}
     except Exception as e:

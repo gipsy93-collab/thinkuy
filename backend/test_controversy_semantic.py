@@ -1,7 +1,8 @@
 """Pruebas para la clasificación retórica y de controversias (controversy.py)."""
 import sqlite3
-import pytest
+
 from radar import controversy, librarian
+
 
 def test_classify_stance_heuristic():
     assert controversy.classify_stance("Este estudio confirma la hipótesis empírica") == "supporting"

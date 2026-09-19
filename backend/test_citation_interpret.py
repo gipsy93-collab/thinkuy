@@ -64,7 +64,6 @@ def _fake_chat_factory(payload):
 
 
 def test_classifier_valid_and_verbatim():
-    conn = None
     items = [
         {"paragraph": "Torres afirma que las metricas complementan la evaluacion.", "sentence": "x"},
         {"paragraph": "Otro párrafo sin relación con lo afirmado.", "sentence": "y"},
@@ -186,7 +185,6 @@ Castells, M. (2009). Communication Power. Oxford University Press. https://doi.o
     )
 
     assert res["citation_contexts_extracted"] >= 2, f"Extrajo {res['citation_contexts_extracted']} contextos"
-    found_authors = [c.get("author") or c.get("sentence") for c in res["contexts"]]
     
     # Comprobar que extrajo los párrafos del cuerpo reales
     paras = [c["paragraph"] for c in res["contexts"]]

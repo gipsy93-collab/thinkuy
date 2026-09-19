@@ -5,11 +5,9 @@ catálogo de comunicación del investigador (el catálogo pasó de 12.039 a 12.1
 despliegue abierto eso es inaceptable: el catálogo no debe crecer con lo que cada visitante
 escribe en el buscador, y menos aún compartirse entre usuarios.
 """
-import sqlite3
 
 import pytest
 from fastapi.testclient import TestClient
-
 from radar import config, db
 from radar.api import main as api_main
 from radar.harvester import live_probe

@@ -1,9 +1,10 @@
 """Pruebas unitarias para extracción de tablas y figuras desde PDFs (text_extractor.py)."""
 import os
 import tempfile
-import pytest
+
 import pymupdf as fitz
 from radar import text_extractor
+
 
 def test_extract_paper_to_markdown_with_tables():
     # Crear un PDF sintético temporal con fitz

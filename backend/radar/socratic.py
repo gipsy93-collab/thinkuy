@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sqlite3
+
 from . import profile
 from .normalize import norm
 from .topics import fields

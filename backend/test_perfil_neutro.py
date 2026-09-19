@@ -9,7 +9,6 @@ import json
 from radar import config, profile, topics
 from radar.harvester import scielo
 
-
 # ── El defecto es neutro ────────────────────────────────────────────────────
 
 def test_el_campo_por_defecto_no_es_comunicacion():

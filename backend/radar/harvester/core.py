@@ -12,7 +12,7 @@ import time
 import httpx
 
 from .. import config
-from ..normalize import norm, year_of
+from ..normalize import year_of
 from .base import Article
 
 log = logging.getLogger("radar.core")

@@ -9,8 +9,8 @@ Aristas = coautoría + citación + revista compartida (red multiplex, como Pajek
 """
 from __future__ import annotations
 
-import sqlite3
 import math
+import sqlite3
 from collections import defaultdict
 from datetime import date
 
@@ -22,10 +22,10 @@ JITTER_LEVELS = [-6.0, 3.0, -3.0, 6.0, 0.0]  # deterministic radial jitter patte
 RECENCY_DECAY = "linear"  # "linear" or "exponential"
 NORMALIZE_MULTIPLEX_WEIGHTS = True  # whether to normalize multiplex edge weights
 
-from . import db, network as net, topics as topics_mod
+from . import db
+from . import network as net
+from . import topics as topics_mod
 from .matching import FIELD_WEIGHTS, match_article, parse_keywords, rank_articles
-
-
 from .normalize import norm
 
 
@@ -333,7 +333,6 @@ def radar(conn: sqlite3.Connection,
     min_p = min(prox_values) if prox_values else 0.0
     max_p = max(prox_values) if prox_values else 1.0
     p_range = max(0.001, max_p - min_p)
-    R = 100.0
 
     # Contadores de autores por sector para dispersar el ángulo
     sector_counts: dict[str, int] = defaultdict(int)

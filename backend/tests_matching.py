@@ -1,7 +1,8 @@
 """Pruebas unitarias de matching y normalización para Thinkuy."""
 import unittest
-from radar.normalize import norm, norm_lang, word_variants, edit_distance
-from radar.matching import match_article, parse_keywords, rank_articles
+
+from radar.matching import match_article, parse_keywords
+from radar.normalize import edit_distance, norm, norm_lang, word_variants
 
 
 class TestNormalize(unittest.TestCase):
@@ -72,6 +73,7 @@ class TestMatching(unittest.TestCase):
 class TestScientificMatching(unittest.TestCase):
     def setUp(self):
         import sqlite3
+
         from radar import db
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row

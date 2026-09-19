@@ -300,7 +300,6 @@ def extract_paper_to_markdown(pdf_path: str | Path) -> Optional[Dict[str, Any]]:
         return None
 
     ordered: list[dict] = []
-    current_section = "preamble"
     in_references = False
     seen_abstract = False
     page_count = len(doc)
@@ -412,7 +411,6 @@ def extract_paper_to_markdown(pdf_path: str | Path) -> Optional[Dict[str, Any]]:
                             canon = "abstract_alt"
                         else:
                             seen_abstract = True
-                    current_section = canon
                     if canon == "references":
                         in_references = True
                     ordered.append({"kind": "heading", "text": text, "section": canon})

@@ -12,10 +12,11 @@ from __future__ import annotations
 
 import sqlite3
 from datetime import datetime
-from . import db, network as net, profile
+
+from . import db, profile
+from . import network as net
 from .conversation import STOP
 from .normalize import norm
-from .topics import classify_article_fields
 
 ACADEMIC_STOP = STOP | {
     # Genéricos de investigación y meta-ciencia (ES, PT, EN)

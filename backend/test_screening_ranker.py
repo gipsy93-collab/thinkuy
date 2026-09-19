@@ -1,6 +1,6 @@
 """Pruebas unitarias para el motor de Active Learning Incremental (screening_ranker.py)."""
-import pytest
 from radar.screening_ranker import ScreeningActiveLearner, compute_screening_progress_metrics
+
 
 def test_active_learner_prioritizes_similar_articles():
     corpus = [
@@ -106,8 +106,8 @@ def test_progress_metrics():
 
 def test_active_learning_endpoint():
     from fastapi.testclient import TestClient
-    from radar.api.main import app
     from radar import db
+    from radar.api.main import app
 
     conn = db.connect()
     pid = None

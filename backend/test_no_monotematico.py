@@ -13,9 +13,8 @@ Se garantizan tres cosas, cada una comprobable:
 """
 import json
 
-from radar import config, profile, thesaurus, topics
+from radar import config, profile, thesaurus
 from radar.harvester import live_probe
-
 
 # ── G1: ningún campo por defecto ────────────────────────────────────────────
 

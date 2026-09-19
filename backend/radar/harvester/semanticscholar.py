@@ -12,8 +12,6 @@ import time
 
 import httpx
 
-from .. import config
-
 log = logging.getLogger("radar.semanticscholar")
 
 GRAPH = "https://api.semanticscholar.org/graph/v1"

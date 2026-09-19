@@ -10,7 +10,6 @@ import sqlite3
 import time
 
 import pytest
-
 from radar import db
 
 # Techo deliberadamente holgado: el JOIN por clave primaria tarda milisegundos. La versión

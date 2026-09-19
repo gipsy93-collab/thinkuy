@@ -26,13 +26,12 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 import httpx
 
-from .. import config, db
-from .. import profile
+from .. import config, profile
 from ..normalize import norm, unescape
 from .base import Article
 
@@ -247,11 +246,6 @@ def _parse_article_item(chunk: str) -> Article | None:
     if jm:
         journal_title = _strip_html(jm.group(1))
 
-    publisher = None
-    pm = _RE_PUBLISHER.search(chunk)
-    if pm:
-        publisher = _strip_html(pm.group(1))
-
     doi = None
     dm = _RE_DOI.search(chunk)
     if dm:
@@ -391,7 +385,6 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
-    import sys as _sys
     sys.path.insert(0, str(config.BACKEND_DIR.parent))
     if args.field:
         profile.reload(args.field)

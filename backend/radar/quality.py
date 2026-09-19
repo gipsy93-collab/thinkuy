@@ -188,7 +188,6 @@ def tier_of_article(a: dict, qmap_issn: dict, qmap_title: dict) -> str | None:
 
 def main(argv: list[str] | None = None) -> int:
     import argparse
-    import sys
 
     ap = argparse.ArgumentParser(
         prog="thinkuy-quality",

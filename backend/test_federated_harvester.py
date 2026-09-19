@@ -1,9 +1,7 @@
 """Pruebas unitarias para la Sonda Federada (OpenAIRE Graph v3, Dialnet Dismax y live_probe)."""
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-from radar.harvester import dialnet, openaire, live_probe
-from radar.harvester.base import Article
+from radar.harvester import dialnet, live_probe, openaire
 
 
 def test_openaire_parse_item():

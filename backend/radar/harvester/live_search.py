@@ -15,12 +15,13 @@ import logging
 import re
 import threading
 from datetime import date, timedelta
+
 import httpx
 
 from .. import config, db
+from ..network import author_identity_map, canonical_author_id, invalidate_network_cache
 from ..normalize import norm
 from . import crossref, europepmc, latindex, openalex
-from ..network import author_identity_map, canonical_author_id, invalidate_network_cache
 
 log = logging.getLogger("radar.live_search")
 _DISCOVERY_LOCK = threading.Lock()

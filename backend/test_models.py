@@ -3,11 +3,10 @@ import pytest
 from radar.models import (
     Article,
     Author,
-    ReviewProtocol,
-    ScreeningDecision,
     ChartingData,
     LibrarianAssistRequest,
-    ProtocolCreateRequest,
+    ReviewProtocol,
+    ScreeningDecision,
 )
 
 

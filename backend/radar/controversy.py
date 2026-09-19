@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from . import db
 from .matching import match_article, parse_keywords

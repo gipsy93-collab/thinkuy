@@ -2,18 +2,16 @@
 """Constantes, caches y funciones auxiliares compartidas para el módulo SCIVIS."""
 from __future__ import annotations
 
-import json
 import logging
 import os
 import re
 import sqlite3
 import threading
-import time
 import urllib.parse
 from typing import Any, Dict, List, Optional, Tuple
 
-from .. import config, db
-from ..normalize import norm, edit_distance, unescape
+from .. import config
+from ..normalize import norm
 
 log = logging.getLogger("radar.scivis")
 

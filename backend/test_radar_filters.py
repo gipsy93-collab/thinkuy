@@ -1,13 +1,10 @@
 """Pruebas del radar: filtros de autores, descubrimiento en vivo y vigilancia continua."""
-import json
-import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 import httpx
-
 from radar import author_match, config, db, network, proximity, topics
 from radar.harvester import live_search
 

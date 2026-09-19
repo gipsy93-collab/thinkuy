@@ -25,7 +25,6 @@ import json
 import logging
 import time
 from collections import Counter
-from pathlib import Path
 
 import httpx
 

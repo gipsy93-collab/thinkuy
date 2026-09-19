@@ -9,6 +9,7 @@ import logging
 import re
 from html import unescape
 from typing import Any
+
 import httpx
 
 from .base import Article

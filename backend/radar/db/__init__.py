@@ -82,6 +82,8 @@ from .watch import (
 )
 
 __all__ = [
+    "config",
+    "profile",
     "_SCHEMA",
     "_migrate_screening_links",
     "init_db",

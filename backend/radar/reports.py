@@ -16,7 +16,6 @@ import sqlite3
 from datetime import datetime, timezone
 
 from . import gaps, profile
-from . import topics as topics_mod
 from .evidence_pack import build_pack
 
 

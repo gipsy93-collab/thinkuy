@@ -3,48 +3,42 @@
 from __future__ import annotations
 
 import json
-import logging
-import math
 import os
 import re
 import sqlite3
-import time
+import ssl
 import urllib.error
 import urllib.parse
 import urllib.request
-import ssl
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from .. import config, db
-from ..normalize import norm, edit_distance, unescape
+from .. import config
+from ..normalize import unescape
 from .common import (
-    log,
-    CC_DOMAIN_RANKS_DB,
-    CC_INLINKS_DB,
-    WEB_TWINS_RELEASE,
-    MEGA_HUB_DOMAINS,
-    _SPAM_TLDS,
     _IBERO_CC,
     _INDEXER_KW,
+    _SPAM_TLDS,
+    CC_DOMAIN_RANKS_DB,
+    CC_INLINKS_DB,
+    CC_RELEASE_ID,
+    MEGA_HUB_DOMAINS,
+    WEB_TWINS_RELEASE,
+    _cc_total_domains,
     _clean_domain,
-    _split_url_scope,
+    _domain_candidates,
+    _get_proximity_radius,
     _is_portal_host,
-    _url_matches_scope,
     _journal_identity_from_url,
     _n_es,
     _otras_citas_frase,
-    _domain_candidates,
-    _cc_total_domains,
-    _get_proximity_radius,
-    _get_db_conn,
-    CC_RELEASE_ID,
+    _url_matches_scope,
+    log,
 )
 from .commoncrawl import (
-    get_common_crawl_harmonic_centrality,
-    query_common_crawl_domain_real,
-    get_real_referrers,
     get_cc_history_trajectory,
+    get_real_referrers,
 )
+
 
 def build_conversational_web_graph_analysis(
     harmonic_data: Dict[str, Any],
@@ -268,7 +262,6 @@ def build_web_proximity_radar(
     La distancia radial 'r' (0 a 1) mapea logarítmicamente la Centralidad Armónica
     (menor rango = menor número de saltos de enlace hacia el resto de la web).
     """
-    import math
 
     rank = (harmonic_data or {}).get("harmonic_rank")
     val = (harmonic_data or {}).get("harmonic_val")
@@ -932,7 +925,6 @@ def audit_in_out_links(
     if wiki_articles:
         señal_bits.append(f"{_n_es(len(wiki_articles), 'cita en Wikipedia', 'citas en Wikipedia')}")
     if blog_mentions:
-        b_name = blog_mentions[0].get('source') or 'Substack'
         n_posts = len(blog_mentions[0].get('posts', []))
         posts_txt = f" ({n_posts} notas)" if n_posts else ""
         señal_bits.append(f"canal de divulgación en {blog_mentions[0].get('platform', 'Substack')}{posts_txt}")

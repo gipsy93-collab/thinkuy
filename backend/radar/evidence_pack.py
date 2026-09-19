@@ -9,9 +9,9 @@ from __future__ import annotations
 import sqlite3
 
 from . import db
+from . import topics as topics_mod
 from .controversy import classify_stance
 from .matching import parse_keywords, rank_articles
-from . import topics as topics_mod
 
 
 def build_pack(conn: sqlite3.Connection, topic: str, limit: int = 20,

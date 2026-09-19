@@ -12,14 +12,14 @@ from __future__ import annotations
 
 import logging
 import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from typing import Any
 
 import httpx
 
 from ..normalize import norm
-from . import dialnet, openalex, openaire
+from . import dialnet, openaire, openalex
 
 log = logging.getLogger("radar.live_probe")
 

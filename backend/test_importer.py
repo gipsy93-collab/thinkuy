@@ -1,8 +1,6 @@
 """Pruebas unitarias para el módulo de importación, auditoría y diagnóstico inteligente."""
-import io
-import sqlite3
-import pytest
-from radar import importer, db
+from radar import db, importer
+
 
 def test_inspect_file_csv_diagnostics():
     csv_content = (

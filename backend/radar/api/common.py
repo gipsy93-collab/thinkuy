@@ -3,12 +3,11 @@ from __future__ import annotations
 
 import logging
 from datetime import date, timedelta
-from typing import Any, Dict, List, Optional
 
 import httpx
 from fastapi import Request
 
-from .. import config, db, profile, topics
+from .. import config, db, topics
 from ..conversation import build_profile, fallback_profile, why_labels
 
 log = logging.getLogger("radar.api")
@@ -120,7 +119,7 @@ def _query_articles(conn, days: int | None, langs: list[str], sources: list[str]
         for kw in keywords:
             pat = f"%{kw.lower()}%"
             like_pats.extend([pat] * 3)
-            kw_parts.append(f"LOWER(title) LIKE ? OR LOWER(keywords) LIKE ? OR LOWER(abstract) LIKE ?")
+            kw_parts.append("LOWER(title) LIKE ? OR LOWER(keywords) LIKE ? OR LOWER(abstract) LIKE ?")
         sql += f" AND ({' OR '.join(kw_parts)})"
         params.extend(like_pats)
     sql += " ORDER BY " + ("cited_by DESC, pub_date DESC" if order == "cited" else "pub_date DESC")

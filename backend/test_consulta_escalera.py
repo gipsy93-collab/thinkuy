@@ -152,7 +152,6 @@ def test_entre_terminos_sueltos_se_elige_el_mas_raro():
 def test_el_endpoint_avisa_cuando_amplio_la_consulta(monkeypatch):
     """El investigador debe saber que los resultados no vienen de su formulación literal."""
     from fastapi.testclient import TestClient
-
     from radar import librarian
     from radar.api import main as api_main
 

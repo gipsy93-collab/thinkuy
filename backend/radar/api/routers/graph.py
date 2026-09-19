@@ -1,32 +1,18 @@
 """Subrouter de la API de Thinkuy."""
 from __future__ import annotations
 
-import json
 import logging
-import re
-from datetime import date, datetime, timedelta, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
-import httpx
-from fastapi import APIRouter, BackgroundTasks, Body, File, HTTPException, Query, Request, Response, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Body, HTTPException, Query, Response
 
-from ... import config, db, profile
+from ... import citation_graph, config, controversy, db, deep_research, gaps, network, proximity, reports
+from ...harvester import live_search
+from ...matching import parse_keywords
 from ..common import (
     _as_int,
     _as_list,
-    _date_int,
-    _field_profile,
-    _http,
-    _query_articles,
-    _safe_doi,
-    _widget_card,
-    _with_display_keywords,
 )
-from ... import citation_graph, controversy, deep_research, gaps, network, proximity, reports
-from ...harvester import live_search
-from ...matching import parse_keywords
 
 router = APIRouter(tags=['graph'])
 log = logging.getLogger('radar.api.graph')
@@ -295,7 +281,6 @@ def radar_discover(payload: dict = Body(...)):
 
     conn = db.connect()
     try:
-        current_max_id = conn.execute("SELECT COALESCE(MAX(id), 0) FROM articles").fetchone()[0]
         disc_res = live_search.discover_by_topic(conn, topic=topic, days=days, max_results=max_results)
         watch_info = None
         if monitor:

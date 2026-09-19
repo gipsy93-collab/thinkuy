@@ -3,45 +3,39 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 import sqlite3
 import time
 import urllib.parse
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from .. import config, db
-from ..normalize import norm, edit_distance, unescape
+from .. import config
+from ..normalize import norm
 from .common import (
-    log,
+    _SCIVIS_RANKING_TTL,
     CC_AUDIT_TTL_HOURS,
     CC_DOMAIN_RANKS_DB,
+    CC_RELEASE_ID,
     KNOWN_JOURNAL_DOMAINS,
-    _SCIVIS_RANKING_TTL,
+    _cc_total_domains,
     _clean_domain,
     _domain_candidates,
-    _split_url_scope,
-    _cc_total_domains,
     _get_db_conn,
     _get_proximity_radius,
     _is_portal_host,
-    CC_RELEASE_ID,
 )
 from .commoncrawl import (
-    get_latest_common_crawl_collection,
-    query_common_crawl_domain_real,
     get_common_crawl_harmonic_centrality,
-    get_cc_history_trajectory,
+    query_common_crawl_domain_real,
 )
 from .links import (
+    audit_in_out_links,
     build_conversational_web_graph_analysis,
     build_web_proximity_radar,
-    compute_web_twins,
-    discover_transmedia_channels,
-    audit_in_out_links,
 )
 from .resolution import resolve_journal_domain_and_meta
+
 
 def get_local_catalog_metrics(journal_title: str, db_path: str = config.DB_PATH) -> Dict[str, Any]:
     """Obtiene métricas reales y auditables de la revista en el catálogo local SQLite.

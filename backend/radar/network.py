@@ -22,9 +22,10 @@ import sqlite3
 import time
 from collections import defaultdict, deque
 
+from . import db
+from . import topics as topics_mod
 from .conversation import strip_oaid
 from .normalize import norm
-from . import db, topics as topics_mod
 
 # Caché en memoria para la red analizada
 _NETWORK_CACHE: dict = {}
@@ -354,7 +355,6 @@ def hits(citation: dict, nodes: set, iters: int = 20) -> tuple[dict[str, float],
     """HITS hubs/authorities sobre la red de citas dirigida."""
     outg, inc = _directed_graph(citation)
     nodes = [n for n in nodes]
-    idx = {n: i for i, n in enumerate(nodes)}
     hub = {n: 1.0 for n in nodes}
     auth = {n: 1.0 for n in nodes}
     for _ in range(iters):

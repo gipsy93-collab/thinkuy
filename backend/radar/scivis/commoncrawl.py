@@ -3,31 +3,28 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
-import re
 import sqlite3
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from .. import config, db
 from .common import (
-    log,
     _CC_COLLECTION_CACHE,
     _CC_COLLECTION_LOCK,
     CC_DOMAIN_RANKS_DB,
     CC_INLINKS_DB,
     CC_RANKS_GZ,
     CC_RELEASE_ID,
+    _cc_total_domains,
     _clean_domain,
     _domain_candidates,
-    _cc_total_domains,
     _iter_history_releases,
-    _get_db_conn,
+    log,
 )
+
 
 def get_latest_common_crawl_collection() -> Dict[str, Any]:
     """Obtiene la última colección activa de Common Crawl desde su API oficial."""

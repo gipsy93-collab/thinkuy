@@ -6,7 +6,6 @@ se aísla en un archivo temporal (`_guardar_cache` se neutraliza).
 import json
 
 import pytest
-
 from radar import taxonomy
 
 

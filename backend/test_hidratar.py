@@ -4,10 +4,8 @@ Cubre los tres desenlaces reales medidos en el protocolo del IP: recuperado por 
 inexistente en fuentes abiertas, y bloqueado por la fuente. **Nunca se inventa un resumen.**
 """
 import json
-import sqlite3
 
 import pytest
-
 from radar import config, db
 from radar.harvester import hidratar
 
@@ -173,7 +171,6 @@ def test_no_toca_los_que_ya_tienen_resumen(base):
 
 def test_el_endpoint_devuelve_el_informe(base, monkeypatch):
     from fastapi.testclient import TestClient
-
     from radar.api import main as api_main
 
     doi = "10.1016/j.ejca.2025.115711"

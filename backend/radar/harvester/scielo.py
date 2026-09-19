@@ -22,7 +22,7 @@ import re
 import time
 
 from .. import config, profile
-from ..normalize import am_date, unescape, year_of, norm
+from ..normalize import am_date, norm, unescape, year_of
 from .base import Article
 
 log = logging.getLogger("radar.scielo")
@@ -204,7 +204,6 @@ def parse_article(raw: dict) -> Article | None:
     year = year_of(year_raw[0]) if year_raw else None
     pub_date = am_date(_text_list(art.get("v91"))[:1][0]) if _text_list(art.get("v91")) else None
     code = str(art.get("code") or raw.get("code") or "")
-    coll = str(art.get("collection") or raw.get("collection") or "")
 
     url = f"https://doi.org/{doi}" if doi else None
     access = "oa" if _flag(art.get("v71"), "oa") else "closed"

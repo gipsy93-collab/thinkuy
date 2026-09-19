@@ -4,9 +4,7 @@ El caso central es el guardián: el motor **no puede** rellenar un campo con tex
 literalmente en el resumen. Se midió (Hito 38) que un SLM fabrica contenido plausible cuando la
 fuente no lo tiene; en una matriz de extracción eso contamina el informe.
 """
-import pytest
 from fastapi.testclient import TestClient
-
 from radar import charting
 from radar.api import main as api_main
 
