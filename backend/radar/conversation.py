@@ -10,7 +10,7 @@ from functools import lru_cache
 
 from . import profile
 from .matching import match_article
-from .normalize import norm
+from .normalize import date_int, norm
 
 STOP = {
     "para", "como", "este", "esta", "estos", "estas", "desde", "entre", "sobre",
@@ -236,13 +236,6 @@ def why_labels(sig: dict, lang: str = "es") -> list[str]:
     return out[:3]
 
 
-def _date_key(pub_date: str | None) -> int:
-    if not pub_date:
-        return 0
-    d = str(pub_date).replace("-", "")[:8]
-    return int(d) if d.isdigit() else 0
-
-
 def rank_conversation(articles: list[dict], profile_data: dict, mode: str = "conversation") -> list[dict]:
     enriched = []
     for a in articles:
@@ -255,14 +248,14 @@ def rank_conversation(articles: list[dict], profile_data: dict, mode: str = "con
             continue
         enriched.append({**a, "conversation": sig})
     if mode == "cfp":
-        key = lambda a: (-(a["conversation"]["cfp_score"] or 0), -_date_key(a.get("pub_date")))
+        key = lambda a: (-(a["conversation"]["cfp_score"] or 0), -date_int(a.get("pub_date")))
     elif mode == "latest":
-        key = lambda a: (-_date_key(a.get("pub_date")), a.get("doi") or "")
+        key = lambda a: (-date_int(a.get("pub_date")), a.get("doi") or "")
     else:
         key = lambda a: (
             -(a["conversation"]["conversation_score"] or 0),
             -(1 if a["conversation"]["cites_anchor"] else 0),
-            -_date_key(a.get("pub_date")),
+            -date_int(a.get("pub_date")),
         )
     enriched.sort(key=key)
     return enriched

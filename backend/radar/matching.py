@@ -17,7 +17,7 @@ import re
 from functools import lru_cache
 
 from . import profile
-from .normalize import edit_distance, norm, word_variants
+from .normalize import date_int, edit_distance, norm, word_variants
 
 # Peso base de cada campo donde aparece la keyword
 FIELD_WEIGHTS = {"title": 3, "keywords": 2, "abstract": 1}
@@ -38,6 +38,21 @@ _TOKEN_EQUIV: dict[str, str] = {}
 for _a, _b in profile.field_profile.token_equivalences:
     _TOKEN_EQUIV[_a] = _b
     _TOKEN_EQUIV[_b] = _a
+
+
+def configure(common_vocab=None, token_equiv=None) -> None:
+    """Aplica el vocabulario del campo activo. Lo llama `profile.reload`.
+
+    Sustituye a la mutación directa de los globales desde `profile`: cada módulo expone
+    su propia API de configuración en lugar de ser modificado desde fuera.
+    """
+    global COMMON_VOCAB, _TOKEN_EQUIV
+    COMMON_VOCAB = set(common_vocab or [])
+    _TOKEN_EQUIV = {}
+    for a, b in (token_equiv or []):
+        _TOKEN_EQUIV[a] = b
+        _TOKEN_EQUIV[b] = a
+    correct_word.cache_clear()
 
 
 @lru_cache(maxsize=512)
@@ -245,14 +260,6 @@ def match_article(art: dict, keywords: list[str]) -> dict:
     return _score_article_with_plan(art, plan)
 
 
-def _date_key(pub_date: str | None) -> int:
-    """Clave numérica de fecha ISO (YYYY-MM-DD) para ordenar; sin fecha = 0."""
-    if not pub_date:
-        return 0
-    d = pub_date.replace("-", "")
-    return int(d) if d.isdigit() else 0
-
-
 def rank_articles(articles: list[dict], keywords: list[str]) -> list[dict]:
     """Enriquece cada artículo con su explicación y lo ordena por score + fecha."""
     plan = prepare_query_plan(keywords)
@@ -263,7 +270,7 @@ def rank_articles(articles: list[dict], keywords: list[str]) -> list[dict]:
     enriched.sort(
         key=lambda a: (
             -(a["match_score"] or 0),
-            -_date_key(a.get("pub_date")),   # a igual score, el más reciente primero
+            -date_int(a.get("pub_date")),   # a igual score, el más reciente primero
             a.get("doi") or "",
         )
     )

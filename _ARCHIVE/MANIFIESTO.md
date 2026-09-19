@@ -65,3 +65,13 @@
 | `run_training_with_monitor.py` | `entrenamiento/entrenar_qwen_v2_cot.bat` + `train_monitor_dashboard.py` |
 | `eval_rsu_duque_fine_tuned.py`, `audit_raw_thinkuy_v2.py`, `audit_real_paper.py`, `hunt_10_refutations.py`, `demo_live_probe_epistemic.py`, `test_gemma4_prompt.py` | Diagnósticos de una sola vez / linaje de modelo antiguo |
 | `corregir_mojibake_docs.py`, `gen_seed.py` | Utilidades puntuales ya aplicadas |
+
+### 2026-09-19 — Consolidación Fase 3 (módulos sin uso)
+
+| Archivado | Origen | Motivo |
+| :--- | :--- | :--- |
+| `modulos_sin_uso/models.py` + `modulos_sin_uso/test_models.py` | `backend/radar/models.py`, `backend/test_models.py` | Modelos Pydantic que **solo se importaban entre sí**; la API devuelve dicts y no los usa. Recuperables si se decide tipar los contratos de la API. |
+
+> Se **conservan** (no se archivan) `radar/taxonomy.py`, `radar/thesaurus.py` y
+> `radar/harvester/snapshot.py`: son asistencia de campo y capacidades planificadas
+> (Hitos 48-50 y mitigación de OpenAlex), aunque hoy no estén cableadas al runtime.

@@ -13,8 +13,8 @@ from ... import author_match, db, network, profile, quality, topics
 from ...citations import citation_filename, format_citation
 from ...conversation import rank_conversation, score_article, why_labels
 from ...matching import match_article, parse_keywords, rank_articles
+from ...normalize import date_int
 from ..common import (
-    _date_int,
     _field_profile,
     _query_articles,
     _safe_doi,
@@ -93,7 +93,7 @@ def feed(
         else:
             ranked.sort(key=lambda a: (
                 -((a.get("match_score") or 0) + quality.QUALITY_BONUS.get(a.get("quartile"), 0)),
-                -_date_int(a.get("pub_date")),
+                -date_int(a.get("pub_date")),
                 a.get("doi") or "",
             ))
         ranked = ranked[:limit]

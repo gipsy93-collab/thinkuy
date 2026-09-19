@@ -20,24 +20,17 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from pathlib import Path
 
 from . import config
+from .normalize import clean_doi
 
 log = logging.getLogger("radar.tracker")
 
-DB_PATH = getattr(config, "DOI_TRACKER_DB", "data/doi_tracker.db")
+# Ruta absoluta (antes era relativa al CWD: la base se creaba en `data/` o en `backend/data/`
+# según desde dónde se ejecutara el script). Sobrescribible con THINKUY_DOI_TRACKER_DB.
+DB_PATH = Path(os.environ.get("THINKUY_DOI_TRACKER_DB", config.DATA_DIR / "doi_tracker.db"))
 UA = getattr(config, "USER_AGENT", "radar-obcc/1.0 (rastreo de menciones DOI)")
-
-
-def clean_doi(doi: str) -> str:
-    """Limpia URLs, prefijos y caracteres extranos dejando la forma canonica 10.xxxx/..."""
-    if not doi:
-        return ""
-    doi = doi.strip()
-    match = re.search(r"(10\.\d{4,9}/[^\s]+)", doi, re.IGNORECASE)
-    if match:
-        return match.group(1).rstrip("/.,;)")
-    return doi
 
 
 def get_json(url: str, timeout: int = 25, headers: dict | None = None) -> dict | list | None:

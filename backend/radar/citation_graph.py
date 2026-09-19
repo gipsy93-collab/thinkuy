@@ -13,23 +13,9 @@ from collections import Counter, defaultdict
 from typing import Any
 
 from .conversation import strip_oaid
+from .normalize import clean_doi  # canónico en normalize; re-exportado para `cited.py`
 
 log = logging.getLogger("radar.citation_graph")
-
-
-def clean_doi(val: str) -> str:
-    """Normaliza y extrae el identificador puro de un DOI."""
-    if not val:
-        return ""
-    s = str(val).strip()
-    match = re.search(r"(10\.\d{4,9}\/\S+)", s, re.IGNORECASE)
-    if match:
-        s = match.group(1)
-    else:
-        s = re.sub(r"^https?:\/\/(?:dx\.)?doi\.org\/", "", s, flags=re.IGNORECASE)
-        s = re.sub(r"^(?:dx\.)?doi\.org\/", "", s, flags=re.IGNORECASE)
-        s = re.sub(r"^doi:\s*", "", s, flags=re.IGNORECASE)
-    return s.strip().lower().rstrip(".,;/")
 
 
 def build_index(conn: sqlite3.Connection) -> dict:

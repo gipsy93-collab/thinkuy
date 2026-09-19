@@ -31,6 +31,31 @@ def tokens(s: str | None) -> list[str]:
     return norm(s).split()
 
 
+_DOI_RE = re.compile(r"(10\.\d{4,9}/\S+)", re.IGNORECASE)
+_DOI_PREFIX_RE = re.compile(r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", re.IGNORECASE)
+
+
+def clean_doi(val: str | None) -> str:
+    """Forma canónica de un DOI: `10.xxxx/…`, sin URL ni prefijo `doi:`, en minúsculas."""
+    if not val:
+        return ""
+    s = str(val).strip()
+    m = _DOI_RE.search(s)
+    if m:
+        s = m.group(1)
+    else:
+        s = _DOI_PREFIX_RE.sub("", s, count=1)
+    return s.strip().lower().rstrip(".,;/")
+
+
+def date_int(pub_date: str | None) -> int:
+    """Clave numérica de una fecha ISO (`YYYYMMDD`) para ordenar; sin fecha = 0."""
+    if not pub_date:
+        return 0
+    d = re.sub(r"\D", "", str(pub_date))[:8]
+    return int(d) if d else 0
+
+
 def edit_distance(s1: str, s2: str) -> int:
     """Distancia de Levenshtein con transposición (Damerau-Levenshtein)."""
     if s1 == s2:

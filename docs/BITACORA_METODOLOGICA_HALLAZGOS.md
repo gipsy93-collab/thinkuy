@@ -3618,3 +3618,52 @@ ni los datos. Nada se perdió: todo lo retirado está en `_ARCHIVE/` con su mani
 
 **Artefactos:** `_ARCHIVE/MANIFIESTO.md`, `entrenamiento/README.md`, `tools/README.md`.
 
+---
+
+## Hito 65: El backend deja de tener cuatro verdades y lógica duplicada - 19 de septiembre de 2026
+
+> **Fase 3.** Consolidar lo que la auditoría señaló: duplicados, acoplamiento frágil y código sin uso.
+
+### 1. Una sola implementación de cada cosa
+
+| Lógica duplicada | Antes | Ahora |
+| :--- | :--- | :--- |
+| Limpieza de DOI | `clean_doi` en `citation_graph.py` **y** `tracker.py` | Una en `normalize.clean_doi`; `citation_graph` la re-exporta (la usa `cited.py`), `tracker` la importa |
+| Clave de fecha | `_date_key` en `conversation.py` **y** `matching.py`; `_date_int` en `api/common.py` | `normalize.date_int` (una sola) |
+| Entidades HTML | `unescape` canónico + usos de `html.unescape` sueltos | Se mantiene `normalize.unescape` como canónico |
+
+### 2. Fin de la mutación cruzada de módulos
+
+`profile.reload()` escribía dentro de `matching` (`COMMON_VOCAB`, `_TOKEN_EQUIV`),
+`socratic` (`QUESTION_TEMPLATES`) y `scielo` (`COLLECTIONS`, `COMM_TERMS`). Ahora cada módulo
+expone **su propia API** (`matching.configure`, `socratic.configure`, `scielo.configure`) y
+`profile.reload` la llama. El módulo deja de ser modificado desde fuera.
+
+### 3. Re-export explícito (adiós al volcado ciego)
+
+`api/main.py` copiaba a `globals()` **todo atributo público de los 9 routers** (incluidos
+imports accidentales). Ahora re-exporta solo los dos nombres que consumidores externos usan de
+verdad: `systematic_review_endpoint` y el módulo `live_search`.
+
+### 4. Correcciones puntuales
+
+- `deep_research` importa `build_pack` directo de `evidence_pack` (antes dependía de que `reports`
+  lo re-exportara).
+- `tracker.DB_PATH` pasa a ser **absoluto** (`config.DATA_DIR`), fin de la base residual
+  `backend/data/` creada por rutas relativas al CWD.
+
+### 5. Código sin uso
+
+`radar/models.py` (Pydantic) **solo se importaba a sí mismo** en `test_models.py`; la API devuelve
+dicts. Ambos se archivan en `_ARCHIVE/modulos_sin_uso/`. Se **conservan** `taxonomy.py`,
+`thesaurus.py` y `harvester/snapshot.py` (asistencia de campo y capacidad planificada de OpenAlex).
+
+### Estado
+
+**246/246 pruebas** (253 − 7 pruebas del módulo archivado), `ruff check backend` en limpio,
+`dev_check` → **OK**. La suite no pierde cobertura de código vivo.
+
+**Artefactos:** `backend/radar/normalize.py` (+`clean_doi`, `date_int`), `matching.py`/`socratic.py`/
+`harvester/scielo.py` (+`configure`), `profile.py`, `api/main.py`, `api/routers/feed.py`,
+`tracker.py`, `deep_research.py`, `_ARCHIVE/modulos_sin_uso/`.
+

@@ -148,19 +148,13 @@ def reload(field_id: str | None = None) -> FieldProfile:
     field_profile = load_profile(field_id)
     try:
         from . import matching, socratic
-        matching.COMMON_VOCAB = set(field_profile.common_vocab)
-        matching._TOKEN_EQUIV.clear()
-        for _a, _b in field_profile.token_equivalences:
-            matching._TOKEN_EQUIV[_a] = _b
-            matching._TOKEN_EQUIV[_b] = _a
-        matching.correct_word.cache_clear()
-        socratic.QUESTION_TEMPLATES = field_profile.socratic_templates
+        matching.configure(field_profile.common_vocab, field_profile.token_equivalences)
+        socratic.configure(field_profile.socratic_templates)
     except Exception:
         pass
     try:
         from .harvester import scielo
-        scielo.COLLECTIONS = list(field_profile.collections or [])
-        scielo.COMM_TERMS = list(field_profile.discovery_terms or [])
+        scielo.configure(field_profile.collections, field_profile.discovery_terms)
     except Exception:
         pass
     return field_profile

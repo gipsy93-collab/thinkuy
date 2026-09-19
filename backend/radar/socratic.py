@@ -10,6 +10,12 @@ from .topics import fields
 QUESTION_TEMPLATES = profile.field_profile.socratic_templates
 
 
+def configure(templates=None) -> None:
+    """Aplica las plantillas del campo activo. Lo llama `profile.reload`."""
+    global QUESTION_TEMPLATES
+    QUESTION_TEMPLATES = dict(templates or {})
+
+
 def _field_list() -> list[dict]:
     fl = fields()
     return fl or []

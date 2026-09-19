@@ -103,9 +103,10 @@ if config.PWA_DIR.exists():
     app.mount("/app", NoCacheStaticFiles(directory=str(config.PWA_DIR), html=True), name="pwa")
 
 # ---------------------------------------------------------------- Re-exports para retrocompatibilidad
-build_fingerprint = admin.build_fingerprint
+# Antes se copiaba a `globals()` TODO atributo público de cada router (incluidos imports
+# accidentales). Ahora se re-exporta solo lo que consumidores externos (pruebas/scripts)
+# usan de verdad: el endpoint de revisión sistemática y el módulo `live_search`.
+from ..harvester import live_search  # noqa: F401  (retrocompatibilidad)
+from .routers.screening import systematic_review_endpoint  # noqa: F401  (retrocompatibilidad)
 
-for _mod in (admin, feed, librarian, screening, charting, harvest, graph, editorial, fulltext):
-    for _attr in dir(_mod):
-        if not _attr.startswith("_") and _attr != "router":
-            globals()[_attr] = getattr(_mod, _attr)
+build_fingerprint = admin.build_fingerprint

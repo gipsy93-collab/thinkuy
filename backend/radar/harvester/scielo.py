@@ -36,6 +36,13 @@ COLLECTIONS = list(profile.field_profile.collections or [])
 COMM_TERMS = list(profile.field_profile.discovery_terms or [])
 
 
+def configure(collections=None, comm_terms=None) -> None:
+    """Aplica colecciones y términos del campo activo. Lo llama `profile.reload`."""
+    global COLLECTIONS, COMM_TERMS
+    COLLECTIONS = list(collections or [])
+    COMM_TERMS = list(comm_terms or [])
+
+
 def _clean(s: str) -> str:
     return norm(s)
 

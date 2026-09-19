@@ -133,11 +133,3 @@ def _with_display_keywords(articles: list, candidate_terms: list[str] | None = N
         article["display_keywords"] = display_keywords
         article["keyword_source"] = keyword_source
     return articles
-
-
-def _date_int(pub_date: str | None) -> int:
-    """Clave numérica de fecha ISO (YYYY-MM-DD) para ordenar; sin fecha = 0."""
-    if not pub_date:
-        return 0
-    d = str(pub_date).replace("-", "")
-    return int(d) if d.isdigit() else 0

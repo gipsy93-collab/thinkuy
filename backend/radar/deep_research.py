@@ -20,6 +20,7 @@ import httpx
 
 from . import librarian as _lib
 from . import profile, reports
+from .evidence_pack import build_pack
 
 LLM_API = os.environ.get("THINKUY_LLM_API", "")
 LLM_MODEL = os.environ.get("THINKUY_LLM_MODEL", "gpt-4o-mini")
@@ -93,7 +94,7 @@ def _postcheck_grounding(text: str, pack: dict) -> dict:
 def deep_research(conn: sqlite3.Connection, topic: str, mode: str = "deterministic",
                   limit: int = 20) -> dict:
     if mode == "hybrid" and llm_available():
-        pack = reports.build_pack(conn, topic, limit=limit)
+        pack = build_pack(conn, topic, limit=limit)
         synthesis = _llm_synthesize(pack)
         grounding = _postcheck_grounding(synthesis, pack)
         base = reports.layered_report(conn, topic, limit=limit)
