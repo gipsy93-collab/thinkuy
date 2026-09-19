@@ -3717,3 +3717,40 @@ clases) y los 11 `id` sin uso.
 **Artefactos:** `pwa/js/api.js`, `pwa/js/dom.js`, `pwa/js/app.js`, `pwa/index.html`, `pwa/sw.js`,
 `tools/smoke_pwa.py`.
 
+---
+
+## Hito 67: El estado sale del archivo y la interfaz pierde lo muerto - 19 de septiembre de 2026
+
+> **Fase 4, segundo tramo.** Extraer el estado compartido a un módulo y retirar elementos sin uso,
+> con el humo como red en cada paso (todo reversible con la etiqueta `pre-fase4`).
+
+### 1. `pwa/js/state.js`
+
+La configuración, el estado compartido y la persistencia en `localStorage` (config + filtros del
+radar) vivían repartidos en las primeras 70 líneas de `app.js`. Ahora son un módulo con API clara:
+`DEFAULT_CONFIG`, `state`, `loadConfig`/`saveConfig`, `loadRadarFilters`/`saveRadarFilters`.
+`app.js` solo importa lo que usa (`state`, `saveConfig`, `loadRadarFilters`, `saveRadarFilters`).
+
+### 2. Interfaz sin elementos muertos
+
+Retirados **11 `id` sin ninguna referencia** en JS (el CSS no usa selectores `#id`): `topbar-telemetry`,
+`toggle-track/thumb/label`, `radar-viewport` y los `btn-chip-*` (funcionan por delegación `data-view`,
+no por id). Se eliminó además el botón **`btn-attach-ref`**, un botón sin ningún manejador.
+
+### 3. Estado
+
+`smoke_pwa` → **OK**; `dev_check` → **OK** (ruff limpio, **246/246**). PWA en **`v=5.49` /
+`thinkuy-v73`**. Sin cambios de comportamiento.
+
+> **Candidatas de CSS no retiradas a propósito:** el análisis estático marca ~38 clases como
+> «sin uso», pero varias se construyen **dinámicamente** (`compared-card-${i}`, `decision-${dec}`,
+> roles `Synthesis_Review`…). Borrarlas por texto rompería estilos; quedan para una limpieza
+> supervisada.
+
+**Commits:** `33c488b` (state.js), `dba0f0a` (limpieza de ids).
+
+**Pendiente (resto de la Fase 4):** partir `app.js` en módulos por función (cribado, charting,
+radar, revista), consolidar los ~33 globales mutables y la limpieza supervisada de CSS.
+
+**Artefactos:** `pwa/js/state.js`, `pwa/js/app.js`, `pwa/index.html`, `pwa/sw.js`.
+
