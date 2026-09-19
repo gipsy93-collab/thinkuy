@@ -20,7 +20,6 @@ from ..common import (
 
 router = APIRouter(tags=['librarian'])
 log = logging.getLogger('radar.api.librarian')
-PROFILE = profile.field_profile
 
 @router.post("/api/socratic/analyze")
 def socratic_analyze(payload: dict = Body(...)):
@@ -91,17 +90,17 @@ def librarian_assist(payload: dict = Body(...)):
         "todas", "todos", "unas", "unos", "otra", "otro", "otras", "otros",
         "col", "esp", "investigaciones", "trabajos", "trabajo", "investigo",
     }
-    domain_stopwords |= {str(t).strip().lower() for t in (PROFILE.ubiquitous_terms or []) if str(t).strip()}
+    domain_stopwords |= {str(t).strip().lower() for t in (profile.field_profile.ubiquitous_terms or []) if str(t).strip()}
 
     # 1. Escuchar e interpretar / Parsing de palabras clave
-    campo_neutro = {"id": PROFILE.id, "name": PROFILE.name,
+    campo_neutro = {"id": profile.field_profile.id, "name": profile.field_profile.name,
                     "description": "Búsqueda sin filtro de disciplina."}
     if has_delimiters:
         # Consulta por palabras clave explícitas
         kw_parsed = parse_keywords(inquiry)
         corrected = ", ".join(kw_parsed)
         field_obj = all_fields[0] if all_fields else campo_neutro
-        field_id = field_obj.get("id") or PROFILE.id
+        field_id = field_obj.get("id") or profile.field_profile.id
         heard_as = f"Búsqueda por descriptores: {corrected}"
         listen_mode = "deterministic_keywords"
         query_keywords = kw_parsed
@@ -110,7 +109,7 @@ def librarian_assist(payload: dict = Body(...)):
         # Lenguaje natural -> Bibliotecario
         heard_res = librarian.listen(inquiry, all_fields)
         corrected = heard_res.get("corrected") or inquiry
-        field_id = heard_res.get("field_id") or (all_fields[0].get("id") if all_fields else PROFILE.id)
+        field_id = heard_res.get("field_id") or (all_fields[0].get("id") if all_fields else profile.field_profile.id)
         heard_as = heard_res.get("heard_as") or f"Ah, lo que usted busca es {corrected}"
         listen_mode = heard_res.get("mode", "deterministic")
         # Salida de campo: la consulta no pertenece al campo activo. Se declara en lugar de

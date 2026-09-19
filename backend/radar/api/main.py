@@ -28,7 +28,7 @@ from .routers import (
 from .scheduler import build_scheduler
 
 log = logging.getLogger("radar.api")
-PROFILE = profile.field_profile
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,8 +51,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title=f"Thinkuy API — {PROFILE.name}",
-    description=f"Radar de comunicación científica para el campo «{PROFILE.name}».\n"
+    title=f"Thinkuy API — {profile.field_profile.name}",
+    description=f"Radar de comunicación científica para el campo «{profile.field_profile.name}».\n"
                 "Filosofía: «No busques el paper. Deja que el paper te encuentre.»",
     version=config.VERSION,
     lifespan=lifespan,

@@ -11,7 +11,7 @@ from ... import config, db, network, profile, tracker
 
 router = APIRouter(tags=['admin'])
 log = logging.getLogger('radar.api.admin')
-PROFILE = profile.field_profile
+
 
 def _collect_route_paths(obj) -> set[str]:
     rutas = set()
@@ -61,8 +61,8 @@ def health(request: Request = None):
             "status": "ok",
             "version": config.VERSION,
             "filosofia": "No busques el paper. Deja que el paper te encuentre.",
-            "field": PROFILE.field_label,
-            "profile": PROFILE.id,
+            "field": profile.field_profile.field_label,
+            "profile": profile.field_profile.id,
             "build": build_fingerprint(request.app if request else None),
             "stats": st,
         }
@@ -72,10 +72,10 @@ def health(request: Request = None):
 
 @router.get("/api/field")
 def field_info():
-    active_db = db.db_path_for_field(PROFILE.id)
+    active_db = db.db_path_for_field(profile.field_profile.id)
     return {
-        "field": PROFILE.id,
-        "name": PROFILE.field_label,
+        "field": profile.field_profile.id,
+        "name": profile.field_profile.field_label,
         "available": profile.available_fields(),
         "db": str(active_db),
     }
@@ -83,19 +83,23 @@ def field_info():
 
 @router.post("/api/field/set")
 def field_set(payload: dict = Body(...)):
-    """Cambia el campo activo en runtime (recarga perfil)."""
-    global PROFILE
+    """Cambia el campo activo en runtime (recarga perfil).
+
+    El perfil activo vive SOLO en `profile.field_profile`; ningún módulo guarda
+    su propia copia, para que el cambio se propague a lectura y escritura.
+    """
     field_id = str(payload.get("field") or "").strip()
     if field_id not in profile.available_fields():
         raise HTTPException(404, f"Perfil «{field_id}» no encontrado")
-    PROFILE = profile.reload(field_id)
+    profile.reload(field_id)
     active_db = db.db_path_for_field(field_id)
     network.invalidate_network_cache()
     conn = db.connect_for_field(field_id)
     db.init_db(conn)
     db.rebuild_anchor_signals(conn)
     conn.close()
-    return {"ok": True, "field": PROFILE.id, "name": PROFILE.field_label, "db": str(active_db)}
+    return {"ok": True, "field": profile.field_profile.id,
+            "name": profile.field_profile.field_label, "db": str(active_db)}
 
 
 @router.get("/api/doi/track")

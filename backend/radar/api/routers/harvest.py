@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 
 from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Query
 
@@ -14,11 +15,13 @@ from ..common import (
 router = APIRouter(tags=['harvest'])
 log = logging.getLogger('radar.api.harvest')
 
-_harvest_lock = False
+# Lock de proceso (no booleano): `acquire(blocking=False)` es atómico, así que dos
+# peticiones simultáneas no pueden colarse. El booleano anterior tenía carrera.
+_harvest_lock = threading.Lock()
+
 
 def _execute_harvest_task(sources_list: list[str], days: int):
     """Tarea ejecutada en segundo plano para no congelar el servidor FastAPI."""
-    global _harvest_lock
     try:
         from ...harvester.pipeline import run_pipeline
         log.info("Iniciando cosecha en segundo plano (días=%d, fuentes=%s)", days, sources_list)
@@ -29,7 +32,7 @@ def _execute_harvest_task(sources_list: list[str], days: int):
     except Exception as e:
         log.error("Error durante la cosecha en segundo plano: %s", e)
     finally:
-        _harvest_lock = False
+        _harvest_lock.release()
 
 
 @router.get("/api/watch")
@@ -100,12 +103,14 @@ def watch_new(wid: int, mark: int = Query(0, ge=0, le=1),
 
 @router.post("/api/harvest/run")
 def run_harvest(background_tasks: BackgroundTasks, days: int = Query(90, ge=1), sources: str = "scielo,crossref"):
-    global _harvest_lock
-    if _harvest_lock:
+    if not _harvest_lock.acquire(blocking=False):
         raise HTTPException(409, "Ya hay una cosecha en curso en segundo plano")
-    _harvest_lock = True
     sources_list = [s.strip() for s in sources.split(",") if s.strip()]
-    background_tasks.add_task(_execute_harvest_task, sources_list, days)
+    try:
+        background_tasks.add_task(_execute_harvest_task, sources_list, days)
+    except Exception:
+        _harvest_lock.release()
+        raise
     return {
         "status": "started",
         "message": "Cosecha iniciada en segundo plano. El servidor continuará respondiendo con normalidad.",
@@ -121,7 +126,7 @@ def harvest_status():
     try:
         last = conn.execute("SELECT * FROM harvest_log ORDER BY id DESC LIMIT 5").fetchall()
         return {
-            "running": bool(_harvest_lock),
+            "running": _harvest_lock.locked(),
             "recent_logs": [dict(r) for r in last],
         }
     finally:

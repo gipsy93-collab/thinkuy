@@ -34,6 +34,10 @@ entrenamiento/
 _BACKUP_FASE0/
 *.bak
 
+# --- Archivo de lo superado (se conserva en disco; solo se versiona el manifiesto) ---
+_ARCHIVE/*
+!_ARCHIVE/MANIFIESTO.md
+
 # --- Sesión de OpenCode (estado local, no fuente) ---
 .opencode/
 

@@ -24,7 +24,6 @@ from ..common import (
 
 router = APIRouter(tags=['feed'])
 log = logging.getLogger('radar.api.feed')
-PROFILE = profile.field_profile
 
 @router.get("/api/feed")
 def feed(
@@ -186,10 +185,10 @@ def article(doi: str):
 @router.get("/api/cfp")
 def cfp():
     return {
-        "field": PROFILE.name,
-        "cfps": PROFILE.cfps,
-        "cfp": PROFILE.first_cfp(),
-        "axes": PROFILE.editorial_axes,
+"field": profile.field_profile.name,
+                "cfps": profile.field_profile.cfps,
+                "cfp": profile.field_profile.first_cfp(),
+                "axes": profile.field_profile.editorial_axes,
     }
 
 
@@ -206,9 +205,9 @@ def widget_feed(
         profile_data = _field_profile(conn)
         arts = _query_articles(conn, days, [], [], order="pub_date", max_rows=500)
         ranked = rank_conversation(arts, profile_data, mode=mode)[:limit]
-        cfp = PROFILE.first_cfp()
+        cfp = profile.field_profile.first_cfp()
         return {
-            "field": PROFILE.name,
+            "field": profile.field_profile.name,
             "mode": mode,
             "lang": lang,
             "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -355,7 +354,7 @@ def authors(sort: str = Query("new", pattern="^(new|emerging|active)$"),
 @router.get("/api/topics")
 def topics_list():
     """Campos canónicos de conocimiento del perfil activo."""
-    return {"field": PROFILE.name, "fields": topics.fields()}
+    return {"field": profile.field_profile.name, "fields": topics.fields()}
 
 
 @router.get("/api/anchors/articles")

@@ -18,9 +18,6 @@ _http = httpx.Client(
     timeout=45.0,
 )
 
-_harvest_lock = False  # guard simple contra corridas concurrentes
-
-
 def _extract_owner_id(request: Request, explicit_owner: str | None = None) -> str:
     """Extrae el identificador de usuario para aislamiento multiusuario.
 
