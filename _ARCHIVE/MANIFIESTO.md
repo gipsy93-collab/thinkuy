@@ -50,3 +50,18 @@
 | Lanzadores de entrenamiento | `entrenar_qwen_1_5b.bat`, `entrenar_qwen_v2_cot.bat`, `exportar_a_gguf.bat`, `iniciar_unsloth_studio.bat`, `probar_modelo_entrenado.bat` (raíz) | `entrenamiento/` | Dejar la raíz solo con `inicio.bat` (servidor). Los `.bat` añaden `cd /d "%~dp0.."`. |
 
 > `scripts/dev_check.ps1` **no** se movió: es de desarrollo/operación y permanece en `scripts/`.
+
+### 2026-09-19 — Reorganización Fase 2C (herramientas superadas)
+
+19 scripts de `tools/` movidos a `_ARCHIVE/tools_superados/`. Criterio: **sin referencia externa**
+(ni `.bat`, ni docs, ni código) **y** superados por un sucesor. Los vigentes siguen en `tools/`
+(ver `tools/README.md`).
+
+| Archivado | Superado por / motivo |
+| :--- | :--- |
+| `build_epistemic_dataset_v2_cot.py` | `build_epistemic_dataset_v3_hard_negatives.py` (v3) |
+| `benchmark_full_333_tripartite.py`, `benchmark_three_models_live.py`, `compare_qwen_base.py`, `compare_qwen_vs_mistral.py`, `compare_three_models.py` | `benchmark_three_models_rigorous.py` + `robust_tripartite_eval.py` |
+| `replicate_full_wos_thinkuy.py`, `replicate_duque_review.py`, `blind_benchmark_duque.py`, `process_wos_native.py` | `replicate_full_scopus_and_merge_thinkuy.py` |
+| `run_training_with_monitor.py` | `entrenamiento/entrenar_qwen_v2_cot.bat` + `train_monitor_dashboard.py` |
+| `eval_rsu_duque_fine_tuned.py`, `audit_raw_thinkuy_v2.py`, `audit_real_paper.py`, `hunt_10_refutations.py`, `demo_live_probe_epistemic.py`, `test_gemma4_prompt.py` | Diagnósticos de una sola vez / linaje de modelo antiguo |
+| `corregir_mojibake_docs.py`, `gen_seed.py` | Utilidades puntuales ya aplicadas |
