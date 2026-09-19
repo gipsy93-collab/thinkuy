@@ -3572,3 +3572,49 @@ a `_ARCHIVE/` con su **`MANIFIESTO.md`** (nada se borra). `.gitignore` versiona 
 **Artefactos:** `pyproject.toml`, `backend/conftest.py`, `scripts/dev_check.ps1`,
 `tools/bump_pwa_version.py`, `backend/test_field_db.py`, `_ARCHIVE/MANIFIESTO.md`.
 
+---
+
+## Hito 64: El entorno de trabajo, ordenado sin perder nada - 19 de septiembre de 2026
+
+> **Encargo:** «hay carpetas por todo lado, archivos por fuera, versiones de una y re-versiones
+> de esas mismas… organice todo sin perder nada». Regla: **nada se borra**; lo superado se
+> archiva con motivo y sustituto en `_ARCHIVE/`.
+
+### 1. La raíz queda para lo esencial
+
+De **20 archivos sueltos** en la raíz a **14**, solo configuración y puntos de entrada:
+`AGENTS.md`, `README.md`, `.gitignore`, `.dockerignore`, `.env.example`, `Dockerfile`,
+`docker-compose.yml`, `pyproject.toml` e `inicio.bat` (único lanzador: el servidor).
+
+| Movimiento | De | A |
+| :--- | :--- | :--- |
+| Copias de raíz idénticas a `docs/` | `ARQUITECTURA_…`, `ARTEFACTO_…`, `BITACORA_…` | `_ARCHIVE/docs_duplicados/` |
+| Backup y cachés generadas | `_BACKUP_FASE0/`, `unsloth_compiled_cache/`, `_unsloth_sentencepiece_temp/` | `_ARCHIVE/fase0_backup/`, `_ARCHIVE/caches/` |
+| Documento vivo | `AJUSTES PY.md` | `docs/AJUSTES_PY.md` |
+
+**La bitácora pasa a copia canónica única** en `docs/` (la de raíz se archivó); `AGENTS.md` y
+`docs/INFORME_EJECUTIVO_…` apuntan ya a esa ruta.
+
+### 2. `entrenamiento/` agrupa el pipeline de ML
+
+`scripts/` (25 archivos: pipeline numerado `02_`…`10_`, utilidades de dataset y `_LEGACY/`) →
+`entrenamiento/scripts/`. Los cinco `.bat` de entrenamiento se mueven a `entrenamiento/` y
+añaden `cd /d "%~dp0.."`, de modo que pueden lanzarse con doble clic conservando sus rutas
+relativas. `scripts/dev_check.ps1` **no** se movió: es de operación y vive en `scripts/`.
+
+### 3. `tools/` conserva solo lo vigente
+
+De 71 scripts a **52**. Se archivaron **19** sin referencia externa y con sucesor documentado
+(comparativas antiguas, datasets v1/v2, replicaciones parciales, diagnósticos de una sola vez).
+`tools/README.md` es el índice por función y lista los archivados con su sustituto.
+
+### 4. Verificación
+
+`dev_check` → **OK** (ruff limpio, **253/253** pruebas, assets PWA coherentes);
+`docker compose config` → **OK**. La reorganización **no tocó** `backend/`, `pwa/`, `profiles/`
+ni los datos. Nada se perdió: todo lo retirado está en `_ARCHIVE/` con su manifiesto.
+
+**Commits:** `50b6ca5` (2A), `8eba69f` (2B), `e557923` (2C).
+
+**Artefactos:** `_ARCHIVE/MANIFIESTO.md`, `entrenamiento/README.md`, `tools/README.md`.
+
