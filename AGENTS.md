@@ -114,8 +114,8 @@ El agente que continúe el trabajo en este espacio de trabajo DEBE tener present
    - Selector Dual de Persona en Home: **Modo Investigador** (manuscrito, vacíos, citas y DOI) vs. **Modo Revista / Editorial** (benchmarking y SCIVIS).
    - Telemetría de cabecera conectada a: `Sonda Federada: OpenAlex · OpenAIRE · Dialnet` | `Acceso Abierto Global • Políticas UE • Iberoamérica`.
    - Inicialización limpia con `initEpistemicTabs()` asegurando arranque íntegro del Service Worker.
-   - Versión actual de assets y Service Worker: **`thinkuy-v68` (`v=5.44`)**.
-   - Suite de pruebas de backend: **242/242 tests pasando al 100% en verde** (`pytest backend/ -v --tb=short --ignore=backend/scratch`).
+   - Versión actual de assets y Service Worker: **`thinkuy-v69` (`v=5.45`)**. Se mantiene con `python tools/bump_pwa_version.py` (fuente única; `--check` falla si `index.html` y `sw.js` se desincronizan).
+   - Suite de pruebas de backend: **253/253 tests en verde** (`pytest`; config en `pyproject.toml`, aislamiento de datos en `backend/conftest.py`). Verificación completa: `powershell -File scripts/dev_check.ps1` (ruff + pytest + versión).
    - Arquitectura del backend **modularizada** (19-09-2026): `radar/api/` (`main` + `common` + `auth` + `routers/` con 9 subrouters), `radar/scivis/` (5 módulos) y `radar/db/` (7 módulos), con re-exportaciones para retrocompatibilidad.
    - **Aislamiento multiusuario** por `owner_id` en protocolos/cribado/charting + token JWT HS256 (`radar/api/auth.py`). **Límite declarado:** `X-User-Id` no se verifica y el cajón `owner_id='default'` es compartido; para instancia abierta hay que **exigir Bearer y definir `THINKUY_SECRET_KEY`** (ver Hito 58 y `docs/DESPLIEGUE_MULTIUSUARIO.md`).
 

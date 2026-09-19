@@ -3493,3 +3493,82 @@ están ignorados por git.
 
 **Artefactos:** `.gitignore`, repositorio `.git/`, commit `8cb0b52`.
 
+---
+
+## Hito 62: Guardrails: la red que atrapa el desorden antes que el usuario - 19 de septiembre de 2026
+
+> **Encargo:** «la herramienta es un desorden y ese desorden nos lleva a errores». Antes de
+> arreglar nada, se instala una red que impida que el desorden vuelva y que **encuentre los
+> errores que ya existen**.
+
+### 1. Linter (ruff) con reglas conservadoras
+
+`pyproject.toml` con `select = ["E9", "F", "I"]` (errores reales, imports muertos, orden).
+Al correrlo sobre `backend/` aparecieron **5 nombres indefinidos (F821)** que las pruebas no
+tocaban porque el camino estaba envuelto en `try/except`:
+
+| Bug latente | Ubicación |
+| :--- | :--- |
+| `Any` sin importar | `citation_graph.py:153` |
+| `urllib.parse` sin `import urllib` | `scivis/common.py:164` |
+| `_domain_candidates` y `_get_proximity_radius` perdidos al partir `scivis.py` | `scivis/editorial.py:336,356,614` |
+
+Tras corregirlos y aplicar `ruff --fix` (406 correcciones seguras: imports muertos, orden,
+redefiniciones) y retirar a mano 14 asignaciones muertas (F841), **`ruff check backend` pasa
+en limpio**.
+
+### 2. Pruebas herméticas y completas
+
+`backend/conftest.py` aísla `THINKUY_DATA_DIR` en un directorio temporal **con copia de los
+catálogos**: las pruebas leen datos reales pero **escriben solo en la copia** (regla AGENTS:
+una verificación no altera producción). Al aislar se destaparon **3 pruebas que dependían del
+catálogo real** y ahora son autosuficientes. Se añade `tests_*.py` al descubrimiento: `tests_matching.py`
+pasa a `test_matching.py`. **242 → 253 pruebas.**
+
+### 3. Una sola fuente para la versión de los assets
+
+`tools/bump_pwa_version.py` mantiene alineados `index.html` y `sw.js` (asset `?v=` y `CACHE`) y
+**falla con código 1 si hay desfase**. Corrige el error medido: `index.html` pedía `app.js?v=5.45`
+mientras `sw.js` cacheaba `?v=5.44` (el respaldo offline devolvía error). Estado actual:
+**`v=5.45`, caché `thinkuy-v69`**.
+
+### 4. Un comando que lo verifica todo
+
+`scripts/dev_check.ps1`: ruff + pytest + coherencia de versión. Sale con 1 si algo falla.
+
+---
+
+## Hito 63: Los errores que el desorden ya estaba causando - 19 de septiembre de 2026
+
+> Cuatro fallos reales, con su prueba de regresión.
+
+### 1. El cambio de campo no cambiaba los datos
+
+`db.connect()` abría siempre `config.DB_PATH`; solo `POST /api/field/set` usaba la DB del campo.
+Ahora `db.connect()` resuelve la **DB del campo activo** (`db/_connection._active_field_id`), y
+`test_field_db.py` lo verifica: con el campo `general` lee `radar.db`; con `salud_publica`, lee
+`radar_salud_publica.db`.
+
+### 2. Cuatro verdades del mismo perfil
+
+`PROFILE` estaba copiado en `main.py`, `admin.py`, `feed.py` y `librarian.py`; al cambiar de campo
+solo se actualizaba una. Eliminadas las cuatro copias: **todo lee `profile.field_profile`**.
+
+### 3. Un candado con carrera
+
+`_harvest_lock` era un booleano (`if _harvest_lock: ... _harvest_lock = True`) y estaba duplicado
+(muerto en `api/common.py`, vivo en `harvest.py`). Reemplazado por **`threading.Lock` con
+`acquire(blocking=False)`**, atómico; el candado muerto se retiró.
+
+### 4. Residuos al archivo
+
+`.bak` del split, `backend/data/`, `backend/radar.db` (0 B) y el bytecode de Python 3.11 se movieron
+a `_ARCHIVE/` con su **`MANIFIESTO.md`** (nada se borra). `.gitignore` versiona solo el manifiesto.
+
+### Estado
+
+**253/253 pruebas** y `ruff check backend` en limpio; `scripts/dev_check.ps1` → **OK**.
+
+**Artefactos:** `pyproject.toml`, `backend/conftest.py`, `scripts/dev_check.ps1`,
+`tools/bump_pwa_version.py`, `backend/test_field_db.py`, `_ARCHIVE/MANIFIESTO.md`.
+
