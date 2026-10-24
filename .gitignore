@@ -29,7 +29,13 @@ backend/scratch_*.py
 models/
 unsloth_compiled_cache/
 _unsloth_sentencepiece_temp/
-entrenamiento/
+# Los scripts y docs de entrenamiento SÍ se versionan; los artefactos no.
+entrenamiento/**/modelos/
+entrenamiento/**/outputs/
+entrenamiento/**/*.gguf
+entrenamiento/**/*.safetensors
+entrenamiento/**/*.bin
+entrenamiento/**/*.pt
 
 # --- Backups locales de migración ---
 _BACKUP_FASE0/
