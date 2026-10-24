@@ -3911,3 +3911,100 @@ columnas, `textarea` 54 px, radio 14 px); `smoke_pwa` → **OK**; `dev_check` �
 
 **Artefactos:** `pwa/js/review.js` (fichas + auto-crecimiento), `pwa/css/style.css` (estilos de ficha).
 
+---
+
+## Hito 72: El orden de los resultados se somete a juicio — el re-ranker BGE-M3 se mide y se enciende — 22 de septiembre de 2026
+
+> **Pregunta del IP:** «¿cada vez nos acercamos al funcionamiento óptimo? Los resultados de mi
+> búsqueda sí que son más… ¿finos? ¿pertinentes? mejores».
+
+La respuesta honesta exigía separar dos cosas: **fiabilidad/cobertura** (mejorada y medida) y
+**pertinencia del orden** (hasta aquí, sin medir). Este hito cierra la segunda con evidencia.
+
+### 1. Lo que no se podía afirmar sin medir
+
+El motor recuperaba bien, pero el **orden** de los resultados nunca se había contrastado con el
+criterio del investigador. Añadir un re-ranker semántico sin esa línea base habría sido fe.
+
+### 2. Dos mediciones independientes
+
+**(a) Prueba rápida** (1 consulta, unión de los 10 primeros de cada orden, juicio del IP):
+
+| | Tus 3 primeros |
+| :--- | :--- |
+| Orden actual (sonda) | **0 de 3** relevantes (cambio climático, sostenibilidad, autonomía universitaria) |
+| Ordenado (BGE-M3) | **3 de 3** relevantes (marcos normativos, participación ciudadana, tecnocracia) |
+
+**(b) Prueba real** (protocolo **117 «CIENCIA CIUDADANA Y MARCOS NORMATIVOS»**, 29 obras cribadas
+con criterio por el IP: 9 incluidas / 16 excluidas / 4 dudosas; consulta
+`("ciencia ciudadana" OR "ciencia participativa") AND (gobernanza OR "política pública")`):
+
+| Aciertos en el top-K | Orden de llegada | Ordenado (BGE-M3) |
+| :--- | ---: | ---: |
+| @5 | 0,60 | 0,60 |
+| **@10** | 0,40 | **0,60** |
+| **@15** | 0,33 | **0,53** |
+| **@20** | 0,30 | **0,45** |
+
+El re-ranker mete **6 incluidas en el top-10** frente a 4, y empuja abajo lo irrelevante. La
+ganancia está **de la posición 5 a la 20** —justo la franja que se criba—; en la cabeza hay empate.
+
+### 3. El dispositivo
+
+`radar/rerank.py`: reordenación por similitud **híbrida** (denso + léxico) y sugerencia de
+vecindarios por similitud. **Opcional y degradable**: si el modelo no está, devuelve el orden
+original y lo **declara**; el servidor no depende de torch ni numpy. Bandera `THINKUY_RERANK`,
+extra opcional `backend/requirements-rerank.txt`. Es una **señal de ordenación, no una decisión**.
+
+Dos fallos de entorno corregidos: `max_seq_length=512` (el 8192 por defecto colgaba al codificar
+106 textos) y `local_files_only=True` (la comprobación del Hub se colgaba en Windows).
+
+### 4. Decisión: se enciende
+
+Instalado el extra en el entorno del servidor (`torch 2.14`, `sentence-transformers 6.1`); el
+modelo BGE-M3 ya estaba en caché (carga en 3,1 s). **Encendido en `inicio.bat`**
+(`set THINKUY_RERANK=bge-m3`), con la medición anotada como comentario.
+
+### 5. Límite declarado
+
+Una consulta y 29 obras en la prueba real: evidencia **suficiente para encenderlo**, no para
+declararlo óptimo; en el top-5 no hay ganancia. La herramienta queda lista para **repetir la
+medición** sobre las próximas cribas.
+
+**Verificación:** `dev_check` → OK (ruff limpio, **299/299**). PWA en **`v=5.63` / `thinkuy-v87`**.
+
+**Artefactos:** `backend/radar/rerank.py`, `backend/requirements-rerank.txt`, `backend/radar/config.py`
+(bandera), `backend/radar/harvester/live_probe.py` (integración), `inicio.bat`,
+`tools/probe_precision.py`, `tools/measure_rerank.py`, `data/demo/quick_label.json`.
+
+> **Nota de sesión (pendiente de desarrollar en hitos propios):** la misma jornada produjo otros
+> avances ya registrados en `AGENTS.md` pero **no** desglosados aquí — diagrama PRISMA 2020 con
+> segunda etapa y checklist de 27 ítems; deduplicación por título casi idéntico; ruta de texto
+> completo de acceso abierto (85% medido); corrección del timeout de la PWA (26,8 s vs 20 s) y de
+> los comodines `?`/`*` en OpenAlex; snowballing **en vivo**; y grafo de escuelas/SPC **en vivo
+> sobre corpus curado**. Se dejan anotados para no perderlos.
+
+### 6. Ajustes de ingeniería para que el re-ranker sea viable (mismo día)
+
+Encenderlo destapó dos problemas que **no** eran del modelo:
+
+1. **El `pip` instaló torch CPU** (`2.14.0+cpu`): reordenar tardaba **63 s** y los vecindarios
+   **39 s**, y el cosechado de la consulta ampliada **se canceló a los 180 s**. Se reinstaló
+   **`torch 2.11.0+cu128`** (`--index-url https://download.pytorch.org/whl/cu128 --force-reinstall`;
+   el `--upgrade` no basta, pip no cambia la etiqueta local) → GPU disponible, **~3 s** por
+   reordenación (la carga del modelo, ~16-18 s, ocurre **una sola vez por proceso**). Además:
+   - `rerank_y_vecindarios()` codifica **una sola vez** (antes rerank y vecindarios codificaban por
+     separado, duplicando el coste);
+   - `rerank.precargar()` carga el modelo en el `lifespan`, así la **primera búsqueda** no lo paga;
+   - los `timeoutMs` del cliente suben a **180 s** (home) y **300 s** (harvest).
+
+2. **Colisión de DOI al minusculizar**: el catálogo tenía `openalex:W7117640167` y
+   `openalex:w7117640167` como **dos obras** (el DOI sintético del cosechado no se minusculizaba).
+   La migración `_migrate_screening_links` hacía `UPDATE articles SET doi = LOWER(doi)` y lanzaba
+   **`IntegrityError`** —que **no** es `OperationalError`, así que **no se capturaba** y **abortaba
+   `init_db`**: el servidor no habría arrancado. Corregido: el `UPDATE` **se salta** las filas que
+   chocarían (no destructivo) y se captura `sqlite3.Error`; el cosechado **minusculiza** los DOI
+   sintéticos. Quedan esas 2 filas duplicadas (inofensivas), fusionables a mano.
+
+**Verificación:** `dev_check` → OK (ruff limpio, **301/301**). PWA en **`v=5.64` / `thinkuy-v88`**.
+

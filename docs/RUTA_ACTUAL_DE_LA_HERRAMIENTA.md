@@ -2,6 +2,9 @@
 
 > Fecha: 18-09-2026 · Verificado contra el código, no contra la intención.
 > Levanta en `http://localhost:8000/app/` (PWA) · `run_server.py` inicia el servidor y un refresco del catálogo cada 6 h.
+>
+> **Actualización 22-09-2026 — la «pared» de la Ruta 2 quedó resuelta para el acceso abierto.**
+> `radar/harvester/fulltext_oa.py` implementa la escalera **medida** (Unpaywall `url_for_pdf` → DOI → `citation_pdf_url`, **85% de cobertura** en muestra aleatoria de 60 iberoamericanos; sonda `tools/probe_fulltext_routes.py`), y `POST /api/fulltext/fetch-oa/{doi}` (botón «Traer texto completo (OA)» en la tarjeta de cribado) la ingesta con PyMuPDF. Los apartados marcados «NO EXISTE» más abajo describen el estado del 18-09 y se conservan como registro histórico.
 
 ## El dibujo
 
@@ -80,9 +83,9 @@ Aquí está la frontera que usted detectó. Para analizar **cómo se cita** hace
 | `POST /api/fulltext/extract-pdf` | ✅ **la que se usa** | Usted sube el PDF; se convierte a secciones + contextos |
 | `POST /api/fulltext` | ✅ | Usted pega el texto ya limpio |
 | `harvester/fulltext_auto.py` (Europe PMC) | ⚠️ **existe pero NO está conectado** | Nadie lo llama: no hay endpoint ni tarea programada. Solo biomédico |
-| SciELO / Redalyc / OJS | ❌ **no existe** | No hay ruta automática al cuerpo en el diamante iberoamericano |
+| SciELO / Redalyc (PDF abierto) | ✅ **22-09-2026** | `fulltext_oa.resolve_pdf`: Unpaywall → DOI `citation_pdf_url`. OJS sigue sin ruta automática |
 
-Y un detalle revelador: **Unpaywall sí se ejecuta** en la cosecha (`pipeline.py`, paso 9): guarda en cada artículo el **estado de acceso abierto y la URL del mejor PDF abierto**… pero **nadie descarga ese PDF**. El propio módulo lo declara: *«nunca se descargan PDFs»*.
+Y un detalle revelador: **Unpaywall sí se ejecuta** en la cosecha (`pipeline.py`, paso 9): guarda en cada artículo el **estado de acceso abierto y la URL del mejor PDF abierto**… pero **nadie descarga ese PDF**. El propio módulo lo declara: *«nunca se descargan PDFs»*. **(Resuelto el 22-09-2026:** `fulltext_oa.resolve_pdf` ahora descarga el PDF, valida que el cuerpo sea `%PDF` y cae a la ficha del editor si Unpaywall sirve HTML; Unpaywall dejó de ser solo una URL guardada.**)**
 
 ## La pared, en una frase
 

@@ -1,0 +1,21 @@
+# Normalización de finales de línea (evita el ruido LF/CRLF en cada diff)
+* text=auto
+
+*.py    text diff=python
+*.js    text
+*.css   text
+*.html  text
+*.md    text
+*.json  text
+*.yml   text
+*.toml  text
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+
+# Binarios
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.ico   binary
+*.db    binary
+*.docx  binary
