@@ -48,9 +48,13 @@ KNOWN_JOURNAL_DOMAINS: Dict[str, str] = {
 }
 
 
-def _get_db_conn(db_path: str = config.DB_PATH) -> sqlite3.Connection:
-    """Abre conexión SQLite registrando la función personalizada de normalización."""
-    conn = sqlite3.connect(db_path)
+def _get_db_conn(db_path: Optional[str] = None) -> sqlite3.Connection:
+    """Abre conexión SQLite registrando la función personalizada de normalización.
+
+    `config.DB_PATH` se resuelve en la llamada, no al importar: si se fija por defecto
+    en la firma, un cambio de configuración (o una prueba) seguiría abriendo la base vieja.
+    """
+    conn = sqlite3.connect(db_path or config.DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.create_function("norm", 1, norm)
     return conn

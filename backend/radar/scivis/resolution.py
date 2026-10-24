@@ -119,7 +119,7 @@ def _probe_url_for_journal_meta(
     url_or_domain: str,
     domain: str,
     segment: Optional[str],
-    db_path: str = config.DB_PATH,
+    db_path: Optional[str] = None,
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Intenta extraer el título e ISSN reales de una revista a partir de su URL o dominio:
@@ -127,6 +127,7 @@ def _probe_url_for_journal_meta(
     2. Si es URL accesible, sondea levemente la cabecera/HTML para extraer ISSNs reales.
     3. Coteja los ISSNs hallados con la base de datos local Latindex (journals).
     """
+    db_path = db_path or config.DB_PATH
     conn = _get_db_conn(db_path)
     try:
         # 1. Artículos locales coincidentes
@@ -261,7 +262,7 @@ def _probe_url_for_journal_meta(
 
 
 def resolve_journal_domain_and_meta(
-    query: str, db_path: str = config.DB_PATH
+    query: str, db_path: Optional[str] = None
 ) -> Tuple[Optional[str], Dict[str, Any]]:
     """
     Identifica la revista y SU DOMINIO CANÓNICO a partir de la consulta.
@@ -278,6 +279,7 @@ def resolve_journal_domain_and_meta(
     catalog_url / openalex_homepage / none) y `shared_host` (aviso de atribución si el dominio
     es un portal institucional compartido).
     """
+    db_path = db_path or config.DB_PATH
     q = query.strip()
     q_norm = norm(q)
 

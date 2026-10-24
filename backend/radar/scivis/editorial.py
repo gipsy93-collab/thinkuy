@@ -37,7 +37,7 @@ from .links import (
 from .resolution import resolve_journal_domain_and_meta
 
 
-def get_local_catalog_metrics(journal_title: str, db_path: str = config.DB_PATH) -> Dict[str, Any]:
+def get_local_catalog_metrics(journal_title: str, db_path: Optional[str] = None) -> Dict[str, Any]:
     """Obtiene métricas reales y auditables de la revista en el catálogo local SQLite.
 
     El conteo usa coincidencia EXACTA normalizada del título de la revista; el LIKE por
@@ -88,7 +88,7 @@ def get_local_catalog_metrics(journal_title: str, db_path: str = config.DB_PATH)
 def get_dominant_and_emerging_topics(
     journal_title: str = "",
     field: str = "",
-    db_path: str = config.DB_PATH
+    db_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Extrae temas dominantes y emergentes a partir de frecuencias reales de palabras clave
@@ -162,7 +162,7 @@ def get_dominant_and_emerging_topics(
 def find_editors_and_reviewers(
     topic_or_journal: str,
     limit: int = 5,
-    db_path: str = config.DB_PATH
+    db_path: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Identifica autores e investigadores reales a partir de los artículos registrados
@@ -254,7 +254,7 @@ def get_competitor_benchmarking(
     category_or_query: str,
     target_journal: str = "",
     limit: int = 6,
-    db_path: str = config.DB_PATH
+    db_path: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Devuelve revistas comparables reales indizadas en el catálogo local SQLite,
@@ -367,7 +367,7 @@ def get_competitor_benchmarking(
 
 def audit_journal_ecosystem(
     query: str,
-    db_path: str = config.DB_PATH,
+    db_path: Optional[str] = None,
     refresh: bool = False,
 ) -> Dict[str, Any]:
     """
@@ -556,7 +556,7 @@ def audit_journal_ecosystem(
 _SCIVIS_RANKING_CACHE: Dict[str, Any] = {}
 
 
-def get_scivis_ranking(limit: int = 15, db_path: str = config.DB_PATH) -> List[Dict[str, Any]]:
+def get_scivis_ranking(limit: int = 15, db_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Ranking cibermétrico SCIVIS: revistas del catálogo ordenadas por su Centralidad
     Armónica oficial en el Web Graph de Common Crawl (mejor rank primero).
@@ -564,6 +564,7 @@ def get_scivis_ranking(limit: int = 15, db_path: str = config.DB_PATH) -> List[D
     se excluyen explícitamente (nunca se les asigna un rank estimado).
     Resultado memoizado 1 h (el release no cambia entre consultas).
     """
+    db_path = db_path or config.DB_PATH
     global _SCIVIS_RANKING_CACHE
     cache_key = f"{db_path}:{CC_DOMAIN_RANKS_DB}"
     cached = _SCIVIS_RANKING_CACHE.get(cache_key)
