@@ -1,0 +1,9 @@
+# Extra OPCIONAL del re-ranker semántico (BGE-M3). NO es dependencia del servidor por defecto:
+# arrastra `torch` (~2-3 GB) y el modelo (~2,3 GB). Se instala solo si se quiere activar.
+#
+#   pip install -r backend/requirements-rerank.txt
+#   THINKUY_RERANK=bge-m3
+#
+# Sin esto, la sonda funciona igual: el re-ranker se declara como no aplicado y se conserva el
+# orden original. Ver `backend/radar/rerank.py`.
+sentence-transformers>=3.0

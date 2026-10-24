@@ -10,7 +10,7 @@ import logging
 import time
 
 from .. import config
-from ..normalize import unescape
+from ..normalize import clean_doi, unescape
 from .base import Article
 
 log = logging.getLogger("radar.openalex")
@@ -110,6 +110,74 @@ def parse_item(item: dict) -> Article | None:
         openalex_id=oaid,
         referenced_ids=refs,
     )
+
+
+def get_works_by_dois(http, dois: list[str], per_page: int = 50, timeout: float = 20.0) -> list[dict]:
+    """Obras crudas por lote de DOIs (`doi:d1|d2|...`), en trozos de 50."""
+    limpios = [clean_doi(d) for d in (dois or []) if d]
+    limpios = [d for d in limpios if d]
+    out: list[dict] = []
+    for i in range(0, len(limpios), per_page):
+        chunk = limpios[i:i + per_page]
+        try:
+            r = http.get(BASE, params={"filter": "doi:" + "|".join(chunk),
+                                       "per-page": per_page, "mailto": config.MAILTO},
+                         headers=config.openalex_headers(), timeout=timeout)
+            if r.status_code == 200:
+                out.extend(r.json().get("results") or [])
+        except Exception as e:
+            log.warning("OpenAlex lote de DOIs: %s", e)
+        time.sleep(config.REQUEST_DELAY)
+    return out
+
+
+def get_work_by_doi(http, doi: str, timeout: float = 10.0) -> dict | None:
+    """Obra cruda de OpenAlex por DOI (o None)."""
+    doi = (doi or "").strip().lower()
+    if not doi:
+        return None
+    try:
+        r = http.get(f"{BASE}/https://doi.org/{doi}", params={"mailto": config.MAILTO},
+                     headers=config.openalex_headers(), timeout=timeout)
+        if r.status_code == 200:
+            return r.json()
+    except Exception as e:
+        log.warning("OpenAlex work %s: %s", doi, e)
+    return None
+
+
+def get_works_by_ids(http, ids: list[str], per_page: int = 50, timeout: float = 20.0) -> list[dict]:
+    """Obras crudas por lote de IDs OpenAlex (`W...`), en trozos de 50."""
+    limpios = [str(i).replace("https://openalex.org/", "").strip() for i in (ids or []) if i]
+    out: list[dict] = []
+    for i in range(0, len(limpios), per_page):
+        chunk = limpios[i:i + per_page]
+        try:
+            r = http.get(BASE, params={"filter": "openalex_id:" + "|".join(chunk),
+                                       "per-page": per_page, "mailto": config.MAILTO},
+                         headers=config.openalex_headers(), timeout=timeout)
+            if r.status_code == 200:
+                out.extend(r.json().get("results") or [])
+        except Exception as e:
+            log.warning("OpenAlex lote de ids: %s", e)
+        time.sleep(config.REQUEST_DELAY)
+    return out
+
+
+def get_citing_works(http, openalex_id: str, limit: int = 25, timeout: float = 20.0) -> list[dict]:
+    """Obras crudas que citan a la dada (por id OpenAlex `W...`)."""
+    oid = str(openalex_id or "").replace("https://openalex.org/", "").strip()
+    if not oid:
+        return []
+    try:
+        r = http.get(BASE, params={"filter": f"cites:{oid}", "per-page": min(max(limit, 1), 100),
+                                   "sort": "cited_by_count:desc", "mailto": config.MAILTO},
+                     headers=config.openalex_headers(), timeout=timeout)
+        if r.status_code == 200:
+            return r.json().get("results") or []
+    except Exception as e:
+        log.warning("OpenAlex citantes de %s: %s", oid, e)
+    return []
 
 
 def harvest_issns(http, issns: list[str], date_from: str,

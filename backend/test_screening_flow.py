@@ -69,7 +69,10 @@ def test_los_conteos_prisma_son_rapidos(conn_lleno):
     transcurrido = time.time() - t0
 
     assert transcurrido < TOPE_SEGUNDOS, f"los conteos tardaron {transcurrido:.1f} s"
-    assert conteos["total_identified"] == CRIBADOS
+    # `total_identified` ahora es la identificación PRISMA (registro de búsquedas del protocolo),
+    # no el número de cribados. Los registros únicos que entraron al cribado viven en `prisma_2020`.
+    assert conteos["prisma_2020"]["cribado"]["registros_unicos"] == CRIBADOS
+    assert conteos["total_identified"] == 0, "sin búsquedas registradas no se inventa identificación"
     assert conteos["pending"] + conteos["included"] + conteos["excluded"] + conteos["maybe"] == CRIBADOS
     assert sum(conteos["sources"].values()) == CRIBADOS, "el desglose por fuente pierde filas"
     assert conteos["sources"].get("sin_articulo") == SIN_ENLAZAR, \

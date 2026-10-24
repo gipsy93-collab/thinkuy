@@ -9,7 +9,7 @@ import httpx
 from fastapi import APIRouter, Body, File, HTTPException, Query, UploadFile
 
 from ... import config, db, text_extractor
-from ...harvester import abstract_chain, unpaywall
+from ...harvester import abstract_chain
 from ..common import (
     _as_int,
 )
@@ -226,11 +226,14 @@ def fulltext_fetch_oa_endpoint(
     doi: str,
     force: bool = Query(False, description="Re-descargar aunque ya exista texto completo"),
 ):
-    """Descarga el PDF de ACCESO ABIERTO de un DOI (resuelto por Unpaywall) y lo ingesta.
+    """Descarga el PDF de ACCESO ABIERTO de un DOI y lo ingesta.
 
-    Regla legal: **solo se descarga cuando Unpaywall confirma `is_oa` y ofrece la URL del
-    mejor PDF abierto**. Es una acción explícita del investigador sobre un artículo
-    concreto, no un raspado masivo. Sin OA confirmado, no se descarga nada.
+    Escalera **medida** (sonda 22-09-2026, 85% de cobertura sobre muestra aleatoria iberoamericana):
+    Unpaywall `url_for_pdf` y, si falla, DOI -> `citation_pdf_url` de la ficha del editor.
+
+    Regla legal: **solo se descarga cuando la fuente declara acceso abierto** (Unpaywall `is_oa`
+    o plataforma de acceso abierto conocida: SciELO/Redalyc). Se consulta `robots.txt` y se valida
+    que el cuerpo sea un PDF real. Es una acción explícita del investigador, no un raspado masivo.
     """
     import tempfile
     from pathlib import Path as _Path
@@ -246,17 +249,16 @@ def fulltext_fetch_oa_endpoint(
         client = httpx.Client(headers={"User-Agent": config.USER_AGENT},
                               follow_redirects=True, timeout=60.0)
         try:
-            info = unpaywall.enrich_doi(client, doi)
-            if not info or not info.get("is_oa") or not info.get("pdf_url"):
-                return {"status": "sin_oa", "doi": doi,
-                        "detalle": "Unpaywall no ofrece PDF de acceso abierto para este DOI"}
-            pdf_url = info["pdf_url"]
-            resp = client.get(pdf_url)
-            if resp.status_code >= 400:
-                return {"status": "descarga_fallida", "doi": doi, "http": resp.status_code,
-                        "url": pdf_url}
+            from ...harvester import fulltext_oa
+            resol = fulltext_oa.resolve_pdf(client, doi)
+            body = resol.get("body")
+            pdf_url = resol.get("pdf_url")
+            if not body:
+                return {"status": "sin_oa", "doi": doi, "motivo": resol.get("motivo") or "sin_pdf",
+                        "ruta": resol.get("ruta"),
+                        "detalle": "Ninguna ruta de acceso abierto entregó un PDF"}
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                tmp.write(resp.content)
+                tmp.write(body)
                 tmp_path = tmp.name
             try:
                 extracted = text_extractor.extract_paper_to_markdown(tmp_path)
@@ -282,8 +284,9 @@ def fulltext_fetch_oa_endpoint(
             return {
                 "status": "ok",
                 "doi": doi,
-                "oa_status": info.get("oa_status"),
-                "host_type": info.get("host_type"),
+                "ruta": resol.get("ruta"),
+                "oa_status": resol.get("oa_status"),
+                "host_type": resol.get("host_type"),
                 "pdf_url": pdf_url,
                 "secciones": list((extracted.get("sections") or {}).keys()),
                 "words": extracted.get("word_count"),
@@ -441,46 +444,46 @@ def fulltext_backfill_auto_endpoint(payload: dict = Body(default={})):
                     detalles.append({"doi": doi, "status": "ok", "fuente": "europepmc_xml"})
                     continue
 
-                # Escalón B: Intentar vía PDF abierto verificado por Unpaywall
+                # Escalón B: PDF de acceso abierto por la escalera medida
+                # (Unpaywall -> DOI citation_pdf_url; sonda 22-09-2026, 85% iberoamericano).
                 try:
-                    oa_info = unpaywall.enrich_doi(client, doi)
-                    if oa_info and oa_info.get("is_oa") and oa_info.get("pdf_url"):
-                        pdf_url = oa_info["pdf_url"]
-                        resp = client.get(pdf_url)
-                        if resp.status_code == 200:
-                            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                                tmp.write(resp.content)
-                                tmp_path = tmp.name
+                    from ...harvester import fulltext_oa
+                    resol = fulltext_oa.resolve_pdf(client, doi)
+                    body = resol.get("body")
+                    if body:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                            tmp.write(body)
+                            tmp_path = tmp.name
+                        try:
+                            extracted = text_extractor.extract_paper_to_markdown(tmp_path)
+                        finally:
                             try:
-                                extracted = text_extractor.extract_paper_to_markdown(tmp_path)
-                            finally:
-                                try:
-                                    _Path(tmp_path).unlink()
-                                except Exception:
-                                    pass
-                            if extracted and extracted.get("full_text"):
-                                text_extractor.ingest_fulltext_and_contexts(
-                                    conn,
-                                    citing_doi=doi,
-                                    full_text=extracted["full_text"],
-                                    sections=extracted.get("sections"),
-                                    word_count=extracted.get("word_count"),
-                                    page_count=extracted.get("page_count"),
-                                    cited_dois=None,
-                                    references_texts=extracted.get("references"),
-                                    http=client,
-                                    auto_ingest_refs=True,
-                                )
-                                recuperados_oa_pdf += 1
-                                detalles.append({
-                                    "doi": doi,
-                                    "status": "ok",
-                                    "fuente": "unpaywall_pdf",
-                                    "oa_status": oa_info.get("oa_status"),
-                                })
-                                continue
+                                _Path(tmp_path).unlink()
+                            except Exception:
+                                pass
+                        if extracted and extracted.get("full_text"):
+                            text_extractor.ingest_fulltext_and_contexts(
+                                conn,
+                                citing_doi=doi,
+                                full_text=extracted["full_text"],
+                                sections=extracted.get("sections"),
+                                word_count=extracted.get("word_count"),
+                                page_count=extracted.get("page_count"),
+                                cited_dois=None,
+                                references_texts=extracted.get("references"),
+                                http=client,
+                                auto_ingest_refs=True,
+                            )
+                            recuperados_oa_pdf += 1
+                            detalles.append({
+                                "doi": doi,
+                                "status": "ok",
+                                "fuente": f"oa_pdf:{resol.get('ruta')}",
+                                "oa_status": resol.get("oa_status"),
+                            })
+                            continue
                 except Exception as e:
-                    log.warning("backfill-auto Unpaywall fallo para %s: %s", doi, e)
+                    log.warning("backfill-auto OA fallo para %s: %s", doi, e)
 
                 sin_oa += 1
                 detalles.append({"doi": doi, "status": "sin_oa"})

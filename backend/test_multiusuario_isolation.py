@@ -137,7 +137,9 @@ def test_screening_and_charting_isolation(client):
     assert screenings_alice["total"] == 2
 
     flow_alice = client.get(f"/api/review/protocol/{pid}/flow-diagram", headers={"X-User-Id": "alice"}).json()
-    assert flow_alice["total_identified"] == 2
+    # `total_identified` es ahora la identificación PRISMA (registro de búsquedas); los registros
+    # únicos que entraron al cribado viven en `prisma_2020.cribado.registros_unicos`.
+    assert flow_alice["prisma_2020"]["cribado"]["registros_unicos"] == 2
     assert flow_alice["included"] == 1
     assert flow_alice["excluded"] == 1
 
@@ -148,6 +150,10 @@ def test_screening_and_charting_isolation(client):
     # Bob intenta ver los screenings de Alice
     screenings_bob = client.get(f"/api/review/protocol/{pid}/screenings", headers={"X-User-Id": "bob"}).json()
     assert screenings_bob["total"] == 0
+
+    # Bob tampoco puede ver el diagrama de flujo del protocolo de Alice
+    flow_bob = client.get(f"/api/review/protocol/{pid}/flow-diagram", headers={"X-User-Id": "bob"})
+    assert flow_bob.status_code == 404
 
     # Bob intenta exportar el protocolo de Alice: el protocolo no le pertenece
     export_bob = client.get(f"/api/review/protocol/{pid}/export?format=csv", headers={"X-User-Id": "bob"})

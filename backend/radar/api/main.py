@@ -37,6 +37,14 @@ async def lifespan(app: FastAPI):
     db.init_db(conn)
     db.rebuild_anchor_signals(conn)
     conn.close()
+    # Precalienta el re-ranker si está activo: la primera codificación paga la carga del modelo
+    # (~16 s en GPU) y no debe caerle encima a la primera búsqueda del investigador.
+    try:
+        from .. import rerank as _rerank
+        if _rerank.precargar():
+            log.info("Re-ranker BGE-M3 precargado.")
+    except Exception as e:
+        log.warning("Re-ranker no precargado: %s", e)
     sched = None
     if config.AUTO_HARVEST:
         sched = build_scheduler()

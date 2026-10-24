@@ -110,6 +110,7 @@ def test_active_learning_endpoint():
     from radar.api.main import app
 
     conn = db.connect()
+    db.init_db(conn)  # el servidor migra al arrancar; aquí se hace explícito
     pid = None
     try:
         pid = db.save_protocol(

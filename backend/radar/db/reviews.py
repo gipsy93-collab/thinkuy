@@ -100,7 +100,8 @@ def list_protocols(conn: sqlite3.Connection, limit: int = 50, owner_id: str | No
     return [_protocol_parse(dict(r)) for r in rows]
 
 
-SCREENING_DECISIONS = ("pending", "included", "excluded", "maybe")
+SCREENING_DECISIONS = ("pending", "included", "excluded", "maybe", "not_retrieved")
+SCREENING_STAGES = ("title_abstract", "full_text")
 
 
 def save_screening(
@@ -112,11 +113,18 @@ def save_screening(
     article_id: int | None = None,
     screened_by: str = "researcher",
     owner_id: str = "default",
+    stage: str = "title_abstract",
 ) -> dict:
-    """Registra o actualiza la decisión de screening de un artículo en un protocolo."""
+    """Registra o actualiza la decisión de screening de un artículo en un protocolo.
+
+    `stage` distingue la etapa PRISMA 2020: `title_abstract` (por defecto) o `full_text`.
+    """
     clean = decision.strip().lower()
     if clean not in SCREENING_DECISIONS:
         raise ValueError(f"decision inválida: {decision!r} (válidas: {', '.join(SCREENING_DECISIONS)})")
+    clean_stage = str(stage or "title_abstract").strip().lower()
+    if clean_stage not in SCREENING_STAGES:
+        raise ValueError(f"stage inválido: {stage!r} (válidos: {', '.join(SCREENING_STAGES)})")
     ts = now_iso()
     norm_doi = doi.strip().lower()
     if article_id is None:
@@ -129,21 +137,21 @@ def save_screening(
             if art_row:
                 article_id = art_row["id"]
     conn.execute(
-        """INSERT INTO article_screenings (owner_id, protocol_id, article_id, doi, decision, reason, screened_by, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT(protocol_id, doi) DO UPDATE SET
+        """INSERT INTO article_screenings (owner_id, protocol_id, article_id, doi, decision, reason, screened_by, stage, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(protocol_id, doi, stage) DO UPDATE SET
              owner_id    = COALESCE(excluded.owner_id, article_screenings.owner_id),
              article_id  = COALESCE(excluded.article_id, article_screenings.article_id),
              decision    = excluded.decision,
              reason      = excluded.reason,
              screened_by = excluded.screened_by,
              created_at  = excluded.created_at""",
-        (owner_id, protocol_id, article_id, norm_doi, clean, reason, screened_by, ts),
+        (owner_id, protocol_id, article_id, norm_doi, clean, reason, screened_by, clean_stage, ts),
     )
     conn.commit()
     row = conn.execute(
-        "SELECT * FROM article_screenings WHERE protocol_id = ? AND doi = ?",
-        (protocol_id, norm_doi),
+        "SELECT * FROM article_screenings WHERE protocol_id = ? AND doi = ? AND stage = ?",
+        (protocol_id, norm_doi, clean_stage),
     ).fetchone()
     return dict(row) if row else {}
 
@@ -154,6 +162,7 @@ def list_screenings(
     decision: str | None = None,
     limit: int = 200,
     owner_id: str | None = None,
+    stage: str | None = None,
 ) -> list[dict]:
     """Lista las decisiones de screening de un protocolo unidas con los metadatos del artículo."""
     base_sql = """
@@ -166,6 +175,7 @@ def list_screenings(
             s.decision,
             s.reason,
             s.screened_by,
+            s.stage,
             s.created_at,
             COALESCE(a.title, s.doi) AS title,
             a.abstract,
@@ -187,6 +197,9 @@ def list_screenings(
     if decision:
         base_sql += " AND s.decision = ?"
         params.append(decision.strip().lower())
+    if stage:
+        base_sql += " AND s.stage = ?"
+        params.append(stage.strip().lower())
     base_sql += " ORDER BY s.id DESC LIMIT ?"
     params.append(limit)
 
@@ -222,40 +235,111 @@ def link_screening_article(
     return cur.rowcount
 
 
+def log_protocol_search(
+    conn: sqlite3.Connection,
+    protocol_id: int,
+    source: str,
+    records_identified: int = 0,
+    query: str | None = None,
+    year_from: int | None = None,
+    year_to: int | None = None,
+    owner_id: str = "default",
+) -> int:
+    """Registra una búsqueda ejecutada sobre una fuente (identificación PRISMA 2020, ítem 6).
+
+    Una fila por fuente y por búsqueda: cuántos registros devolvió la fuente, con qué consulta,
+    qué límite temporal y en qué fecha. Es la base para reconstruir la identificación y los
+    duplicados removidos del diagrama de flujo **sin inventar cifras**.
+    """
+    cur = conn.execute(
+        """INSERT INTO protocol_searches
+           (owner_id, protocol_id, source, query, year_from, year_to, records_identified, searched_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (owner_id, protocol_id, str(source), query, year_from, year_to,
+         int(records_identified or 0), now_iso()),
+    )
+    conn.commit()
+    return cur.lastrowid
+
+
+def list_protocol_searches(conn: sqlite3.Connection, protocol_id: int,
+                           owner_id: str | None = None) -> list[dict]:
+    """Historial de búsquedas de un protocolo (trazabilidad de la estrategia)."""
+    sql = "SELECT * FROM protocol_searches WHERE protocol_id = ?"
+    params: list = [protocol_id]
+    if owner_id:
+        sql += " AND (owner_id = ? OR owner_id = 'default')"
+        params.append(owner_id)
+    sql += " ORDER BY id DESC"
+    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
 def screening_flow_counts(conn: sqlite3.Connection, protocol_id: int, owner_id: str | None = None) -> dict:
-    """Genera los conteos para el diagrama de flujo PRISMA-ScR."""
+    """Conteos del diagrama de flujo PRISMA 2020 (identificación → cribado → incluidos).
+
+    Tres garantías:
+
+    - La **identificación** sale del registro de búsquedas del protocolo (`protocol_searches`),
+      no de la tabla global de artículos. Cada fuente (OpenAlex, OpenAIRE, Dialnet, importación)
+      aporta su cifra y su fecha.
+    - Los **duplicados removidos** se calculan como `identificados − registros únicos`, que es la
+      definición de PRISMA. Antes se contaba un grupo de DOI duplicados de **toda** la base y
+      siempre daba 0 (porque `articles.doi` es UNIQUE).
+    - La **segunda etapa** (texto completo) es no destructiva: si el protocolo no tiene registros
+      de texto completo, los informes buscados/evaluados/excluidos se declaran `None` y el
+      incluido de título/resumen sigue siendo el final. Si los tiene, el incluido final pasa a ser
+      el de texto completo y los recuadros de la segunda etapa se calculan de verdad.
+    """
     where_owner = " AND (owner_id = ? OR owner_id = 'default')" if owner_id else ""
     where_owner_s = " AND (s.owner_id = ? OR s.owner_id = 'default')" if owner_id else ""
     owner_param = [owner_id] if owner_id else []
 
-    total_identified = conn.execute(
-        f"SELECT COUNT(*) as n FROM article_screenings WHERE protocol_id = ?{where_owner}",
+    # Identificación: registros por fuente (suma de todas las búsquedas del protocolo)
+    ident_rows = conn.execute(
+        f"SELECT source, SUM(records_identified) AS n FROM protocol_searches "
+        f"WHERE protocol_id = ?{where_owner} GROUP BY source",
+        [protocol_id] + owner_param,
+    ).fetchall()
+    identificados_por_fuente = {r["source"]: int(r["n"] or 0) for r in ident_rows}
+    total_identificados = sum(identificados_por_fuente.values())
+
+    # Registros únicos que entraron al cribado (independiente de la etapa)
+    total_unicos = conn.execute(
+        f"SELECT COUNT(DISTINCT doi) AS n FROM article_screenings WHERE protocol_id = ?{where_owner}",
         [protocol_id] + owner_param,
     ).fetchone()["n"]
-    counts = {}
-    for dec in SCREENING_DECISIONS:
-        row = conn.execute(
-            f"SELECT COUNT(*) as n FROM article_screenings WHERE protocol_id = ? AND decision = ?{where_owner}",
-            [protocol_id, dec] + owner_param,
-        ).fetchone()
-        counts[dec] = row["n"]
-    # Exclusion reasons breakdown
+
+    # Decisiones por etapa
+    def _cuenta(etapa: str | None) -> dict:
+        extra = " AND stage = ?" if etapa else ""
+        salida = {}
+        for dec in SCREENING_DECISIONS:
+            row = conn.execute(
+                f"SELECT COUNT(*) AS n FROM article_screenings WHERE protocol_id = ? AND decision = ?{extra}{where_owner}",
+                [protocol_id, dec] + ([etapa] if etapa else []) + owner_param,
+            ).fetchone()
+            salida[dec] = row["n"]
+        return salida
+
+    ta = _cuenta("title_abstract")
+    ft = _cuenta("full_text")
+
+    tiene_full_text = conn.execute(
+        "SELECT 1 FROM article_screenings WHERE protocol_id = ? AND stage = 'full_text' LIMIT 1",
+        [protocol_id],
+    ).fetchone() is not None
+
+    # Exclusion reasons breakdown (título/resumen si hay dos etapas; si no, las que haya)
+    razones_etapa = " AND stage = 'title_abstract'" if tiene_full_text else ""
     reason_rows = conn.execute(
-        f"SELECT reason, COUNT(*) as n FROM article_screenings WHERE protocol_id = ? AND decision = 'excluded' AND reason IS NOT NULL{where_owner} GROUP BY reason ORDER BY n DESC",
+        f"SELECT reason, COUNT(*) AS n FROM article_screenings WHERE protocol_id = ? AND decision = 'excluded' AND reason IS NOT NULL{razones_etapa}{where_owner} GROUP BY reason ORDER BY n DESC",
         [protocol_id] + owner_param,
     ).fetchall()
     exclusion_reasons = {r["reason"]: r["n"] for r in reason_rows}
-    # Duplicate count
-    dup_count = 0
-    try:
-        dup_count = conn.execute(
-            "SELECT COUNT(*) as n FROM (SELECT doi, COUNT(*) as cnt FROM articles WHERE doi IS NOT NULL AND doi != '' GROUP BY LOWER(doi) HAVING cnt > 1)"
-        ).fetchone()["n"]
-    except Exception:
-        pass
-    # Source breakdown — por clave primaria
+
+    # Atribución por fuente de los registros cribados (por clave primaria)
     source_rows = conn.execute(f"""
-        SELECT COALESCE(a.source, 'sin_articulo') AS source, COUNT(*) as cnt
+        SELECT COALESCE(a.source, 'sin_articulo') AS source, COUNT(DISTINCT s.doi) AS cnt
         FROM article_screenings s
         LEFT JOIN articles a ON a.id = s.article_id
         WHERE s.protocol_id = ?{where_owner_s}
@@ -263,16 +347,76 @@ def screening_flow_counts(conn: sqlite3.Connection, protocol_id: int, owner_id: 
     """, [protocol_id] + owner_param).fetchall()
     sources = {r["source"]: r["cnt"] for r in source_rows}
 
+    duplicados_removidos = max(total_identificados - total_unicos, 0)
+
+    if tiene_full_text:
+        # Dos etapas: el incluido de título/resumen avanza a texto completo; el final es el de texto completo.
+        registros_cribados = ta["included"] + ta["excluded"] + ta["maybe"]
+        registros_excluidos = ta["excluded"]
+        informes_buscados = ta["included"] + ta["maybe"]
+        informes_no_recuperados = ft["not_retrieved"]
+        informes_evaluados = ft["included"] + ft["excluded"]
+        informes_excluidos = ft["excluded"]
+        incluidos_finales = ft["included"]
+        en_cola = ta["pending"]
+        dudosos = ta["maybe"]
+    else:
+        # Una etapa (comportamiento previo, intacto): el incluido de título/resumen es el final.
+        registros_cribados = ta["included"] + ta["excluded"] + ta["maybe"]
+        registros_excluidos = ta["excluded"]
+        informes_buscados = None
+        informes_no_recuperados = None
+        informes_evaluados = None
+        informes_excluidos = None
+        incluidos_finales = ta["included"]
+        en_cola = ta["pending"]
+        dudosos = ta["maybe"]
+
+    prisma_2020 = {
+        "identificacion": {
+            "bases_de_datos": identificados_por_fuente,
+            "registros": {},
+            "otras_fuentes": {},
+            "total": total_identificados,
+        },
+        "removidos_antes_del_cribado": {
+            "duplicados": duplicados_removidos,
+            "no_elegibles_por_automatizacion": 0,
+            "otras_razones": 0,
+            "total": duplicados_removidos,
+        },
+        "cribado": {
+            "registros_unicos": total_unicos,
+            "registros_cribados": registros_cribados,
+            "registros_excluidos": registros_excluidos,
+            "en_cola": en_cola,
+            "dudosos": dudosos,
+            "motivos_exclusion": exclusion_reasons,
+            "informes_buscados": informes_buscados,
+            "informes_no_recuperados": informes_no_recuperados,
+            "informes_evaluados": informes_evaluados,
+            "informes_excluidos": informes_excluidos,
+        },
+        "incluidos": {
+            "estudios": incluidos_finales,
+            "informes": incluidos_finales,
+        },
+        "segunda_etapa_implementada": tiene_full_text,
+    }
+
     return {
         "protocol_id": protocol_id,
-        "total_identified": total_identified,
-        "duplicates_detected": dup_count,
-        "pending": counts.get("pending", 0),
-        "included": counts.get("included", 0),
-        "excluded": counts.get("excluded", 0),
-        "maybe": counts.get("maybe", 0),
+        # Claves retrocompatibles (la interfaz actual las consume)
+        "total_identified": total_identificados,
+        "duplicates_detected": duplicados_removidos,
+        "pending": en_cola,
+        "included": incluidos_finales,
+        "excluded": registros_excluidos,
+        "maybe": dudosos,
         "exclusion_reasons": exclusion_reasons,
         "sources": sources,
+        # Estructura PRISMA 2020
+        "prisma_2020": prisma_2020,
     }
 
 
@@ -371,6 +515,15 @@ def export_protocol_articles(
     if decision_filter:
         cond += " AND s.decision = ?"
         params.append(decision_filter)
+        if decision_filter == "included":
+            # Con dos etapas, el incluido FINAL es el de texto completo; sin ellas, el de
+            # título/resumen. Evita exportar lo que avanzó y luego se excluyó a texto completo.
+            tiene_ft = conn.execute(
+                "SELECT 1 FROM article_screenings WHERE protocol_id = ? AND stage = 'full_text' LIMIT 1",
+                (protocol_id,),
+            ).fetchone()
+            cond += " AND s.stage = ?"
+            params.append("full_text" if tiene_ft else "title_abstract")
 
     articles = conn.execute(
         f"""SELECT a.* FROM article_screenings s

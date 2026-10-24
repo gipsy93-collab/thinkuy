@@ -41,6 +41,20 @@ DEFAULT_DAYS = int(os.environ.get("THINKUY_DEFAULT_DAYS", "365"))
 MAX_ARTICLES_PER_RUN = int(os.environ.get("THINKUY_MAX_ARTICLES", "1500"))
 REQUEST_DELAY = float(os.environ.get("THINKUY_REQUEST_DELAY", "0.15"))
 
+# Re-ordenación semántica opcional de la sonda (BGE-M3). Por defecto **apagada**: el servidor no
+# depende de torch ni de numpy. Con `THINKUY_RERANK=bge-m3` y `sentence-transformers` instalado
+# (extra opcional `backend/requirements-rerank.txt`), la sonda reordena por similitud híbrida
+# (denso + léxico) y sugiere vecindarios. Si el modelo no está, se declara y no falla.
+RERANK = os.environ.get("THINKUY_RERANK", "off").strip().lower()
+RERANK_MODEL = os.environ.get("THINKUY_RERANK_MODEL", "BAAI/bge-m3")
+RERANK_PESO_DENSO = float(os.environ.get("THINKUY_RERANK_PESO_DENSO", "0.7"))
+
+# Deduplicación por título casi idéntico (fuzzy), sin modelo. Motivo medido (22-09-2026): la
+# misma obra entra por dos fuentes con el título apenas distinto («Políticas» vs «Política»,
+# acentos, puntuación) y el dedup exacto por DOI/título no lo veía. Cada fusión se declara.
+DEDUP_TITULO = os.environ.get("THINKUY_DEDUP_TITULO", "1") == "1"
+DEDUP_TITULO_UMBRAL = float(os.environ.get("THINKUY_DEDUP_TITULO_UMBRAL", "0.85"))
+
 # Orígenes permitidos por CORS. `*` sirve en local (la PWA se sirve del mismo origen y no
 # necesita CORS), pero **un despliegue público DEBE fijarlo** a su dominio, o cualquier sitio
 # podrá llamar a la API desde el navegador de un tercero. Lista separada por comas.
@@ -67,19 +81,29 @@ SECRET_KEY = os.environ.get("THINKUY_SECRET_KEY", "thinkuy-default-secret-key-ch
 
 
 # ---------------------------------------------------------------- Common Crawl (SCIVIS)
-# Rutas y release del dataset oficial de WebGraph de Common Crawl. En el entorno de
-# desarrollo local viven en D:\ ; en despliegue se sobrescriben con variables de entorno.
+# Rutas y release del dataset oficial de WebGraph de Common Crawl.
+# En la máquina local los datasets pesados viven en D:\ (es el mismo valor por defecto que
+# usan las herramientas que los construyen: tools/index_cc_ranks.py, tools/build_cc_inlinks.py
+# y tools/cc_history.py). Si aquí se apuntara a otro sitio, el servidor no encontraría lo que
+# las herramientas escribieron y la auditoría declararía «Dataset no instalado».
+# En despliegue se sobrescribe con variables de entorno (THINKUY_CC_DATA_DIR o las rutas
+# individuales THINKUY_CC_RANKS_DB, THINKUY_CC_INLINKS_DB, THINKUY_CC_HISTORY_DIR, ...).
+CC_DATA_DIR = Path(
+    os.environ.get("THINKUY_CC_DATA_DIR", "D:\\" if os.name == "nt" else str(DATA_DIR / "commoncrawl"))
+)
+
+
 def _env_path(name: str, default) -> Path:
     v = os.environ.get(name)
     return Path(v) if v else Path(default)
 
 
-CC_RANKS_DB = _env_path("THINKUY_CC_RANKS_DB", DATA_DIR / "commoncrawl" / "cc_domain_ranks.db")
-CC_RANKS_GZ = _env_path("THINKUY_CC_RANKS_GZ", DATA_DIR / "commoncrawl" / "cc_domain_ranks.txt.gz")
-CC_EDGES_GZ = _env_path("THINKUY_CC_EDGES_GZ", DATA_DIR / "commoncrawl" / "cc_edges.txt.gz")
-CC_VERTICES_GZ = _env_path("THINKUY_CC_VERTICES_GZ", DATA_DIR / "commoncrawl" / "cc_vertices.txt.gz")
-CC_HISTORY_DIR = _env_path("THINKUY_CC_HISTORY_DIR", DATA_DIR / "commoncrawl" / "cc_ranks_history")
-CC_INLINKS_DB = _env_path("THINKUY_CC_INLINKS_DB", DATA_DIR / "commoncrawl" / "cc_inlinks.db")
+CC_RANKS_DB = _env_path("THINKUY_CC_RANKS_DB", CC_DATA_DIR / "cc_domain_ranks.db")
+CC_RANKS_GZ = _env_path("THINKUY_CC_RANKS_GZ", CC_DATA_DIR / "cc_domain_ranks.txt.gz")
+CC_EDGES_GZ = _env_path("THINKUY_CC_EDGES_GZ", CC_DATA_DIR / "cc_edges.txt.gz")
+CC_VERTICES_GZ = _env_path("THINKUY_CC_VERTICES_GZ", CC_DATA_DIR / "cc_vertices.txt.gz")
+CC_HISTORY_DIR = _env_path("THINKUY_CC_HISTORY_DIR", CC_DATA_DIR / "cc_ranks_history")
+CC_INLINKS_DB = _env_path("THINKUY_CC_INLINKS_DB", CC_DATA_DIR / "cc_inlinks.db")
 
 # Identificador del release activo (el que alimenta CC_RANKS_DB).
 CC_RELEASE_ID = os.environ.get("THINKUY_CC_RELEASE", "cc-main-2026-jun-jul-aug")

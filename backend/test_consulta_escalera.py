@@ -64,7 +64,7 @@ def test_consulta_corta_produce_escalera_corta():
 
 # ── Comportamiento de la sonda (con las fuentes simuladas) ───────────────────
 
-def _oa_solo_si_es_corta(search_terms, limit=15, timeout=12.0):
+def _oa_solo_si_es_corta(search_terms, limit=15, timeout=12.0, *args, **kwargs):
     """Simula OpenAlex: una consulta larga no encuentra nada, una corta sí."""
     if len(search_terms.split()) <= 2:
         return ([{"title": "Instrumentos de percepción de salud en miocarditis",
@@ -122,7 +122,7 @@ def test_consulta_vacia_devuelve_none():
 
 # ── Fase 2: entre términos sueltos gana el más específico ───────────────────
 
-def _oa_por_termino(search_terms, limit=15, timeout=12.0):
+def _oa_por_termino(search_terms, limit=15, timeout=12.0, *args, **kwargs):
     """Compuestas no encuentran nada; 'instrumentos' es genérico y 'miocarditis' raro."""
     termino = search_terms.strip().lower()
     if " " in termino:
@@ -185,3 +185,43 @@ def test_el_endpoint_avisa_cuando_amplio_la_consulta(monkeypatch):
     assert datos["consulta_usada"] == "instrumentos escala paciente"
     assert len(datos["consultas_intentadas"]) == 2
     assert "se amplió a «instrumentos escala paciente»" in datos["explanation"]
+
+
+# ── Comodines de OpenAlex (`?` y `*`) ───────────────────────────────────────
+
+def test_sin_comodines_neutraliza_wildcards():
+    assert live_probe._sin_comodines("¿Cuáles son los marcos?") == "¿Cuáles son los marcos"
+    assert "*" not in live_probe._sin_comodines("ciencia* ciudadana?")
+    assert live_probe._sin_comodines("   ") == ""
+
+
+def test_probe_openalex_no_envia_comodines():
+    capturado: dict = {}
+
+    class _FakeResp:
+        status_code = 200
+        text = ""
+
+        def json(self):
+            return {"results": [], "meta": {"count": 0}}
+
+    class _FakeClient:
+        def __init__(self, *a, **k):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def get(self, url, params=None, headers=None):
+            capturado["params"] = params
+            return _FakeResp()
+
+    with patch("radar.harvester.live_probe.httpx.Client", _FakeClient):
+        live_probe._probe_openalex("¿Cuáles son los marcos normativos?")
+
+    assert capturado.get("params") is not None
+    assert "?" not in capturado["params"]["search"]
+    assert "*" not in capturado["params"]["search"]

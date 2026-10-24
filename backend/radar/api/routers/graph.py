@@ -17,6 +17,27 @@ from ..common import (
 router = APIRouter(tags=['graph'])
 log = logging.getLogger('radar.api.graph')
 
+
+def _dois_de_protocolo(conn, protocol_id: int | None) -> list[str]:
+    """DOIs de los artículos **incluidos** de un protocolo (corpus curado).
+
+    Escuelas y Trayectoria deben calcularse sobre contenido curado, no sobre resultados crudos de
+    la sonda: medido (22-09-2026), un corpus arbitrario produce escuelas de paleontología o
+    bibliometría. Se descartan los DOI sintéticos (p. ej. `dialnet:...`), que no resuelven.
+    """
+    if not protocol_id:
+        return []
+    try:
+        filas = db.list_screenings(conn, int(protocol_id), decision="included", limit=500)
+    except Exception:
+        return []
+    salida: list[str] = []
+    for s in filas:
+        d = str(s.get("doi") or "").strip().lower()
+        if d and not d.startswith("article:"):
+            salida.append(d)
+    return salida
+
 @router.get("/api/graph/stats")
 def graph_stats():
     conn = db.connect()
@@ -56,18 +77,63 @@ def graph_co_cited(
 def graph_schools(
     threshold: int = Query(2, ge=1, le=10, description="Umbral mínimo de co-citaciones compartidas"),
     min_size: int = Query(2, ge=2, le=20, description="Mínimo de nodos por escuela"),
+    min_catalog: int = Query(3, ge=1, le=20, description="Mínimo de artículos EN EL CATÁLOGO por escuela (modo local)"),
+    live: bool = Query(True, description="Construir el grafo del corpus EN VIVO (OpenAlex) en vez de usar solo el catálogo"),
     limit: int = Query(15, ge=1, le=50, description="Cantidad máxima de escuelas"),
-    dois: Optional[List[str]] = Query(None, description="DOIs del corpus a analizar (p. ej. resultados de una consulta). Sin DOIs: catálogo global."),
+    dois: Optional[List[str]] = Query(None, description="DOIs del corpus a analizar (opcional; tiene prioridad sobre protocol_id)"),
+    protocol_id: Optional[int] = Query(None, description="Usar como corpus los artículos INCLUIDOS de este protocolo (contenido curado; recomendado)"),
 ):
-    """Detecta 'Escuelas de Pensamiento' mediante clustering de co-citación (Union-Find)."""
+    """Detecta 'Escuelas de Pensamiento' mediante clustering de co-citación (Union-Find).
+
+    **Corpus**: por prioridad, `dois` explícitos; si no, los **incluidos** del `protocol_id`
+    (contenido curado — recomendado); si no, el catálogo global. Con corpus, construye el grafo
+    **en vivo** desde OpenAlex. Medido (22-09-2026): un corpus arbitrario produce escuelas de
+    paleontología o bibliometría; debe usarse contenido curado.
+    """
     conn = db.connect()
     try:
-        aids = citation_graph.resolve_article_ids(conn, dois) if dois else None
+        corpus = list(dois) if dois else _dois_de_protocolo(conn, protocol_id)
+        origen = "dois" if dois else ("protocolo" if corpus else "global")
+
+        if corpus and live:
+            try:
+                gconn = citation_graph.build_live_graph(corpus)
+                try:
+                    schools = citation_graph.detect_cocitation_clusters(
+                        gconn, threshold=threshold, min_size=min_size,
+                        max_clusters=limit, min_catalog=1,
+                    )
+                    stats = citation_graph.citation_stats(gconn)
+                finally:
+                    gconn.close()
+                return {
+                    "total_schools": len(schools), "schools": schools, "scoped": True,
+                    "origen_corpus": origen, "corpus_n": len(corpus),
+                    "modo": "live", "corpus_resuelto": True, "fallback_global": False, "aviso": None,
+                    "grafo": {"nodos": stats.get("nodes"), "aristas": stats.get("edges"),
+                              "densidad": stats.get("density")},
+                }
+            except Exception as e:
+                log.warning("Grafo en vivo (escuelas) falló: %s", e)
+
+        aids = citation_graph.resolve_article_ids(conn, corpus) if corpus else None
         schools = citation_graph.detect_cocitation_clusters(
             conn, threshold=threshold, min_size=min_size, max_clusters=limit,
-            article_ids=aids,
+            article_ids=aids, min_catalog=min_catalog,
         )
-        return {"total_schools": len(schools), "schools": schools, "scoped": bool(dois)}
+        fallback_global = bool(corpus) and not aids
+        return {
+            "total_schools": len(schools),
+            "schools": schools,
+            "scoped": bool(corpus),
+            "origen_corpus": origen,
+            "corpus_n": len(corpus),
+            "modo": "local",
+            "corpus_resuelto": (not corpus) or bool(aids),
+            "fallback_global": fallback_global,
+            "aviso": ("El corpus no está en el catálogo: se analizó el catálogo GLOBAL."
+                      if fallback_global else None),
+        }
     finally:
         conn.close()
 
@@ -75,14 +141,57 @@ def graph_schools(
 @router.get("/api/graph/main-path")
 def graph_main_path(
     top_n: int = Query(20, ge=5, le=50, description="Número de transiciones principales"),
-    dois: Optional[List[str]] = Query(None, description="DOIs del corpus a analizar (p. ej. resultados de una consulta). Sin DOIs: catálogo global."),
+    live: bool = Query(True, description="Construir el grafo del corpus EN VIVO (OpenAlex) en vez de usar solo el catálogo"),
+    dois: Optional[List[str]] = Query(None, description="DOIs del corpus a analizar (opcional; tiene prioridad sobre protocol_id)"),
+    protocol_id: Optional[int] = Query(None, description="Usar como corpus los artículos INCLUIDOS de este protocolo (contenido curado; recomendado)"),
 ):
-    """Calcula la Trayectoria Principal (Main Path Analysis) mediante Search Path Count (SPC)."""
+    """Calcula la Trayectoria Principal (Main Path Analysis) mediante Search Path Count (SPC).
+
+    **Corpus**: `dois` explícitos, o los **incluidos** del `protocol_id` (curado), o el global.
+    Con corpus, construye el grafo **en vivo** desde OpenAlex.
+    """
     conn = db.connect()
     try:
-        aids = citation_graph.resolve_article_ids(conn, dois) if dois else None
+        corpus = list(dois) if dois else _dois_de_protocolo(conn, protocol_id)
+        origen = "dois" if dois else ("protocolo" if corpus else "global")
+
+        if corpus and live:
+            try:
+                gconn = citation_graph.build_live_graph(corpus)
+                try:
+                    transitions = citation_graph.calculate_main_path(gconn, top_n=top_n)
+                    stats = citation_graph.citation_stats(gconn)
+                finally:
+                    gconn.close()
+                return {
+                    "top_n": top_n, "main_path_transitions": transitions, "scoped": True,
+                    "origen_corpus": origen, "corpus_n": len(corpus),
+                    "modo": "live", "corpus_resuelto": True, "fallback_global": False, "aviso": None,
+                    "grafo": {"nodos": stats.get("nodes"), "aristas": stats.get("edges"),
+                              "densidad": stats.get("density")},
+                }
+            except Exception as e:
+                log.warning("Grafo en vivo (SPC) falló: %s", e)
+
+        aids = citation_graph.resolve_article_ids(conn, corpus) if corpus else None
         transitions = citation_graph.calculate_main_path(conn, top_n=top_n, article_ids=aids)
-        return {"top_n": top_n, "main_path_transitions": transitions, "scoped": bool(dois)}
+        fallback_global = bool(corpus) and not aids
+        stats = citation_graph.citation_stats(conn)
+        return {
+            "top_n": top_n,
+            "main_path_transitions": transitions,
+            "scoped": bool(corpus),
+            "origen_corpus": origen,
+            "corpus_n": len(corpus),
+            "modo": "local",
+            "corpus_resuelto": (not corpus) or bool(aids),
+            "fallback_global": fallback_global,
+            "aviso": ("El corpus no está en el catálogo: se analizó el catálogo GLOBAL."
+                      if fallback_global else None),
+            # Tamaño del grafo sobre el que se calculó (para no presentar una base flaca como sólida).
+            "grafo": {"nodos": stats.get("nodes"), "aristas": stats.get("edges"),
+                      "densidad": stats.get("density")},
+        }
     finally:
         conn.close()
 

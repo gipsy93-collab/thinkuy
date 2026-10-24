@@ -168,8 +168,9 @@ CREATE TABLE IF NOT EXISTS article_screenings (
     decision        TEXT NOT NULL DEFAULT 'pending',
     reason          TEXT,
     screened_by     TEXT DEFAULT 'researcher',
+    stage           TEXT DEFAULT 'title_abstract',
     created_at      TEXT,
-    UNIQUE(protocol_id, doi)
+    UNIQUE(protocol_id, doi, stage)
 );
 CREATE INDEX IF NOT EXISTS idx_screenings_proto ON article_screenings(protocol_id);
 CREATE INDEX IF NOT EXISTS idx_screenings_doi   ON article_screenings(doi);
@@ -193,15 +194,37 @@ CREATE TABLE IF NOT EXISTS charting_data (
     UNIQUE(protocol_id, doi)
 );
 CREATE INDEX IF NOT EXISTS idx_charting_proto ON charting_data(protocol_id);
+
+CREATE TABLE IF NOT EXISTS protocol_searches (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_id            TEXT DEFAULT 'default',
+    protocol_id         INTEGER NOT NULL,
+    source              TEXT NOT NULL,
+    query               TEXT,
+    year_from           INTEGER,
+    year_to             INTEGER,
+    records_identified  INTEGER NOT NULL DEFAULT 0,
+    searched_at         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_protocol_searches_proto ON protocol_searches(protocol_id);
 """
 
 
 def _migrate_screening_links(conn: sqlite3.Connection) -> None:
     """Normaliza los DOI y enlaza cada cribado con su artículo por clave primaria."""
-    # 1) DOI normalizados (medido: 2 filas en `articles`, ninguna colisión al normalizar).
+    # 1) DOI normalizados a minúsculas. **No destructivo**: si bajar una fila chocaría con el
+    #    `UNIQUE(doi)` de otra que ya está en minúsculas (caso real medido 22-09-2026:
+    #    `openalex:W7117640167` y `openalex:w7117640167`), esa fila se deja como está. Antes el
+    #    UPDATE lanzaba `IntegrityError` —que NO es `OperationalError`— y **abortaba init_db**.
     try:
-        conn.execute("UPDATE articles SET doi = LOWER(doi) WHERE doi IS NOT NULL AND doi != LOWER(doi)")
-    except sqlite3.OperationalError:
+        conn.execute(
+            """UPDATE articles SET doi = LOWER(doi)
+                WHERE doi IS NOT NULL AND doi != LOWER(doi)
+                  AND NOT EXISTS (
+                      SELECT 1 FROM articles a2
+                       WHERE a2.doi = LOWER(articles.doi) AND a2.id != articles.id)"""
+        )
+    except sqlite3.Error:
         pass
     # 2) Cribados sin artículo, resueltos por DOI directo (ya normalizado en ambos lados).
     try:
@@ -221,6 +244,51 @@ def _migrate_screening_links(conn: sqlite3.Connection) -> None:
                 WHERE (article_id IS NULL OR article_id <= 0) AND doi LIKE 'article:%'
                   AND CAST(SUBSTR(doi, 9) AS INTEGER) IN (SELECT id FROM articles)"""
         )
+    except sqlite3.OperationalError:
+        pass
+
+
+def _rebuild_screenings_unique_stage(conn: sqlite3.Connection) -> None:
+    """Reconstruye `article_screenings` a UNIQUE(protocol_id, doi, stage) si aún es (protocol_id, doi).
+
+    SQLite no permite alterar una restricción UNIQUE, así que hay que recrear la tabla. Se copian
+    todas las filas: los cribados existentes quedan en `title_abstract` (no se pierde nada).
+    """
+    try:
+        uniques = []
+        for idx in conn.execute("PRAGMA index_list(article_screenings)").fetchall():
+            if idx[3] == "u":  # columna `origin`: restricción UNIQUE
+                info = conn.execute(f"PRAGMA index_info({idx[1]})").fetchall()
+                uniques.append([r[2] for r in info])
+        if not any(cols == ["protocol_id", "doi"] for cols in uniques):
+            return  # ya migrada (o la tabla no existe todavía)
+        conn.execute("ALTER TABLE article_screenings RENAME TO _article_screenings_old")
+        conn.execute("""
+            CREATE TABLE article_screenings (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                owner_id        TEXT DEFAULT 'default',
+                protocol_id     INTEGER NOT NULL,
+                article_id      INTEGER,
+                doi             TEXT,
+                decision        TEXT NOT NULL DEFAULT 'pending',
+                reason          TEXT,
+                screened_by     TEXT DEFAULT 'researcher',
+                stage           TEXT DEFAULT 'title_abstract',
+                created_at      TEXT,
+                UNIQUE(protocol_id, doi, stage)
+            )
+        """)
+        conn.execute("""
+            INSERT INTO article_screenings
+                (id, owner_id, protocol_id, article_id, doi, decision, reason, screened_by, stage, created_at)
+            SELECT id, owner_id, protocol_id, article_id, doi, decision, reason, screened_by,
+                   COALESCE(stage, 'title_abstract'), created_at
+            FROM _article_screenings_old
+        """)
+        conn.execute("DROP TABLE _article_screenings_old")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_screenings_proto ON article_screenings(protocol_id)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_screenings_doi   ON article_screenings(doi)")
+        conn.commit()
     except sqlite3.OperationalError:
         pass
 
@@ -350,8 +418,9 @@ def init_db(conn: sqlite3.Connection) -> None:
                 decision        TEXT NOT NULL DEFAULT 'pending',
                 reason          TEXT,
                 screened_by     TEXT DEFAULT 'researcher',
+                stage           TEXT DEFAULT 'title_abstract',
                 created_at      TEXT,
-                UNIQUE(protocol_id, doi)
+                UNIQUE(protocol_id, doi, stage)
             )
         """)
         conn.execute("CREATE INDEX IF NOT EXISTS idx_screenings_proto ON article_screenings(protocol_id)")
@@ -382,7 +451,7 @@ def init_db(conn: sqlite3.Connection) -> None:
     except sqlite3.OperationalError:
         pass
     # Migración multiusuario: aislamiento con owner_id en tablas privadas
-    for tbl in ("review_protocols", "article_screenings", "charting_data"):
+    for tbl in ("review_protocols", "article_screenings", "charting_data", "protocol_searches"):
         try:
             t_cols = {r[1] for r in conn.execute(f"PRAGMA table_info({tbl})").fetchall()}
             if "owner_id" not in t_cols:
@@ -390,5 +459,18 @@ def init_db(conn: sqlite3.Connection) -> None:
             conn.execute(f"CREATE INDEX IF NOT EXISTS idx_{tbl}_owner ON {tbl}(owner_id)")
         except sqlite3.OperationalError:
             pass
+    # Migración PRISMA 2020: etapa del cribado (título/resumen vs texto completo). No destructiva:
+    # los cribados existentes quedan en 'title_abstract' y su 'incluido' sigue siendo final.
+    as_cols = {r[1] for r in conn.execute("PRAGMA table_info(article_screenings)").fetchall()}
+    if "stage" not in as_cols:
+        try:
+            conn.execute("ALTER TABLE article_screenings ADD COLUMN stage TEXT DEFAULT 'title_abstract'")
+        except sqlite3.OperationalError:
+            pass
+    _rebuild_screenings_unique_stage(conn)
+    try:
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_screenings_stage ON article_screenings(protocol_id, stage)")
+    except sqlite3.OperationalError:
+        pass
     _migrate_screening_links(conn)
     conn.commit()

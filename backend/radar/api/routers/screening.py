@@ -5,7 +5,7 @@ import logging
 import re
 from typing import Optional
 
-from fastapi import APIRouter, Body, File, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Body, File, HTTPException, Query, Request, Response, UploadFile
 
 from ... import citation_graph, db, importer, screening_ranker
 from ...matching import match_article, parse_keywords, rank_articles
@@ -107,9 +107,16 @@ def systematic_review_endpoint(payload: dict = Body(...)):
         elif protocol_id:
             # Artículos incluidos en el cribado del protocolo activo
             try:
-                screenings = db.list_screenings(conn, int(protocol_id), decision="included")
+                # Con dos etapas, el corpus final es el incluido a texto completo; sin ellas,
+                # el incluido de título/resumen (comportamiento previo).
+                tiene_ft = conn.execute(
+                    "SELECT 1 FROM article_screenings WHERE protocol_id = ? AND stage = 'full_text' LIMIT 1",
+                    (int(protocol_id),),
+                ).fetchone()
+                etapa = "full_text" if tiene_ft else "title_abstract"
+                screenings = db.list_screenings(conn, int(protocol_id), decision="included", stage=etapa)
                 if not screenings:
-                    all_scr = db.list_screenings(conn, int(protocol_id))
+                    all_scr = db.list_screenings(conn, int(protocol_id), stage=etapa)
                     screenings = [s for s in all_scr if s.get("decision") != "excluded"]
                 if screenings:
                     inc_dois = [s["doi"].strip().lower() for s in screenings if s.get("doi")]
@@ -197,6 +204,7 @@ def screen_article_endpoint(request: Request, protocol_id: int, payload: dict = 
                 article_id=payload.get("article_id"),
                 screened_by=payload.get("screened_by", "researcher"),
                 owner_id=user_id,
+                stage=payload.get("stage", "title_abstract"),
             )
         except ValueError as e:
             raise HTTPException(422, str(e))
@@ -240,6 +248,7 @@ def screen_batch_endpoint(request: Request, protocol_id: int, payload: dict = Bo
                     reason=item.get("reason"),
                     article_id=article_id,
                     owner_id=user_id,
+                    stage=item.get("stage", "title_abstract"),
                 )
                 results.append(r)
             except ValueError:
@@ -251,9 +260,23 @@ def screen_batch_endpoint(request: Request, protocol_id: int, payload: dict = Bo
 
 @router.post("/api/review/protocol/{protocol_id}/harvest-search")
 def harvest_search_endpoint(protocol_id: int, payload: dict = Body(...)):
-    """Cosecha federada en tiempo real (OpenAlex + OpenAIRE Graph + Dialnet) y las agrega a screening del protocolo."""
+    """Cosecha federada en tiempo real (OpenAlex + OpenAIRE Graph + Dialnet) y las agrega a screening del protocolo.
+
+    Filtro de años **opcional** (`year_from`/`year_to`, o `date_from`/`date_to`): solo se aplica
+    si el investigador lo envía. Sin extremos, la búsqueda no se acota — buscar no debe estrechar
+    el universo por defecto.
+    """
     query = str(payload.get("query") or "").strip()
     limit = _as_int(payload.get("limit"), default=100, minimum=5, maximum=250)
+
+    def _anio(valor):
+        try:
+            return int(str(valor).strip())
+        except (TypeError, ValueError):
+            return None
+
+    year_from = _anio(payload.get("year_from", payload.get("date_from")))
+    year_to = _anio(payload.get("year_to", payload.get("date_to")))
     conn = db.connect()
     try:
         protocol = db.get_protocol(conn, protocol_id)
@@ -265,7 +288,8 @@ def harvest_search_endpoint(protocol_id: int, payload: dict = Body(...)):
             raise HTTPException(400, "Consulta de búsqueda vacía")
 
         from ...harvester import live_probe
-        probe_res = live_probe.probe_topic(query=query, limit=limit, federated=True)
+        probe_res = live_probe.probe_topic(query=query, limit=limit, federated=True,
+                                           year_from=year_from, year_to=year_to)
         articles = (probe_res.get("articles") or []) if probe_res else []
         total_matched = probe_res.get("total_matched") or len(articles) if probe_res else 0
         added = 0
@@ -293,7 +317,10 @@ def harvest_search_endpoint(protocol_id: int, payload: dict = Body(...)):
             if not doi:
                 art_src = art.get("source") or art.get("source_engine") or "ref"
                 clean_sid = re.sub(r'[^a-zA-Z0-9_\-\.:/]', '_', str(art.get("source_id") or ""))
-                doi = f"{art_src}:{clean_sid}" if clean_sid else f"{art_src}:{abs(hash(art.get('title', '')))}"
+                # Se pasa a minúsculas: si no, `openalex:W123` y `openalex:w123` convivían como
+                # dos obras distintas (caso real medido 22-09-2026).
+                doi = (f"{art_src}:{clean_sid}" if clean_sid
+                       else f"{art_src}:{abs(hash(art.get('title', '')))}").lower()
             art["doi"] = doi
 
             art["role"] = citation_graph.classify_epistemic_role(art)
@@ -311,12 +338,26 @@ def harvest_search_endpoint(protocol_id: int, payload: dict = Body(...)):
             except Exception as e:
                 log.warning("Fallo al persistir obra federada en screening: %s", e)
                 continue
+        # Registro de identificación PRISMA 2020 (ítem 6): una fila por fuente y búsqueda, con
+        # cuántos registros devolvió, la consulta usada, el límite temporal y la fecha. De aquí
+        # salen la identificación y los duplicados removidos del diagrama de flujo.
+        fuentes_crudas = (probe_res or {}).get("fuentes_crudas") or {}
+        consulta_usada = (probe_res or {}).get("consulta_usada") or query
+        for fuente, n in fuentes_crudas.items():
+            try:
+                db.log_protocol_search(conn, protocol_id, fuente, records_identified=n,
+                                       query=consulta_usada, year_from=year_from, year_to=year_to)
+            except Exception as e:
+                log.debug("No se pudo registrar la búsqueda de %s: %s", fuente, e)
+
         return {
             "status": "ok",
             "query": query,
             "total_matched": total_matched,
             "harvested_count": len(enriched_articles),
             "added_to_screening": added,
+            "filtro_anios": (probe_res or {}).get("filtro_anios"),
+            "fuentes_crudas": fuentes_crudas,
             "articles": enriched_articles,
         }
     finally:
@@ -349,6 +390,15 @@ async def upload_commit_endpoint(
         if not protocol:
             raise HTTPException(404, "Protocolo no encontrado")
         res = importer.import_csv_to_protocol(conn, protocol_id, content, file.filename, source_label=source_label)
+        # La importación también es identificación (PRISMA ítem 6): se registra como una fuente.
+        total = int(res.get("total_processed") or 0)
+        if total:
+            try:
+                db.log_protocol_search(conn, protocol_id, f"importacion:{source_label}",
+                                       records_identified=total,
+                                       query=f"archivo:{file.filename}")
+            except Exception as e:
+                log.debug("No se pudo registrar la importación: %s", e)
         return res
     finally:
         conn.close()
@@ -368,7 +418,8 @@ def enrich_article_endpoint(protocol_id: int, article_id: int):
 def list_screenings_endpoint(
     request: Request,
     protocol_id: int,
-    decision: Optional[str] = Query(None, description="Filtrar por decisión: included, excluded, maybe, pending"),
+    decision: Optional[str] = Query(None, description="Filtrar por decisión: included, excluded, maybe, pending, not_retrieved"),
+    stage: Optional[str] = Query(None, description="Filtrar por etapa: title_abstract, full_text"),
     limit: int = Query(200, ge=1, le=500),
     owner_id: Optional[str] = Query(None),
 ):
@@ -376,7 +427,8 @@ def list_screenings_endpoint(
     user_id = _extract_owner_id(request, owner_id)
     conn = db.connect()
     try:
-        screenings = db.list_screenings(conn, protocol_id, decision=decision, limit=limit, owner_id=user_id)
+        screenings = db.list_screenings(conn, protocol_id, decision=decision, limit=limit,
+                                        owner_id=user_id, stage=stage)
         return {"protocol_id": protocol_id, "total": len(screenings), "screenings": screenings}
     finally:
         conn.close()
@@ -398,6 +450,8 @@ def flow_diagram_endpoint(
             raise HTTPException(404, "Protocolo no encontrado")
         flow["protocol_title"] = protocol.get("title")
         flow["protocol_status"] = protocol.get("status")
+        # Trazabilidad de la estrategia (PRISMA ítem 6): cada búsqueda con su fuente y fecha.
+        flow["busquedas"] = db.list_protocol_searches(conn, protocol_id, owner_id=user_id)
         return flow
     finally:
         conn.close()
@@ -463,6 +517,50 @@ def screening_metrics_endpoint(protocol_id: int):
         total = db.screening_flow_counts(conn, protocol_id).get("total_screened", len(screenings))
         metrics = screening_ranker.compute_screening_progress_metrics(total, screenings)
         return {"protocol_id": protocol_id, "metrics": metrics}
+    finally:
+        conn.close()
+
+
+@router.get("/api/review/protocol/{protocol_id}/prisma-checklist")
+def prisma_checklist_endpoint(
+    request: Request,
+    protocol_id: int,
+    owner_id: Optional[str] = Query(None),
+):
+    """Lista de verificación PRISMA 2020 (27 ítems) con estado y evidencia de cada uno."""
+    user_id = _extract_owner_id(request, owner_id)
+    conn = db.connect()
+    try:
+        if not db.get_protocol(conn, protocol_id, owner_id=user_id):
+            raise HTTPException(404, "Protocolo no encontrado")
+        from ... import prisma_report
+        return prisma_report.build_checklist(conn, protocol_id, owner_id=user_id)
+    finally:
+        conn.close()
+
+
+@router.get("/api/review/protocol/{protocol_id}/prisma-report")
+def prisma_report_endpoint(
+    request: Request,
+    protocol_id: int,
+    format: str = Query("md", pattern="^(md|json)$", description="md = informe Markdown; json = checklist"),
+    owner_id: Optional[str] = Query(None),
+):
+    """Informe final de la revisión: protocolo, búsquedas, flujo PRISMA 2020 y checklist."""
+    user_id = _extract_owner_id(request, owner_id)
+    conn = db.connect()
+    try:
+        if not db.get_protocol(conn, protocol_id, owner_id=user_id):
+            raise HTTPException(404, "Protocolo no encontrado")
+        from ... import prisma_report
+        if format == "json":
+            return {"status": "ok", "checklist": prisma_report.build_checklist(conn, protocol_id, owner_id=user_id)}
+        informe = prisma_report.build_report(conn, protocol_id, owner_id=user_id)
+        return Response(
+            content=informe,
+            media_type="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename=informe_prisma_{protocol_id}.md"},
+        )
     finally:
         conn.close()
 

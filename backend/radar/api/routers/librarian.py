@@ -154,12 +154,15 @@ def librarian_assist(payload: dict = Body(...)):
                     query=corrected,
                     compound_keywords=query_keywords,
                     limit=max(limit, 60),
+                    year_from=payload.get("year_from", payload.get("date_from")),
+                    year_to=payload.get("year_to", payload.get("date_to")),
                 )
                 if probe_res:
                     diagnostico_sonda = {
                         "consulta_usada": probe_res.get("consulta_usada"),
                         "relajada": bool(probe_res.get("relajada")),
                         "intentos": probe_res.get("intentos") or [],
+                        "filtro_anios": probe_res.get("filtro_anios"),
                     }
                 if probe_res and probe_res.get("articles"):
                     data_source = "live_probe"
@@ -387,6 +390,7 @@ def librarian_assist(payload: dict = Body(...)):
             "consulta_usada": diagnostico_sonda.get("consulta_usada"),
             "consulta_relajada": diagnostico_sonda.get("relajada", False),
             "consultas_intentadas": diagnostico_sonda.get("intentos") or [],
+            "filtro_anios": diagnostico_sonda.get("filtro_anios"),
             "articles": matched_articles,
         }
     finally:

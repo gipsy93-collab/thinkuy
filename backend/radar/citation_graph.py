@@ -117,6 +117,56 @@ def build_edges(conn: sqlite3.Connection, citer_ids: set[int] | None = None) -> 
     return edges
 
 
+def build_live_graph(dois: list[str], *, refs_por_obra: int = 15, max_obras: int = 400,
+                     http=None) -> sqlite3.Connection:
+    """Construye un grafo de citas **en vivo** (OpenAlex) sobre los DOIs dados.
+
+    Motivo: el catálogo solo trae referencias del **15%** de sus artículos, así que SPC y
+    co-citación se calculaban sobre un grafo flaco (434 nodos, densidad 0,004). Aquí se piden a
+    OpenAlex las obras del corpus **y sus referencias**, y se arma el grafo en una base **temporal
+    en memoria** —sin persistir nada en el catálogo del investigador—. Las funciones de grafo
+    existentes operan luego sobre esa conexión tal cual.
+    """
+    from . import config, db
+    from .harvester import openalex
+
+    cliente = http
+    cierra = False
+    if cliente is None:
+        import httpx
+
+        cliente = httpx.Client(headers={"User-Agent": config.USER_AGENT},
+                               follow_redirects=True, timeout=25.0)
+        cierra = True
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    db.init_db(conn)
+    try:
+        corpus = openalex.get_works_by_dois(cliente, dois)
+        ids_refs: list[str] = []
+        vistos: set[str] = set()
+        for item in corpus:
+            art = openalex.parse_item(item)
+            if not art:
+                continue
+            db.upsert_article(conn, art.db_row())
+            for x in (item.get("referenced_works") or [])[:refs_por_obra]:
+                rk = str(x or "").replace("https://openalex.org/", "").strip()
+                if rk and rk not in vistos:
+                    vistos.add(rk)
+                    ids_refs.append(rk)
+        faltan = max(0, max_obras - len(corpus))
+        for item in openalex.get_works_by_ids(cliente, ids_refs[:faltan]):
+            art = openalex.parse_item(item)
+            if art:
+                db.upsert_article(conn, art.db_row())
+    finally:
+        if cierra:
+            cliente.close()
+    return conn
+
+
 def citation_stats(conn: sqlite3.Connection) -> dict:
     """Estadísticas del grafo: nodos, aristas, densidad, mayor grado."""
     edges = build_edges(conn)
@@ -310,6 +360,7 @@ def detect_cocitation_clusters(
     min_size: int = 2,
     max_clusters: int = 15,
     article_ids: set[int] | None = None,
+    min_catalog: int = 1,
 ) -> list[dict]:
     """Detecta 'Escuelas de Pensamiento' mediante clustering Union-Find sobre pares de co-citación.
 
@@ -319,6 +370,10 @@ def detect_cocitation_clusters(
 
     Con `article_ids`, los pares se acumulan solo desde ese corpus (p. ej. los
     resultados de una consulta) en vez del catálogo global.
+
+    `min_catalog` descarta los grupos con menos de N artículos **en el catálogo**. Motivo medido
+    (22-09-2026): con el umbral por defecto salían 15 «escuelas», casi todas de 6-25 referencias
+    con **un solo** artículo en catálogo — ruido con forma de hallazgo.
     """
     idx = build_index(conn)
     # Invertir índice: article_id -> primary doi
@@ -370,7 +425,9 @@ def detect_cocitation_clusters(
 
     # Si con el umbral dado o el subconjunto específico no hay pares, hacer fallback suave
     if not active_pairs and article_ids is not None:
-        return detect_cocitation_clusters(conn, threshold=1, min_size=min_size, max_clusters=max_clusters, article_ids=None)
+        return detect_cocitation_clusters(conn, threshold=1, min_size=min_size,
+                                          max_clusters=max_clusters, article_ids=None,
+                                          min_catalog=min_catalog)
 
     for a, b in active_pairs:
         uf.union(a, b)
@@ -424,6 +481,10 @@ def detect_cocitation_clusters(
 
         canonical_refs.sort(key=lambda x: -x["citations"])
         catalog_articles.sort(key=lambda x: -(x.get("cited_by") or 0))
+
+        # Descarta micro-grupos sin presencia real en el catálogo (ruido con forma de «escuela»)
+        if len(catalog_articles) < min_catalog:
+            continue
 
         # Extraer keywords dominantes para etiquetar la escuela
         kw_counter: Counter = Counter()
@@ -824,16 +885,28 @@ def expand_seed_graph(
     seed_doi: str,
     direction: str = "both",
     limit: int = 25,
+    live: bool = True,
 ) -> dict:
-    """Expansión de red (Snowballing backward/forward) a partir de un paper semilla.
+    """Expansión Snowballing backward/forward a partir de un paper semilla.
 
-    Normaliza el DOI tolerando URLs completas y hace fallback a OpenAlex si el paper no está aún en el catálogo.
+    Combina dos fuentes:
+
+    - **Aristas internas** del catálogo (referencias ya depositadas).
+    - **OpenAlex en vivo** (si `live`): las referencias del semilla (`referenced_works`) y las
+      obras que lo citan (`cites:`).
+
+    La vía en vivo es lo que faltaba: medido el 22-09-2026, sin ella el snowballing devolvía
+    **solo la semilla** (6/6 semillas -> `expandidos=1`) porque solo caminaba por citas internas
+    y el catálogo apenas tiene referencias (15%).
     """
+    import httpx
+
+    from . import config, db
+    from .harvester import openalex
+
     idx = build_index(conn)
     norm_doi = clean_doi(seed_doi)
     seed_id = idx.get(f"doi:{norm_doi}") or idx.get(strip_oaid(seed_doi))
-
-    # Fallback 1: Buscar variantes en base de datos local
     if not seed_id and norm_doi:
         row = conn.execute(
             "SELECT id FROM articles WHERE LOWER(doi) = ? OR doi LIKE ? LIMIT 1",
@@ -842,91 +915,121 @@ def expand_seed_graph(
         if row:
             seed_id = row["id"]
 
-    # Fallback 2: Sonda en vivo a OpenAlex si no está en el catálogo local
-    if not seed_id and norm_doi:
-        try:
-            import httpx
+    seed_openalex_id = None
+    if seed_id:
+        row = conn.execute("SELECT openalex_id FROM articles WHERE id = ?", (seed_id,)).fetchone()
+        if row:
+            seed_openalex_id = row["openalex_id"]
 
-            from .. import db as r_db
-            from ..harvester.openalex import parse_item
-            r = httpx.get(f"https://api.openalex.org/works/https://doi.org/{norm_doi}", timeout=8.0)
-            if r.status_code == 200:
-                item = r.json()
-                art_obj = parse_item(item)
+    cliente = None
+    try:
+        if live:
+            cliente = httpx.Client(headers={"User-Agent": config.USER_AGENT},
+                                   follow_redirects=True, timeout=20.0)
+
+        # Semilla: resolver en vivo si falta (y obtener su id OpenAlex)
+        if norm_doi and (not seed_id or not seed_openalex_id) and cliente is not None:
+            item = openalex.get_work_by_doi(cliente, norm_doi)
+            if item:
+                art_obj = openalex.parse_item(item)
                 if art_obj:
-                    _, seed_id = r_db.upsert_article(conn, art_obj.__dict__)
-                    idx = build_index(conn)
-        except Exception as ex:
-            log.warning(f"Sonda OpenAlex para DOI {norm_doi} falló: {ex}")
+                    seed_openalex_id = art_obj.openalex_id or seed_openalex_id
+                    if not seed_id:
+                        _, seed_id = db.upsert_article(conn, art_obj.db_row())
+                        idx = build_index(conn)
 
-    if not seed_id:
-        return {"error": f"DOI semilla '{seed_doi}' no encontrado en el catálogo ni en OpenAlex"}
+        if not seed_id:
+            return {"error": f"DOI semilla '{seed_doi}' no encontrado en el catálogo ni en OpenAlex"}
 
-    seed_row = conn.execute(
-        "SELECT id, title, doi, year, journal_title, cited_by, referenced_ids, s2_references FROM articles WHERE id = ?",
-        (seed_id,),
-    ).fetchone()
-    if not seed_row:
-        return {"error": "Artículo no encontrado"}
+        seed_row = conn.execute(
+            "SELECT id, title, doi, year, journal_title, cited_by, referenced_ids, s2_references, "
+            "openalex_id FROM articles WHERE id = ?",
+            (seed_id,),
+        ).fetchone()
+        if not seed_row:
+            return {"error": "Artículo no encontrado"}
+        seed_art = dict(seed_row)
+        seed_art["role"] = classify_epistemic_role(seed_art)
+        seed_art["is_seed"] = True
 
-    seed_art = dict(seed_row)
-    seed_art["role"] = classify_epistemic_role(seed_art)
+        def _clave(a: dict) -> str:
+            return (clean_doi(a.get("doi")) or a.get("openalex_id")
+                    or (a.get("title") or "")[:60].lower())
 
-    edges = build_edges(conn)
-    # Indexar aristas: quién cita a quién
-    citer_to_cited: dict[int, set[int]] = defaultdict(set)
-    cited_to_citer: dict[int, set[int]] = defaultdict(set)
-    for citer, cited in edges:
-        citer_to_cited[citer].add(cited)
-        cited_to_citer[cited].add(citer)
+        nodos: dict[str, dict] = {_clave(seed_art): seed_art}
+        sub_edges: list[dict] = []
 
-    expanded_ids: set[int] = {seed_id}
+        # ---- Aristas internas (catálogo) ----
+        citer_to_cited: dict[int, set[int]] = defaultdict(set)
+        cited_to_citer: dict[int, set[int]] = defaultdict(set)
+        for citer, cited in build_edges(conn):
+            citer_to_cited[citer].add(cited)
+            cited_to_citer[cited].add(citer)
 
-    # 1. Snowballing backward (referencias citadas por el semilla en catálogo)
-    if direction in ("backward", "both"):
-        backward_ids = citer_to_cited.get(seed_id, set())
-        expanded_ids |= set(list(backward_ids)[:limit])
+        def _interno(aid: int, relation: str) -> dict | None:
+            r = conn.execute(
+                "SELECT id, title, doi, year, journal_title, cited_by, openalex_id FROM articles WHERE id = ?",
+                (aid,),
+            ).fetchone()
+            if not r:
+                return None
+            a = dict(r)
+            a["relation"] = relation
+            a["role"] = classify_epistemic_role(a)
+            return a
 
-    # 2. Snowballing forward (artículos del catálogo que citan al semilla)
-    if direction in ("forward", "both"):
-        forward_ids = cited_to_citer.get(seed_id, set())
-        expanded_ids |= set(list(forward_ids)[:limit])
+        if direction in ("backward", "both"):
+            for aid in list(citer_to_cited.get(seed_id, set()))[:limit]:
+                a = _interno(aid, "cited_by_seed (ancestor)")
+                if a:
+                    nodos.setdefault(_clave(a), a)
+                    sub_edges.append({"source_id": aid, "target_id": seed_id})
+        if direction in ("forward", "both"):
+            for aid in list(cited_to_citer.get(seed_id, set()))[:limit]:
+                a = _interno(aid, "cites_seed (descendant)")
+                if a:
+                    nodos.setdefault(_clave(a), a)
+                    sub_edges.append({"source_id": seed_id, "target_id": aid})
 
-    # Recuperar metadatos de los artículos expandidos
-    placeholders = ",".join(["?"] * len(expanded_ids))
-    rows = conn.execute(
-        f"SELECT id, title, doi, year, journal_title, cited_by FROM articles WHERE id IN ({placeholders})",
-        list(expanded_ids),
-    ).fetchall()
-
-    articles_list = []
-    for r in rows:
-        a = dict(r)
-        a["role"] = classify_epistemic_role(a)
-        if a["id"] == seed_id:
-            a["is_seed"] = True
-        elif a["id"] in citer_to_cited.get(seed_id, set()):
-            a["relation"] = "cited_by_seed (ancestor)"
-        elif a["id"] in cited_to_citer.get(seed_id, set()):
-            a["relation"] = "cites_seed (descendant)"
-        articles_list.append(a)
-
-    # Subgrafo de aristas entre los nodos expandidos
-    sub_edges = []
-    for citer, cited in edges:
-        if citer in expanded_ids and cited in expanded_ids:
-            sub_edges.append({
-                "source_id": citer,
-                "target_id": cited,
-                "source_doi": idx.get(citer),
-                "target_doi": idx.get(cited),
-            })
+        # ---- OpenAlex en vivo (lo que hace que el snowballing funcione) ----
+        if cliente is not None and seed_openalex_id:
+            if direction in ("backward", "both"):
+                try:
+                    refs = json.loads(seed_art.get("referenced_ids") or "[]")
+                except (json.JSONDecodeError, TypeError):
+                    refs = []
+                if not refs:
+                    item = openalex.get_work_by_doi(cliente, norm_doi)
+                    refs = [(x or "").replace("https://openalex.org/", "").strip()
+                            for x in ((item or {}).get("referenced_works") or []) if x]
+                for it in openalex.get_works_by_ids(cliente, refs[:limit]):
+                    art = openalex.parse_item(it)
+                    if not art:
+                        continue
+                    a = art.db_row()
+                    a["relation"] = "cited_by_seed (ancestor)"
+                    a["role"] = classify_epistemic_role(a)
+                    nodos.setdefault(_clave(a), a)
+                    sub_edges.append({"source_doi": a.get("doi"), "target_doi": seed_art.get("doi")})
+            if direction in ("forward", "both"):
+                for it in openalex.get_citing_works(cliente, seed_openalex_id, limit=limit):
+                    art = openalex.parse_item(it)
+                    if not art:
+                        continue
+                    a = art.db_row()
+                    a["relation"] = "cites_seed (descendant)"
+                    a["role"] = classify_epistemic_role(a)
+                    nodos.setdefault(_clave(a), a)
+                    sub_edges.append({"source_doi": seed_art.get("doi"), "target_doi": a.get("doi")})
+    finally:
+        if cliente is not None:
+            cliente.close()
 
     return {
         "seed": seed_art,
         "direction": direction,
-        "expanded_count": len(articles_list),
-        "articles": articles_list,
+        "expanded_count": len(nodos),
+        "articles": list(nodos.values()),
         "network_edges": sub_edges,
     }
 

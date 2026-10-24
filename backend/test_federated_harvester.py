@@ -1,6 +1,10 @@
 """Pruebas unitarias para la Sonda Federada (OpenAIRE Graph v3, Dialnet Dismax y live_probe)."""
 from unittest.mock import patch
 
+import pytest
+from fastapi.testclient import TestClient
+from radar import config, db
+from radar.api import main as api_main
 from radar.harvester import dialnet, live_probe, openaire
 
 
@@ -193,3 +197,115 @@ def test_live_probe_resilience_when_source_fails():
         assert res["articles"][0]["title"] == "Resilient Article"
         assert res["ecosystem"]["sources"]["openalex_live"] == 1
         assert res["ecosystem"]["sources"]["openaire_live"] == 0
+
+
+# ── Filtro de años opcional ─────────────────────────────────────────────────
+
+def _articulos_con_anios():
+    return [
+        {"title": "Obra de 2003 fuera de rango", "doi": "10.1000/vieja", "year": 2003,
+         "source_engine": "openalex", "authors": [], "keywords": []},
+        {"title": "Obra de 2010 dentro de rango", "doi": "10.1000/media", "year": 2010,
+         "source_engine": "openalex", "authors": [], "keywords": []},
+        {"title": "Obra de 2026 fuera de rango", "doi": "10.1000/futura", "year": 2026,
+         "source_engine": "openalex", "authors": [], "keywords": []},
+    ]
+
+
+def _probar(query, **kwargs):
+    with patch("radar.harvester.live_probe._probe_openalex", return_value=(_articulos_con_anios(), 3)), \
+         patch("radar.harvester.live_probe._probe_openaire", return_value=[]), \
+         patch("radar.harvester.live_probe._probe_dialnet", return_value=[]):
+        return live_probe.probe_topic(query, federated=True, **kwargs)
+
+
+def test_filtro_anios_excluye_fuera_de_rango():
+    res = _probar("ciencia ciudadana", year_from=2005, year_to=2025)
+    titulos = [a["title"] for a in res["articles"]]
+    assert titulos == ["Obra de 2010 dentro de rango"]
+    assert res["filtro_anios"]["activo"] is True
+    assert res["filtro_anios"]["excluidos_por_rango"] == 2
+
+
+def test_sin_filtro_no_excluye_nada():
+    res = _probar("ciencia ciudadana")
+    assert len(res["articles"]) == 3
+    assert res["filtro_anios"]["activo"] is False
+    assert res["filtro_anios"]["excluidos_por_rango"] == 0
+
+
+def test_filtro_conserva_registros_sin_anio():
+    mock = [{"title": "Registro sin año", "doi": "10.1000/sin_anio", "year": None,
+             "pub_date": None, "source_engine": "dialnet", "authors": [], "keywords": []}]
+    with patch("radar.harvester.live_probe._probe_openalex", return_value=(mock, 1)), \
+         patch("radar.harvester.live_probe._probe_openaire", return_value=[]), \
+         patch("radar.harvester.live_probe._probe_dialnet", return_value=[]):
+        res = live_probe.probe_topic("ciencia ciudadana", federated=True, year_from=2005, year_to=2025)
+    assert len(res["articles"]) == 1
+    assert res["filtro_anios"]["sin_anio"] == 1
+    assert res["filtro_anios"]["excluidos_por_rango"] == 0
+
+
+def test_rango_de_anios_openalex():
+    assert live_probe._rango_anios_openalex(2005, 2025) == "2005-2025"
+    assert live_probe._rango_anios_openalex(2005, None) == ">2004"
+    assert live_probe._rango_anios_openalex(None, 2025) == "<2026"
+    assert live_probe._rango_anios_openalex(2025, 2005) == "2005-2025"
+    assert live_probe._rango_anios_openalex(None, None) is None
+    assert live_probe._rango_anios_openalex("", "no-es-un-anio") is None
+
+
+@pytest.fixture()
+def base_temporal(tmp_path, monkeypatch):
+    """Base en archivo temporal aislada (no toca el catálogo real)."""
+    monkeypatch.setattr(config, "DB_PATH", tmp_path / "prueba_filtro.db")
+    conn = db.connect()
+    db.init_db(conn)
+    conn.close()
+    return tmp_path
+
+
+def test_harvest_search_pasa_el_filtro_de_anios(base_temporal, monkeypatch):
+    capturado: dict = {}
+
+    def _probe_falso(*args, **kwargs):
+        capturado.update(kwargs)
+        return {"articles": [],
+                "filtro_anios": {"activo": True, "year_from": 2005, "year_to": 2025,
+                                 "excluidos_por_rango": 0, "sin_anio": 0}}
+
+    monkeypatch.setattr("radar.harvester.live_probe.probe_topic", _probe_falso)
+    conn = db.connect()
+    pid = db.save_protocol(conn, {"title": "Protocolo filtro",
+                                  "research_question": "ciencia participativa"})
+    conn.close()
+
+    client = TestClient(api_main.app)
+    res = client.post(f"/api/review/protocol/{pid}/harvest-search",
+                      json={"query": "ciencia participativa", "year_from": 2005, "year_to": 2025})
+    assert res.status_code == 200
+    assert capturado["year_from"] == 2005
+    assert capturado["year_to"] == 2025
+    assert res.json()["filtro_anios"]["activo"] is True
+
+
+def test_harvest_search_sin_anios_no_filtra(base_temporal, monkeypatch):
+    capturado: dict = {}
+
+    def _probe_falso(*args, **kwargs):
+        capturado.update(kwargs)
+        return {"articles": [], "filtro_anios": {"activo": False}}
+
+    monkeypatch.setattr("radar.harvester.live_probe.probe_topic", _probe_falso)
+    conn = db.connect()
+    pid = db.save_protocol(conn, {"title": "Protocolo sin filtro",
+                                  "research_question": "ciencia participativa"})
+    conn.close()
+
+    client = TestClient(api_main.app)
+    res = client.post(f"/api/review/protocol/{pid}/harvest-search",
+                      json={"query": "ciencia participativa"})
+    assert res.status_code == 200
+    assert capturado["year_from"] is None
+    assert capturado["year_to"] is None
+    assert res.json()["filtro_anios"]["activo"] is False

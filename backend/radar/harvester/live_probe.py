@@ -26,20 +26,98 @@ log = logging.getLogger("radar.live_probe")
 OPENALEX_WORKS_URL = "https://api.openalex.org/works"
 
 
-def _probe_openalex(query: str, limit: int = 15, timeout: float = 12.0) -> tuple[list[dict[str, Any]], int]:
-    """Consulta directa a OpenAlex Works API."""
-    clean_q = " ".join(query.split()).strip()
+def _anio_valido(valor: Any) -> int | None:
+    """Normaliza un año de filtro (int o cadena numérica) o devuelve None si no es válido."""
+    if valor in (None, ""):
+        return None
+    try:
+        anio = int(str(valor).strip())
+    except (TypeError, ValueError):
+        return None
+    return anio if 1000 <= anio <= 2999 else None
+
+
+def _rango_anios_openalex(year_from: int | None, year_to: int | None) -> str | None:
+    """Expresión de rango para el filtro `publication_year` de OpenAlex, o None sin filtro."""
+    yf = _anio_valido(year_from)
+    yt = _anio_valido(year_to)
+    if yf is not None and yt is not None:
+        if yf > yt:
+            yf, yt = yt, yf
+        return f"{yf}-{yt}"
+    if yf is not None:
+        return f">{yf - 1}"
+    if yt is not None:
+        return f"<{yt + 1}"
+    return None
+
+
+def _anio_de(art: dict[str, Any]) -> int | None:
+    """Año declarado por un registro, tomado de `year` o del inicio de `pub_date`."""
+    valor = art.get("year")
+    if valor in (None, ""):
+        match = re.search(r"(19\d\d|20\d\d)", str(art.get("pub_date") or ""))
+        valor = match.group(1) if match else None
+    try:
+        return int(valor)
+    except (TypeError, ValueError):
+        return None
+
+
+def _en_rango(art: dict[str, Any], year_from: int | None, year_to: int | None) -> tuple[bool, bool]:
+    """Evalúa el filtro de años de un registro: `(dentro, sin_anio)`.
+
+    Sin filtro (ambos extremos vacíos) todo pasa. Un registro con año conocido fuera del rango
+    se excluye. Un registro **sin año** se conserva y se marca `sin_anio=True`: la ausencia del
+    dato no es evidencia de exclusión (mismo principio que el campo vacío declarado).
+    """
+    yf = _anio_valido(year_from)
+    yt = _anio_valido(year_to)
+    if yf is None and yt is None:
+        return True, False
+    anio = _anio_de(art)
+    if anio is None:
+        return True, True
+    if yf is not None and anio < yf:
+        return False, False
+    if yt is not None and anio > yt:
+        return False, False
+    return True, False
+
+
+_COMODINES = re.compile(r"[?*]")
+
+
+def _sin_comodines(texto: str) -> str:
+    """Neutraliza los comodines de OpenAlex (`?` y `*`).
+
+    Motivo medido (22-09-2026): una pregunta de investigación («¿Cuáles son los marcos
+    normativos…?») dispara HTTP 400 en OpenAlex, porque `?` y `*` son comodines que exigen
+    búsqueda exacta. El texto se muestra al investigador tal cual; solo se limpia al consultar.
+    """
+    return " ".join(_COMODINES.sub(" ", texto or "").split())
+
+
+def _probe_openalex(query: str, limit: int = 15, timeout: float = 12.0,
+                    year_from: int | None = None, year_to: int | None = None) -> tuple[list[dict[str, Any]], int]:
+    """Consulta directa a OpenAlex Works API (con filtro de años opcional)."""
+    clean_q = _sin_comodines(query)
+    filtros = ["is_oa:true"]
+    rango = _rango_anios_openalex(year_from, year_to)
+    if rango:
+        filtros.append(f"publication_year:{rango}")
+    filtro = ",".join(filtros)
     has_boolean = any(op in clean_q for op in (" AND ", " OR ", " NOT ", '"', "(", ")"))
     if has_boolean:
         params: dict[str, Any] = {
-            "filter": f"title_and_abstract.search:{clean_q},is_oa:true",
+            "filter": f"title_and_abstract.search:{clean_q},{filtro}",
             "per-page": limit,
             "sort": "relevance_score:desc",
         }
     else:
         params: dict[str, Any] = {
             "search": clean_q,
-            "filter": "is_oa:true",
+            "filter": filtro,
             "per-page": limit,
             "sort": "relevance_score:desc",
         }
@@ -213,7 +291,8 @@ def escalera_de_consultas(query: str, compound_keywords: list[str] | None = None
 
 
 def _probar_federacion(search_terms: str, limit: int, timeout: float,
-                       federated: bool) -> tuple[list, int, list, list]:
+                       federated: bool, year_from: int | None = None,
+                       year_to: int | None = None) -> tuple[list, int, list, list]:
     """Una pasada por las tres fuentes (OpenAlex, OpenAIRE, Dialnet) sin analizar nada."""
     raw_openalex: list[dict[str, Any]] = []
     openalex_total = 0
@@ -223,7 +302,8 @@ def _probar_federacion(search_terms: str, limit: int, timeout: float,
     if federated:
         per_source_limit = max(int(limit * 0.8), 5)
         with ThreadPoolExecutor(max_workers=3) as executor:
-            fut_oa = executor.submit(_probe_openalex, search_terms, per_source_limit, timeout)
+            fut_oa = executor.submit(_probe_openalex, search_terms, per_source_limit, timeout,
+                                     year_from, year_to)
             fut_aire = executor.submit(_probe_openaire, search_terms, per_source_limit, timeout)
             fut_dial = executor.submit(_probe_dialnet, search_terms, per_source_limit, timeout)
             try:
@@ -239,19 +319,27 @@ def _probar_federacion(search_terms: str, limit: int, timeout: float,
             except Exception as e:
                 log.warning("Error hilo Dialnet: %s", e)
     else:
-        raw_openalex, openalex_total = _probe_openalex(search_terms, limit, timeout)
+        raw_openalex, openalex_total = _probe_openalex(search_terms, limit, timeout,
+                                                       year_from, year_to)
 
     return raw_openalex, openalex_total, raw_openaire, raw_dialnet
 
 
 def probe_topic(query: str, compound_keywords: list[str] | None = None,
                 limit: int = 15, timeout: float = 12.0,
-                federated: bool = True) -> dict[str, Any] | None:
+                federated: bool = True,
+                year_from: int | None = None, year_to: int | None = None) -> dict[str, Any] | None:
     """Ejecuta una sonda en vivo federada (OpenAlex, OpenAIRE Graph v3, Dialnet).
 
     **Relaja la consulta por escalones** hasta encontrar resultados, y declara con cuál lo
     hizo (`consulta_usada`, `relajada`, `intentos`). Si la consulta estricta ya da resultados,
     el comportamiento y el coste son los de siempre: un solo intento.
+
+    **Filtro de años opcional** (`year_from`/`year_to`): solo se aplica si el investigador lo
+    declara. OpenAlex lo recibe del servidor; OpenAIRE y Dialnet se filtran en cliente. Un
+    registro con año conocido fuera del rango se excluye; uno **sin año** se conserva y se
+    cuenta aparte (`filtro_anios.sin_anio`) porque la ausencia del dato no es evidencia de
+    exclusión.
 
     Retorna un diccionario estructurado compatible con la auditoría de Thinkuy, o None si la
     consulta está vacía.
@@ -259,6 +347,17 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
     clean_q = query.strip()
     if not clean_q:
         return None
+
+    yf = _anio_valido(year_from)
+    yt = _anio_valido(year_to)
+    filtro_activo = yf is not None or yt is not None
+    filtro_anios = {
+        "activo": filtro_activo,
+        "year_from": yf,
+        "year_to": yt,
+        "excluidos_por_rango": 0,
+        "sin_anio": 0,
+    }
 
     escalones = escalera_de_consultas(clean_q, compound_keywords)
     multi = [e for e in escalones if len(e.split()) > 1]
@@ -273,7 +372,7 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
 
     # FASE 1 — formulaciones con más de un término: se queda con la primera que dé resultados.
     for consulta in multi:
-        oa, total_oa, aire, dial = _probar_federacion(consulta, limit, timeout, federated)
+        oa, total_oa, aire, dial = _probar_federacion(consulta, limit, timeout, federated, yf, yt)
         encontrados = len(oa) + len(aire) + len(dial)
         intentos.append({"consulta": consulta, "resultados": encontrados})
         if encontrados:
@@ -287,14 +386,14 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
     if not search_terms and sueltos:
         candidatos: list[tuple[int, str]] = []
         for termino in sueltos[:3]:
-            oa_s, total_s = _probe_openalex(termino, 5, timeout)
+            oa_s, total_s = _probe_openalex(termino, 5, timeout, yf, yt)
             intentos.append({"consulta": termino, "resultados": len(oa_s),
                              "total_global": total_s, "sonda": "openalex"})
             if oa_s:
                 candidatos.append((total_s or len(oa_s), termino))
         if candidatos:
             elegido = min(candidatos)[1]
-            oa, total_oa, aire, dial = _probar_federacion(elegido, limit, timeout, federated)
+            oa, total_oa, aire, dial = _probar_federacion(elegido, limit, timeout, federated, yf, yt)
             if len(oa) + len(aire) + len(dial):
                 search_terms = elegido
                 raw_openalex, openalex_total, raw_openaire, raw_dialnet = oa, total_oa, aire, dial
@@ -317,6 +416,7 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
     articles: list[dict[str, Any]] = []
 
     source_counts = {"openalex": 0, "openaire": 0, "dialnet": 0}
+    crudos_por_fuente = {"openalex": 0, "openaire": 0, "dialnet": 0}
 
     # Prioridad: OpenAlex (global metadata), OpenAIRE (EU policy/projects), Dialnet (Iberoamérica)
     for pool in (raw_openalex, raw_openaire, raw_dialnet):
@@ -328,6 +428,17 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
             t = norm(art.get("title") or "")
             if not t:
                 continue
+
+            dentro, sin_anio = _en_rango(art, yf, yt)
+            if not dentro:
+                filtro_anios["excluidos_por_rango"] += 1
+                continue
+            if sin_anio:
+                filtro_anios["sin_anio"] += 1
+
+            # Identificación PRISMA: se cuenta lo que la fuente devolvió (tras los límites
+            # declarados), ANTES de deduplicar. El dedup intra-búsqueda se reporta aparte.
+            crudos_por_fuente[art_src] = crudos_por_fuente.get(art_src, 0) + 1
 
             d = (art.get("doi") or "").strip().lower()
             if d:
@@ -341,6 +452,9 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
 
             source_counts[art_src] = source_counts.get(art_src, 0) + 1
             articles.append(art)
+
+    total_crudo = sum(crudos_por_fuente.values())
+    duplicados_intra = max(total_crudo - len(articles), 0)
 
     if not articles:
         # Ningún escalón encontró nada: se devuelve el diagnóstico de lo intentado en lugar de
@@ -358,11 +472,39 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
                            "review_count": 0},
             "top_authors": [],
             "suggested_keywords": [],
+            "filtro_anios": filtro_anios,
+            "fuentes_crudas": crudos_por_fuente,
+            "duplicados_intra_busqueda": duplicados_intra,
+            "rerank": {"aplicado": False, "motivo": "sin_candidatos"},
+            "vecindarios_sugeridos": [],
+            "duplicados_semanticos": [],
             **diagnostico,
         }
 
+    # Deduplicación por título casi idéntico (fuzzy), sin modelo. Declara cada fusión.
+    fusiones: list[dict[str, Any]] = []
+    try:
+        from .. import config as _cfg
+        if _cfg.DEDUP_TITULO:
+            from .. import dedup as _dedup
+            articles, fusiones = _dedup.deduplicar(articles, umbral=_cfg.DEDUP_TITULO_UMBRAL)
+    except Exception as e:
+        log.debug("Dedup por título no aplicado: %s", e)
+
     # Total aproximado combinado
     total_matched = max(openalex_total, len(articles))
+
+    # Re-ordenación semántica **opcional** (BGE-M3). Degradable: si el modelo no está, se declara
+    # y se conserva el orden de la sonda. Es una señal de ordenación, no una decisión.
+    rerank_info: dict[str, Any] = {"aplicado": False, "motivo": "desactivado"}
+    vecindarios: list[dict[str, Any]] = []
+    try:
+        from .. import rerank as _rerank
+        if _rerank.activo():
+            articles, rerank_info, vecindarios = _rerank.rerank_y_vecindarios(
+                articles, search_terms or clean_q)
+    except Exception as e:
+        log.debug("Re-ranker no aplicado: %s", e)
 
     journal_counts: dict[str, int] = {}
     author_data: dict[str, dict[str, Any]] = {}
@@ -458,6 +600,12 @@ def probe_topic(query: str, compound_keywords: list[str] | None = None,
         "saturation": saturation_data,
         "top_authors": top_authors,
         "suggested_keywords": suggested_kws,
+        "filtro_anios": filtro_anios,
+        "fuentes_crudas": crudos_por_fuente,
+        "duplicados_intra_busqueda": duplicados_intra,
+        "rerank": rerank_info,
+        "vecindarios_sugeridos": vecindarios,
+        "duplicados_semanticos": fusiones,
         **diagnostico,
     }
 

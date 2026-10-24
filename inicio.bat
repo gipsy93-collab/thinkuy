@@ -3,6 +3,11 @@ chcp 65001 >nul
 title Thinkuy - Radar de Comunicacion Cientifica
 cd /d "%~dp0backend"
 
+REM Re-ranker semantico (BGE-M3): reordena los resultados por significado.
+REM Medido el 22-09-2026: top-10 de 0,40 a 0,60 de aciertos con el corpus curado del protocolo 117.
+REM Para apagarlo, comenta la linea siguiente.
+set THINKUY_RERANK=bge-m3
+
 echo ============================================================
 echo   THINKUY - Radar de Comunicacion Cientifica
 echo   PWA:    http://localhost:8000/app/
