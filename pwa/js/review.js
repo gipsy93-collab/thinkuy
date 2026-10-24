@@ -1,8 +1,11 @@
 /* Thinkuy — cribado PRISMA y charting JBI (modo investigador). Módulo ES. */
-import { api, apiPost } from "./api.js";
+import { API, api, apiPost } from "./api.js";
 import { esc, showNotification } from "./dom.js";
 import { state } from "./state.js";
 import { extractCleanDoi } from "./utils.js";
+
+// Etapa PRISMA 2020 activa en la pestaña de cribado: título/resumen o texto completo.
+let screeningStage = "title_abstract";
 
 // ================================================================
 // GESTOR DE PROYECTOS / PROTOCOLOS PERSISTENTES (PRISMA / JBI)
@@ -316,17 +319,58 @@ async function refreshPrismaFlow() {  const pid = await ensureProtocol();
   try {
     const flow = await api(`/review/protocol/${pid}/flow-diagram`);
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    set("prisma-identified", flow.total_identified || 0);
-    set("prisma-duplicates", flow.duplicates_detected || 0);
-    set("prisma-screened", (flow.included || 0) + (flow.excluded || 0) + (flow.maybe || 0));
-    set("prisma-excluded", flow.excluded || 0);
-    set("prisma-included", flow.included || 0);
+    // Los campos de la segunda etapa llegan como `null` mientras no esté modelada: se declaran
+    // con "—" y estilo atenuado en vez de mostrar un 0 que parecería un dato real.
+    const setCount = (id, v) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (v === null || v === undefined) { el.textContent = "—"; el.classList.add("is-pending"); }
+      else { el.textContent = v; el.classList.remove("is-pending"); }
+    };
+
+    const p = flow.prisma_2020 || {};
+    const idn = p.identificacion || {};
+    const rem = p.removidos_antes_del_cribado || {};
+    const scr = p.cribado || {};
+    const inc = p.incluidos || {};
+
+    setCount("prisma-identified", idn.total != null ? idn.total : (flow.total_identified || 0));
+    setCount("prisma-duplicates", rem.duplicados != null ? rem.duplicados : (flow.duplicates_detected || 0));
+    setCount("prisma-screened", scr.registros_cribados != null
+      ? scr.registros_cribados : ((flow.included || 0) + (flow.excluded || 0) + (flow.maybe || 0)));
+    setCount("prisma-excluded", scr.registros_excluidos != null ? scr.registros_excluidos : (flow.excluded || 0));
+    setCount("prisma-sought", scr.informes_buscados);
+    setCount("prisma-not-retrieved", scr.informes_no_recuperados);
+    setCount("prisma-assessed", scr.informes_evaluados);
+    setCount("prisma-excluded-fulltext", scr.informes_excluidos);
+    setCount("prisma-included", inc.estudios != null ? inc.estudios : (flow.included || 0));
     set("prisma-pending", flow.pending || 0);
     set("prisma-maybe", flow.maybe || 0);
-    // Exclusion reasons
+
+    // Desglose de la identificación por fuente (PRISMA 2020: "Databases (n = ...)")
+    const srcEl = document.getElementById("prisma-identified-sources");
+    if (srcEl) {
+      const bases = idn.bases_de_datos || {};
+      const entries = Object.entries(bases).filter(([, n]) => n > 0);
+      srcEl.innerHTML = entries.length
+        ? entries.map(([s, n]) => `<div>• ${esc(s)}: ${n}</div>`).join("")
+        : "";
+    }
+
+    // Otros removidos antes del cribado (automatización / otras razones)
+    const removedExtra = document.getElementById("prisma-removed-extra");
+    if (removedExtra) {
+      const extra = [];
+      if (rem.no_elegibles_por_automatizacion) extra.push(`• automatización: ${rem.no_elegibles_por_automatizacion}`);
+      if (rem.otras_razones) extra.push(`• otras razones: ${rem.otras_razones}`);
+      removedExtra.innerHTML = extra.join("");
+    }
+
+    // Motivos de exclusión (título/resumen)
     const reasonsEl = document.getElementById("prisma-exclusion-reasons");
-    if (reasonsEl && flow.exclusion_reasons) {
-      const entries = Object.entries(flow.exclusion_reasons);
+    if (reasonsEl) {
+      const reasons = scr.motivos_exclusion || flow.exclusion_reasons || {};
+      const entries = Object.entries(reasons);
       if (entries.length > 0) {
         reasonsEl.innerHTML = entries.map(([r, n]) => `<div>• ${esc(r)}: ${n}</div>`).join("");
       } else {
@@ -338,11 +382,91 @@ async function refreshPrismaFlow() {  const pid = await ensureProtocol();
   }
 }
 
-async function screenArticle(doi, decision, reason) {
+function renderPrismaChecklist(data, container) {
+  if (!container) return;
+  const items = data.items || [];
+  const badge = (estado) => {
+    const map = { auto: ["#006A6A", "Auto"], declarado: ["#8D6E63", "Declarado"], manual: ["#FFA726", "Manual"] };
+    const [color, label] = map[estado] || ["#999", estado];
+    return `<span style="font-size:0.66rem;font-weight:700;padding:1px 8px;border-radius:999px;background:${color}22;color:${color};">${label}</span>`;
+  };
+  const fmtEv = (v) => {
+    if (v === null || v === undefined || v === "") return "—";
+    if (typeof v === "object") return esc(JSON.stringify(v));
+    return esc(String(v));
+  };
+  container.innerHTML = items.map(it => `
+    <div class="prisma-checklist-item">
+      <div class="prisma-checklist-id">${esc(it.id)}</div>
+      <div class="prisma-checklist-body">
+        <div class="prisma-checklist-text">${esc(it.item)}</div>
+        <div class="prisma-checklist-evidence">${fmtEv(it.evidencia)}</div>
+      </div>
+      <div>${badge(it.estado)}</div>
+    </div>
+  `).join("");
+}
+
+function setupPrismaReport() {
+  const btnChecklist = document.getElementById("btn-load-prisma-checklist");
+  const btnDownload = document.getElementById("btn-download-prisma-report");
+  const statusEl = document.getElementById("prisma-checklist-status");
+  const container = document.getElementById("prisma-checklist-container");
+
+  if (btnChecklist && !btnChecklist.dataset.bound) {
+    btnChecklist.dataset.bound = "true";
+    btnChecklist.onclick = async () => {
+      const pid = await ensureProtocol();
+      if (!pid) return;
+      btnChecklist.disabled = true;
+      if (statusEl) { statusEl.hidden = false; statusEl.textContent = "Generando checklist PRISMA 2020..."; }
+      try {
+        const data = await api(`/review/protocol/${pid}/prisma-checklist`);
+        renderPrismaChecklist(data, container);
+        if (statusEl) {
+          const r = data.resumen || {};
+          statusEl.textContent = `27 ítems PRISMA 2020 · ${data.total} filas · auto: ${r.auto || 0} · declarados: ${r.declarado || 0} · manuales: ${r.manual || 0}`;
+        }
+      } catch (err) {
+        console.error("Error generando checklist PRISMA:", err);
+        if (statusEl) statusEl.textContent = "No se pudo generar el checklist.";
+      } finally {
+        btnChecklist.disabled = false;
+      }
+    };
+  }
+
+  if (btnDownload && !btnDownload.dataset.bound) {
+    btnDownload.dataset.bound = "true";
+    btnDownload.onclick = async () => {
+      const pid = await ensureProtocol();
+      if (!pid) return;
+      try {
+        const res = await fetch(`${API}/review/protocol/${pid}/prisma-report?format=md`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `informe_prisma_${pid}.md`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Error descargando informe PRISMA:", err);
+        showNotification({ title: "No se pudo descargar", message: "Revisa que el protocolo tenga búsquedas o cribados.", type: "error" });
+      }
+    };
+  }
+}
+
+async function screenArticle(doi, decision, reason, stage = screeningStage) {
   const pid = await ensureProtocol();
   if (!pid) return;
   try {
-    await apiPost(`/review/protocol/${pid}/screen`, { doi, decision, reason });
+    await apiPost(`/review/protocol/${pid}/screen`, { doi, decision, reason, stage });
 
     // UI OPTIMISTA: se pinta la tarjeta ANTES de refrescar el diagrama de flujo.
     // Antes se hacía `await refreshPrismaFlow()` primero, y como ese endpoint tardaba
@@ -352,7 +476,10 @@ async function screenArticle(doi, decision, reason) {
       card.className = `screening-card decision-${decision}`;
       // Update active buttons
       card.querySelectorAll(".screening-btn").forEach(b => b.classList.remove("active"));
-      const activeBtn = card.querySelector(`.screening-btn.btn-${decision === "included" ? "include" : decision === "excluded" ? "exclude" : "maybe"}`);
+      const btnClass = decision === "included" ? "include"
+        : decision === "excluded" ? "exclude"
+        : decision === "not_retrieved" ? "not-retrieved" : "maybe";
+      const activeBtn = card.querySelector(`.screening-btn.btn-${btnClass}`);
       if (activeBtn) activeBtn.classList.add("active");
       // Show reason
       const reasonEl = card.querySelector(".screening-card-reason");
@@ -443,6 +570,24 @@ window.fetchDeterministicAbstract = async function(elementoId) {
     }
   } catch (err) {
     contenedor.innerHTML = `<em>No se pudo consultar la fuente: ${esc(err && err.message ? err.message : err)}</em>${placeholder}`;
+  }
+};
+
+window.fetchFulltextOA = async function(doi, safeId) {
+  const statusEl = document.getElementById(`fulltext-status-${safeId}`);
+  if (!doi) return;
+  if (statusEl) statusEl.innerHTML = "<em>Resolviendo el PDF de acceso abierto (Unpaywall → ficha del editor)…</em>";
+  try {
+    const r = await apiPost(`/fulltext/fetch-oa/${encodeURIComponent(doi)}`, {}, { timeoutMs: 180000 });
+    if (statusEl) {
+      if (r && r.status === "ok") {
+        statusEl.innerHTML = `<span style="color:var(--brand-teal);font-weight:600;">Texto completo ingerido (${esc(r.ruta || "OA")}) · ${r.words || 0} palabras · ${r.contextos_de_cita || 0} contextos de cita.</span>`;
+      } else {
+        statusEl.innerHTML = `<em>No se pudo traer: ${esc((r && (r.motivo || r.status)) || "sin respuesta")}.</em>`;
+      }
+    }
+  } catch (err) {
+    if (statusEl) statusEl.innerHTML = `<em>Error: ${esc(err && err.message ? err.message : err)}</em>`;
   }
 };
 
@@ -619,6 +764,21 @@ function renderScreeningCards(articles, existingDecisions) {
               ${a.keywords ? `<div><strong>Palabras clave:</strong> ${esc(Array.isArray(a.keywords) ? a.keywords.join(", ") : a.keywords)}</div>` : ''}
               <div><strong>Enlace Oficial:</strong> <a href="${esc(officialUrl)}" target="_blank" rel="noopener" style="font-weight:600; color:var(--brand-teal);">Abrir artículo completo ↗</a></div>
             </div>
+
+            <!-- Texto completo (acceso abierto) -->
+            <div class="details-section">
+              <div class="details-section-title">
+                <span class="material-symbols-outlined text-[14px] text-brand-teal">picture_as_pdf</span>
+                <strong>Texto completo (acceso abierto):</strong>
+              </div>
+              <p class="details-text" id="fulltext-status-${safeId}">Aún no descargado.</p>
+              ${isRealDoi ? `
+                <button type="button" class="btn btn-ghost sm" style="font-size:0.72rem; padding:2px 8px;" onclick="fetchFulltextOA('${esc(cleanDoiVal)}', '${safeId}')" title="Descarga el PDF de acceso abierto (Unpaywall → ficha del editor), lo extrae y lo ingesta. Solo acceso abierto; sin PDF abierto, lo declara.">
+                  <span class="material-symbols-outlined text-[13px]">picture_as_pdf</span>
+                  <span>Traer texto completo (OA)</span>
+                </button>
+              ` : ''}
+            </div>
           </div>
         </details>
       </div>
@@ -634,6 +794,11 @@ function renderScreeningCards(articles, existingDecisions) {
         <button type="button" class="screening-btn btn-maybe ${dec === "maybe" ? "active" : ""}" title="Marcar como dudoso / a revisar" onclick="onScreenDecision('${esc(doiKey)}', 'maybe')">
           <span class="material-symbols-outlined text-[14px]">help</span> Dudoso
         </button>
+        ${screeningStage === "full_text" ? `
+        <button type="button" class="screening-btn btn-not-retrieved ${dec === "not_retrieved" ? "active" : ""}" title="Informe no recuperado: no se pudo obtener el texto completo (PRISMA 2020)" onclick="onScreenDecision('${esc(doiKey)}', 'not_retrieved')">
+          <span class="material-symbols-outlined text-[14px]">link_off</span> No recuperado
+        </button>
+        ` : ""}
       </div>
     `;
     container.appendChild(card);
@@ -692,18 +857,56 @@ function setupScreeningTab(librarianData) {
   const loadScreeningsFromBackend = async () => {
     const pid = await ensureProtocol();
     if (!pid) return;
+    const container = document.getElementById("screening-articles-container");
     try {
-      const data = await api(`/review/protocol/${pid}/screenings`, { limit: 100 });
-      const screenings = data.screenings || [];
-      if (screenings.length > 0) {
+      if (screeningStage === "full_text") {
+        // 2ª etapa: la cola son los informes que avanzaron desde título/resumen, con su decisión
+        // de texto completo superpuesta si ya existe.
+        const base = await api(`/review/protocol/${pid}/screenings`, { stage: "title_abstract", limit: 500 });
+        const avanzan = (base.screenings || []).filter(s => s.decision === "included" || s.decision === "maybe");
+        const ft = await api(`/review/protocol/${pid}/screenings`, { stage: "full_text", limit: 500 });
+        const ftMap = {};
+        (ft.screenings || []).forEach(s => { ftMap[String(s.doi || "").toLowerCase()] = s; });
+        const merged = avanzan.map(a => {
+          const d = ftMap[String(a.doi || "").toLowerCase()];
+          return { ...a, decision: d ? d.decision : "pending", reason: d ? d.reason : null };
+        });
+        state.screeningArticlesCache = merged;
+        if (merged.length > 0) {
+          renderScreeningCards(merged, merged);
+        } else if (container) {
+          container.innerHTML = `<div class="snowball-empty-hint">Aún no hay informes que hayan avanzado a texto completo. Incluye o marca como dudosos algunos registros en la etapa de título/resumen.</div>`;
+        }
+      } else {
+        const data = await api(`/review/protocol/${pid}/screenings`, { stage: "title_abstract", limit: 200 });
+        const screenings = data.screenings || [];
         state.screeningArticlesCache = screenings;
-        renderScreeningCards(screenings, screenings);
-        await refreshPrismaFlow();
+        if (screenings.length > 0) {
+          renderScreeningCards(screenings, screenings);
+        }
       }
+      await refreshPrismaFlow();
     } catch (err) {
       console.error("Error cargando screenings del protocolo:", err);
     }
   };
+
+  // Selector de etapa PRISMA 2020 (título/resumen ↔ texto completo)
+  const btnTA = document.getElementById("btn-stage-title-abstract");
+  const btnFT = document.getElementById("btn-stage-full-text");
+  const stageHint = document.getElementById("screening-stage-hint");
+  const paintStage = () => {
+    if (btnTA) btnTA.classList.toggle("active", screeningStage === "title_abstract");
+    if (btnFT) btnFT.classList.toggle("active", screeningStage === "full_text");
+    if (stageHint) {
+      stageHint.textContent = screeningStage === "full_text"
+        ? "Elegibilidad a texto completo (segunda etapa PRISMA)"
+        : "Cribado por título y resumen";
+    }
+  };
+  if (btnTA) btnTA.onclick = () => { screeningStage = "title_abstract"; paintStage(); loadScreeningsFromBackend(); };
+  if (btnFT) btnFT.onclick = () => { screeningStage = "full_text"; paintStage(); loadScreeningsFromBackend(); };
+  paintStage();
 
   // Auto-cargar de inmediato las obras del protocolo
   loadScreeningsFromBackend();
@@ -1078,6 +1281,7 @@ export {
   ensureProtocol,
   refreshPrismaFlow,
   setupChartingTab,
+  setupPrismaReport,
   setupProtocolManager,
   setupScreeningTab,
 };

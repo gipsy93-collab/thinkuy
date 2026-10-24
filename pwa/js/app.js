@@ -6,7 +6,7 @@ import { authorsLine, debounce, extractCleanDoi, keywordStrings, selectableKeywo
 import { bridge } from "./bridge.js";
 import { renderRadar, renderRadarExcludedBar } from "./radar.js";
 import { initJournalOai, initScientificMatch, loadRpcArticlesForMatch, renderJournalAuditResults } from "./journal.js";
-import { ensureProtocol, refreshPrismaFlow, setupChartingTab, setupProtocolManager, setupScreeningTab } from "./review.js";
+import { ensureProtocol, refreshPrismaFlow, setupChartingTab, setupPrismaReport, setupProtocolManager, setupScreeningTab } from "./review.js";
 
 function readForm() {
   const kwEl = document.getElementById("keywords");
@@ -878,21 +878,23 @@ async function loadEpistemicSubmotorA(librarianData, forceRefresh = false) {
   const mainpathContainer = document.getElementById("epistemic-mainpath-container");
   const indicator = document.getElementById("epistemic-corpus-indicator");
 
-  // El análisis epistémico se acota a las primeras 30 obras por coste del grafo. Se declara
-  // en la interfaz: si no, el investigador cree que se analizó TODO su resultado.
-  const TOPE_OBRAS_GRAFO = 30;
-  const todasLasDois = (librarianData && librarianData.articles)
-    ? librarianData.articles.map(a => a.doi).filter(Boolean)
-    : [];
-  const articleDois = todasLasDois.slice(0, TOPE_OBRAS_GRAFO);
+  // Corpus CURADO: escuelas y trayectoria se calculan sobre los artículos INCLUIDOS del protocolo,
+  // NO sobre los resultados crudos de la búsqueda. Medido (22-09-2026): con DOIs arbitrarios
+  // salen escuelas de paleontología o bibliometría.
+  const pid = await ensureProtocol();
+  let nIncluidos = null;
+  if (pid) {
+    try {
+      const inc = await api(`/review/protocol/${pid}/screenings`, { decision: "included", limit: 1 });
+      nIncluidos = inc.total ?? 0;
+    } catch (_) { /* sin dato: se declara abajo */ }
+  }
 
   if (indicator) {
-    if (articleDois.length > 0) {
-      indicator.textContent = todasLasDois.length > TOPE_OBRAS_GRAFO
-        ? `Corpus anclado al tema (${articleDois.length} de ${todasLasDois.length} obras: el análisis epistémico se acota a las ${TOPE_OBRAS_GRAFO} primeras por coste del grafo)`
-        : `Corpus anclado al tema (${articleDois.length} obras)`;
+    if (pid) {
+      indicator.textContent = `Corpus curado del protocolo: ${nIncluidos ?? "?"} artículos incluidos con criterio (escuelas y trayectoria se calculan SOLO sobre estos)`;
     } else {
-      indicator.textContent = "Vista global del catálogo (sin tema específico)";
+      indicator.textContent = "Vista global del catálogo (sin protocolo activo)";
     }
   }
 
@@ -900,19 +902,26 @@ async function loadEpistemicSubmotorA(librarianData, forceRefresh = false) {
   state.epistemicSubmotorLoaded = true;
 
   if (schoolsContainer) {
-    schoolsContainer.innerHTML = `<div class="loading-placeholder">Analizando escuelas de pensamiento mediante Union-Find...</div>`;
+    schoolsContainer.innerHTML = `<div class="loading-placeholder">Analizando escuelas de pensamiento sobre el corpus curado...</div>`;
   }
   if (mainpathContainer) {
-    mainpathContainer.innerHTML = `<div class="loading-placeholder">Calculando Trayectoria Principal (SPC) histórica...</div>`;
+    mainpathContainer.innerHTML = `<div class="loading-placeholder">Calculando Trayectoria Principal (SPC) sobre el corpus curado...</div>`;
   }
+
+  const corpusParams = pid ? { protocol_id: pid } : {};
 
   // 1. Escuelas de Pensamiento (asíncrono, no bloqueante)
   try {
-    const schoolsParams = articleDois.length > 0
-      ? { limit: 12, threshold: 2, dois: articleDois }
-      : { limit: 12, threshold: 2 };
+    const schoolsParams = { limit: 12, threshold: 2, ...corpusParams };
     const schoolsData = await api("/graph/schools", schoolsParams);
     renderEpistemicSchools(schoolsData.schools || []);
+    if (schoolsContainer && (schoolsData.fallback_global || (schoolsData.corpus_n === 0))) {
+      const texto = schoolsData.corpus_n === 0
+        ? "No hay artículos incluidos en el protocolo: incluye obras en el cribado para calcular escuelas sobre contenido curado."
+        : (schoolsData.aviso || "");
+      schoolsContainer.insertAdjacentHTML("afterbegin",
+        `<div class="snowball-empty-hint" style="border-left:3px solid #FFA726; padding-left:8px;">${esc(texto)}</div>`);
+    }
   } catch (err) {
     console.error("Error al cargar escuelas de pensamiento:", err);
     if (schoolsContainer) {
@@ -922,9 +931,17 @@ async function loadEpistemicSubmotorA(librarianData, forceRefresh = false) {
 
   // 2. Main Path (asíncrono)
   try {
-    const mpParams = articleDois.length > 0 ? { top_n: 15, dois: articleDois } : { top_n: 15 };
+    const mpParams = { top_n: 15, ...corpusParams };
     const mpData = await api("/graph/main-path", mpParams);
     renderMainPath(mpData.main_path_transitions || []);
+    if (mainpathContainer) {
+      const g = mpData.grafo || {};
+      let nota = `<div class="text-xs text-secondary" style="margin-bottom:6px;">Corpus: ${esc(mpData.origen_corpus || "global")} (${mpData.corpus_n ?? 0}) · Base del grafo: ${g.nodos || 0} nodos · ${g.aristas || 0} aristas · densidad ${g.densidad ?? 0}.</div>`;
+      if (mpData.fallback_global) {
+        nota += `<div class="snowball-empty-hint" style="border-left:3px solid #FFA726; padding-left:8px;">${esc(mpData.aviso || "")}</div>`;
+      }
+      mainpathContainer.insertAdjacentHTML("afterbegin", nota);
+    }
   } catch (err) {
     console.error("Error al cargar Main Path:", err);
     if (mainpathContainer) {
@@ -1051,6 +1068,8 @@ async function loadRolesStep0(librarianData) {
   const harvestBtn = document.getElementById("btn-protocol-harvest");
   const harvestInput = document.getElementById("input-protocol-harvest-query");
   const harvestStatus = document.getElementById("protocol-harvest-status");
+  const harvestYearFrom = document.getElementById("input-protocol-harvest-year-from");
+  const harvestYearTo = document.getElementById("input-protocol-harvest-year-to");
 
   if (harvestInput && !harvestInput.value) {
     try {
@@ -1058,6 +1077,21 @@ async function loadRolesStep0(librarianData) {
       if (activeProto && (activeProto.research_question || activeProto.title)) {
         harvestInput.value = activeProto.research_question || activeProto.title;
       }
+    } catch (_) {}
+  }
+
+  // El rango de años es una opción del investigador: se prellena desde el protocolo, pero se
+  // puede borrar. Vacío = sin filtro (la búsqueda no acota el universo por defecto).
+  if (harvestYearFrom && !harvestYearFrom.value) {
+    try {
+      const activeProto = window.activeProtocolObj;
+      if (activeProto && activeProto.date_from) harvestYearFrom.value = String(activeProto.date_from);
+    } catch (_) {}
+  }
+  if (harvestYearTo && !harvestYearTo.value) {
+    try {
+      const activeProto = window.activeProtocolObj;
+      if (activeProto && activeProto.date_to) harvestYearTo.value = String(activeProto.date_to);
     } catch (_) {}
   }
 
@@ -1071,12 +1105,17 @@ async function loadRolesStep0(librarianData) {
         showNotification({ title: "Falta la búsqueda", message: "Ingresa una ecuación de búsqueda o pregunta de investigación.", type: "info" });
         return;
       }
+      const payload = { query: q, limit: 100 };
+      const yf = harvestYearFrom ? harvestYearFrom.value.trim() : "";
+      const yt = harvestYearTo ? harvestYearTo.value.trim() : "";
+      if (yf) payload.year_from = parseInt(yf, 10);
+      if (yt) payload.year_to = parseInt(yt, 10);
       harvestBtn.disabled = true;
       const origHtml = harvestBtn.innerHTML;
       harvestBtn.innerHTML = `<span class="material-symbols-outlined text-[15px] animate-spin">sync</span> Cosechando...`;
       if (harvestStatus) harvestStatus.innerHTML = `<span class="text-secondary">Consultando en paralelo OpenAlex · OpenAIRE Graph · Dialnet...</span>`;
       try {
-        const res = await apiPost(`/review/protocol/${pid}/harvest-search`, { query: q, limit: 100 });
+        const res = await apiPost(`/review/protocol/${pid}/harvest-search`, payload, { timeoutMs: 300000 });
         if (res && res.articles) {
           state.currentEpistemicRoles = res.articles;
           renderEpistemicRoles(state.currentEpistemicRoles);
@@ -1084,7 +1123,11 @@ async function loadRolesStep0(librarianData) {
             transferSummary.textContent = `${state.currentEpistemicRoles.length} publicaciones cosechadas listas para screening`;
           }
           if (harvestStatus) {
-            harvestStatus.innerHTML = `<span style="color:var(--brand-teal); font-weight:600;">✅ Cosecha completada: ${res.harvested_count || res.articles.length} obras agregadas a screening (Total identificado: ${res.total_matched || res.articles.length}).</span>`;
+            const f = res.filtro_anios;
+            const filtroTxt = (f && f.activo)
+              ? ` · Filtro ${f.year_from || "…"}–${f.year_to || "…"}${f.excluidos_por_rango ? ` (${f.excluidos_por_rango} fuera de rango)` : ""}${f.sin_anio ? ` (${f.sin_anio} sin año)` : ""}`
+              : " · Sin filtro de año";
+            harvestStatus.innerHTML = `<span style="color:var(--brand-teal); font-weight:600;">✅ Cosecha completada: ${res.harvested_count || res.articles.length} obras agregadas a screening (Total identificado: ${res.total_matched || res.articles.length})${filtroTxt}.</span>`;
           }
           await refreshPrismaFlow();
         }
@@ -1356,6 +1399,8 @@ function initPrismaStepper() {
       });
     };
   });
+
+  setupPrismaReport();
 }
 
 function goToPrismaStep(stepTargetId) {
@@ -2072,7 +2117,7 @@ function initHomeInquiry() {
     if (journalLoading) { journalLoading.hidden = false; journalLoading.style.display = "flex"; }
     if (journalResults) { journalResults.hidden = true; journalResults.style.display = "none"; }
     try {
-      const auditData = await api("/scivis/audit", { query: q, refresh: 1 });
+      const auditData = await api("/scivis/audit", { query: q, refresh: 1 }, { timeoutMs: 180000 });
       lastJournalAuditQuery = q;
       renderJournalAuditResults(auditData);
       showNotification({ title: "Medición actualizada", message: `Nueva medición en vivo para «${q}» (caché ignorada).`, type: "success" });
@@ -2177,7 +2222,7 @@ function initHomeInquiry() {
       }
 
       try {
-        const auditData = await api("/scivis/audit", { query: q });
+        const auditData = await api("/scivis/audit", { query: q }, { timeoutMs: 180000 });
         lastJournalAuditQuery = q;
         renderJournalAuditResults(auditData);
       } catch (err) {
@@ -2222,7 +2267,7 @@ function initHomeInquiry() {
       }
 
       try {
-        const data = await api("/librarian/assist", {}, { method: "POST", body: { inquiry: q, limit: 36, source: "live" } });
+        const data = await api("/librarian/assist", {}, { method: "POST", body: { inquiry: q, limit: 36, source: "live" }, timeoutMs: 180000 });
         renderLibrarianResults(data);
       } catch (e) {
         console.warn("Librarian assist error, fallback to catalog:", e);

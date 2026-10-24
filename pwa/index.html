@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
   <title>Thinkuy · Radar de comunicación científica</title>
-  <link rel="stylesheet" href="css/style.css?v=5.54">
+  <link rel="stylesheet" href="css/style.css?v=5.64">
 </head>
 <body>
 
@@ -540,6 +540,13 @@
                               <span>Cosechar en vivo</span>
                             </button>
                           </div>
+                          <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                            <span class="text-xs text-secondary" style="white-space: nowrap;">Año (opcional):</span>
+                            <input type="number" id="input-protocol-harvest-year-from" class="form-input" style="width: 82px; font-size:0.78rem; padding:4px 8px;" placeholder="Desde" min="1000" max="2999" inputmode="numeric" />
+                            <span class="text-xs text-secondary">–</span>
+                            <input type="number" id="input-protocol-harvest-year-to" class="form-input" style="width: 82px; font-size:0.78rem; padding:4px 8px;" placeholder="Hasta" min="1000" max="2999" inputmode="numeric" />
+                            <span class="text-xs text-secondary" style="opacity: 0.7;">vacío = sin filtro</span>
+                          </div>
                           <div id="protocol-harvest-status" class="text-xs text-secondary" style="margin-top:4px;"></div>
                         </div>
 
@@ -604,25 +611,38 @@
                       </div>
                     </div>
 
-                    <!-- Diagrama de flujo PRISMA -->
+                    <!-- Selector de etapa PRISMA 2020 -->
+                    <div class="screening-stage-selector">
+                      <span class="screening-stage-label">Etapa PRISMA:</span>
+                      <button type="button" class="role-chip active" id="btn-stage-title-abstract" data-stage="title_abstract">Título / Resumen</button>
+                      <button type="button" class="role-chip" id="btn-stage-full-text" data-stage="full_text">Texto completo</button>
+                      <span id="screening-stage-hint" class="text-xs text-secondary"></span>
+                    </div>
+
+                    <!-- Diagrama de flujo PRISMA 2020 -->
                     <div id="prisma-flow-diagram" class="prisma-flow-diagram">
                       <div class="prisma-flow-box prisma-identification">
                         <div class="prisma-flow-label">Identificación</div>
                         <div class="prisma-flow-count" id="prisma-identified">0</div>
-                        <div class="prisma-flow-sublabel">registros identificados</div>
+                        <div class="prisma-flow-sublabel">registros identificados en bases de datos</div>
+                        <div id="prisma-identified-sources" class="prisma-source-breakdown"></div>
                       </div>
-                      <div class="prisma-flow-arrow">
-                        <span class="material-symbols-outlined">arrow_downward</span>
-                      </div>
-                      <div class="prisma-flow-side-box">
-                        <div class="prisma-flow-label">Duplicados</div>
-                        <div class="prisma-flow-count" id="prisma-duplicates">0</div>
+                      <div class="prisma-flow-row-excluded">
+                        <div class="prisma-flow-arrow-right">
+                          <span class="material-symbols-outlined">arrow_forward</span>
+                        </div>
+                        <div class="prisma-flow-side-box prisma-removed">
+                          <div class="prisma-flow-label">Removidos antes del cribado</div>
+                          <div class="prisma-flow-count" id="prisma-duplicates">0</div>
+                          <div class="prisma-flow-sublabel">duplicados</div>
+                          <div id="prisma-removed-extra" class="prisma-exclusion-reasons"></div>
+                        </div>
                       </div>
                       <div class="prisma-flow-arrow">
                         <span class="material-symbols-outlined">arrow_downward</span>
                       </div>
                       <div class="prisma-flow-box prisma-screening">
-                        <div class="prisma-flow-label">Cribado (Screening)</div>
+                        <div class="prisma-flow-label">Cribado (título / resumen)</div>
                         <div class="prisma-flow-count" id="prisma-screened">0</div>
                         <div class="prisma-flow-sublabel">registros cribados</div>
                       </div>
@@ -639,10 +659,43 @@
                       <div class="prisma-flow-arrow">
                         <span class="material-symbols-outlined">arrow_downward</span>
                       </div>
+                      <div class="prisma-flow-box prisma-screening">
+                        <div class="prisma-flow-label">Informes buscados para recuperación</div>
+                        <div class="prisma-flow-count is-pending" id="prisma-sought">—</div>
+                        <div class="prisma-flow-sublabel">segunda etapa (texto completo)</div>
+                      </div>
+                      <div class="prisma-flow-row-excluded">
+                        <div class="prisma-flow-arrow-right">
+                          <span class="material-symbols-outlined">arrow_forward</span>
+                        </div>
+                        <div class="prisma-flow-side-box prisma-excluded">
+                          <div class="prisma-flow-label">No recuperados</div>
+                          <div class="prisma-flow-count is-pending" id="prisma-not-retrieved">—</div>
+                        </div>
+                      </div>
+                      <div class="prisma-flow-arrow">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                      </div>
+                      <div class="prisma-flow-box prisma-screening">
+                        <div class="prisma-flow-label">Informes evaluados para elegibilidad</div>
+                        <div class="prisma-flow-count is-pending" id="prisma-assessed">—</div>
+                      </div>
+                      <div class="prisma-flow-row-excluded">
+                        <div class="prisma-flow-arrow-right">
+                          <span class="material-symbols-outlined">arrow_forward</span>
+                        </div>
+                        <div class="prisma-flow-side-box prisma-excluded">
+                          <div class="prisma-flow-label">Excluidos (texto completo)</div>
+                          <div class="prisma-flow-count is-pending" id="prisma-excluded-fulltext">—</div>
+                        </div>
+                      </div>
+                      <div class="prisma-flow-arrow">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                      </div>
                       <div class="prisma-flow-box prisma-included">
                         <div class="prisma-flow-label">Incluidos</div>
                         <div class="prisma-flow-count" id="prisma-included">0</div>
-                        <div class="prisma-flow-sublabel">fuentes en síntesis final</div>
+                        <div class="prisma-flow-sublabel">estudios en la síntesis</div>
                       </div>
                       <div class="prisma-flow-pending-note">
                         <span class="material-symbols-outlined text-[14px]">pending</span>
@@ -751,6 +804,10 @@
                         <span class="material-symbols-outlined text-[16px]">clinical_notes</span>
                         <span>Informe Sistemático (Agente A.1 Metodólogo)</span>
                       </button>
+                      <button type="button" class="epistemic-pill" id="tab-pill-prisma" data-target="synthesis-tab-prisma">
+                        <span class="material-symbols-outlined text-[16px]">fact_check</span>
+                        <span>Informe PRISMA 2020 (27 ítems)</span>
+                      </button>
                     </div>
 
                     <!-- Sub-tab 3.1: Validación de Citas -->
@@ -797,6 +854,24 @@
                         <div class="snowball-empty-hint">Escribe tu pregunta y genera el informe. Se ejecuta a demanda sobre el corpus verificado.</div>
                       </div>
                     </div>
+
+                    <!-- Sub-tab 3.3: Informe PRISMA 2020 (27 ítems) -->
+                    <div class="synthesis-subtab" id="synthesis-tab-prisma" hidden>
+                      <div class="snowball-input-row" style="margin-top:12px;">
+                        <button type="button" id="btn-load-prisma-checklist" class="btn btn-primary">
+                          <span class="material-symbols-outlined text-[16px]">checklist</span>
+                          <span>Ver checklist PRISMA 2020</span>
+                        </button>
+                        <button type="button" id="btn-download-prisma-report" class="btn btn-secondary">
+                          <span class="material-symbols-outlined text-[16px]">download</span>
+                          <span>Descargar informe (.md)</span>
+                        </button>
+                      </div>
+                      <div id="prisma-checklist-status" class="snowball-empty-hint" hidden></div>
+                      <div id="prisma-checklist-container" class="epistemic-snowball-results" style="margin-top:12px;">
+                        <div class="snowball-empty-hint">Genera la lista de verificación PRISMA 2020 (27 ítems). La plataforma rellena lo que puede derivar de tus datos y declara lo que requiere tu redacción.</div>
+                      </div>
+                    </div>
                   </div>
 
                 </div>
@@ -828,7 +903,7 @@
               <div class="librarian-spinner"></div>
               <div class="librarian-loading-text">
                 <strong>Auditoría Cibermétrica SCIVIS en marcha...</strong>
-                <p>Calculando centralidad armónica, enlaces en Common Crawl y mapeo de editores pares.</p>
+                <p>Calculando centralidad armónica, enlaces en Common Crawl y mapeo de editores pares. La primera consulta de una revista puede tardar hasta 2 minutos; las siguientes son instantáneas.</p>
               </div>
             </div>
 
@@ -1894,6 +1969,6 @@
   </div>
 
   <!-- Scripts -->
-  <script type="module" src="js/app.js?v=5.54"></script>
+  <script type="module" src="js/app.js?v=5.64"></script>
 </body>
 </html>

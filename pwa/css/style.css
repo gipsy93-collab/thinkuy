@@ -3982,6 +3982,21 @@ a {
   margin-top: 4px;
   text-align: left;
 }
+.prisma-source-breakdown {
+  font-size: 0.68rem;
+  color: var(--on-surface-variant, #777);
+  margin-top: 6px;
+  text-align: left;
+  line-height: 1.4;
+}
+.prisma-flow-side-box.prisma-removed {
+  border-color: #8D6E63;
+  background: rgba(141,110,99,0.05);
+}
+.prisma-flow-count.is-pending {
+  color: var(--on-surface-variant, #999);
+  font-weight: 600;
+}
 .prisma-flow-pending-note {
   display: flex;
   align-items: center;
@@ -4257,6 +4272,52 @@ a {
 .screening-btn.btn-maybe:hover, .screening-btn.btn-maybe.active {
   background: #FFA726;
   color: #fff;
+}
+.screening-btn.btn-not-retrieved {
+  border-color: #8D6E63;
+  color: #8D6E63;
+}
+.screening-btn.btn-not-retrieved:hover, .screening-btn.btn-not-retrieved.active {
+  background: #8D6E63;
+  color: #fff;
+}
+.screening-stage-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.screening-stage-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--on-surface-variant, #666);
+}
+.prisma-checklist-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: flex-start;
+}
+.prisma-checklist-id {
+  min-width: 38px;
+  font-weight: 700;
+  color: var(--brand-teal, #006A6A);
+}
+.prisma-checklist-body {
+  flex: 1;
+}
+.prisma-checklist-text {
+  font-size: 0.82rem;
+}
+.prisma-checklist-evidence {
+  font-size: 0.72rem;
+  color: var(--on-surface-variant, #777);
+  margin-top: 2px;
+  word-break: break-word;
 }
 
 /* ================================================================
