@@ -278,6 +278,18 @@ La auditoría (`GET /api/scivis/audit`) usa **exclusivamente datos reales**, nun
 | `THINKUY_CC_RELEASE` | `cc-main-2026-jun-jul-aug` | Identificador del release activo del WebGraph |
 | `THINKUY_CC_AUDIT_TTL_HOURS` | `24` | TTL de la caché de auditorías SCIVIS (`/api/scivis/audit`) |
 
+## Desarrollo, pruebas y versionado
+
+- **Verificación previa a commit:** `powershell -ExecutionPolicy Bypass -File scripts\dev_check.ps1`
+  (ruff + 311 pruebas + coherencia de la versión de assets de la PWA).
+- **Integración continua:** `.github/workflows/dev-check.yml` ejecuta lo mismo en cada push y PR.
+- **Versión de assets:** `python tools/bump_pwa_version.py --bump` sube `index.html` y `sw.js` a la vez;
+  `--check` falla si se desincronizan.
+- **Cortes conservados:** cada hito relevante se cierra con una etiqueta anotada
+  (`git tag -a vX.Y.Z`). El primer corte es `v0.9.0` (motor científico completo, antes del
+  despliegue multiusuario).
+- **Licencia:** por ahora sin licencia (todos los derechos reservados).
+
 ## Estructura del repositorio
 
 ```
